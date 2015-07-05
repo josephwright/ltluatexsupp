@@ -95,7 +95,11 @@
 % Registers the \meta{function} into the \meta{callback} with a textual
 % \meta{description} of the function. Functions are inserted into the callback
 % in the order loaded.
-% 
+%
+% \DescribeMacro{latex.remove_from_callback}
+% |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
+% Removes the function with \meta{description} from the \meta{callback}.
+%
 % \DescribeMacro{latex.original_callback_register}
 % A copy of the built-in function |callback.register| as direct use of the
 % latter is disabled. This copy is available such that more sophisticated
