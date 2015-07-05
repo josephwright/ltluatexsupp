@@ -1,0 +1,678 @@
+% \iffalse meta-comment
+%
+% Copyright 2015
+% The LaTeX3 Project and any individual authors listed elsewhere
+% in this file.
+%
+% It may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License (LPPL), either version 1.3c of
+% this license or (at your option) any later version.  The latest
+% version of this license is in the file:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+%<*driver>
+% \fi
+\ProvidesFile{ltluatex.dtx}
+  [0000/00/00 v1.0a LaTeX Kernel (LuaTeX support)]
+% \iffalse
+\documentclass{ltxdoc}
+\GetFileInfo{ltluatex.dtx}
+\begin{document}
+\title{\filename\\(Lua\TeX{}-specific support)}
+\author{David Carlisle and Joseph Wright\footnote{Significant portions
+  of the code here are adapted/simplified from the packages \textsf{luatex} and
+  \textsf{luatexbase} written by Heiko Oberdiek, \'{E}lie Roux,
+  Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang.}}
+\date{\filedate}
+\maketitle
+\DocInput{\filename}
+\end{document}
+%</driver>
+% \fi
+% 
+% \CheckSum{0}
+%
+% Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Several of
+% these require set up that is best done in the kernel or need related support
+% functions. This file provides \emph{basic} support for Lua\TeX{} at the
+% \LaTeXe{} kernel level.
+% 
+% This file contains code for both \TeX{} (to be stored as part of the format)
+% and Lua (to be loaded at the start of each job). In the Lua code, the kernel
+% uses the namespace |latex| which is \emph{reserved for use by the team}.
+% 
+% The following |\count| registers are used here for register allocation:
+% \begin{itemize}
+%  \item[\texttt{258}] Attributes
+%  \item[\texttt{259}] Category code tables
+%  \item[\texttt{260}] Lua functions
+% \end{itemize}
+% (|\count256| is used for |\newmarks| allocation and |\count257|
+% is used for\break
+% |\newXeTeXintercharclass| with Xe\TeX{}, with code defined in
+% \texttt{ltfinal.dtx}).
+% With any \LaTeXe{} kernel from 2015 onward these registers are part of
+% the block in the extended area reserved by the kernel (prior to 2015 the
+% \LaTeXe{} kernel did not provide any functionality for the extended
+% allocation area).
+% 
+% \DescribeMacro{\newattribute}
+% |\newattribute{|\meta{attribute}|}|
+% Defines a named \cs{attribute}, indexed from~$1$
+% (\emph{i.e.}~|\attribue0| is never defined). The attribute will be
+% initialised with the marker value |-"7FFFFFFF| (`unset').
+% 
+% \DescribeMacro{\newcatcodetable}
+% |\newcatcodetable{|\meta{catcodetable}|}|
+% Defines a named \cs{catcodetable}, indexed from~$1$
+% (|\catcodetable0| never assigned). A new catcode table will be
+% populated with exactly those values assigned by Ini\TeX{} (as described
+% in the Lua\TeX{} manual).
+% 
+% \DescribeMacro{\newluafunction}
+% |\newluafunction{|\meta{function}|}|
+% Defines a named \cs{luafunction}, indexed from~$1$ (Lua indexes from
+% $1$ so |\luafunction0| is not available).
+% 
+% \DescribeMacro{\catcodetable@initex}
+% \DescribeMacro{\catcodetable@string}
+% \DescribeMacro{\catcodetable@latex}
+% \DescribeMacro{\catcodetable@atletter}
+% Predefined category code tables with the obvious assingments. Note
+% that the |latex| and |atletter| tables set the full Unicode range
+% to the codes predefined by the kernel.
+% 
+% \begingroup
+% 
+% \begingroup\lccode`~=`_
+% \lowercase{\endgroup\let~}_
+% \catcode`_=12
+% 
+% \DescribeMacro{latex.add_to_callback}
+% |latex.add_to_callback(|^^A
+% \meta{callback}, \meta{function}, \meta{description}|)|
+% Registers the \meta{function} into the \meta{callback} with a textual
+% \meta{description} of the function. Functions are inserted into the callback
+% in the order loaded.
+% 
+% \DescribeMacro{latex.original_callback_register}
+% A copy of the built-in function |callback.register| as direct use of the
+% latter is disabled. This copy is available such that more sophisticated
+% callback management may be provided at a package level.
+%
+% \DescribeMacro{latex.callbacklist}
+% Stores the list of callbacks registered.
+% 
+% Any more sophisticated implmentation of callback management, making use
+% of |latex.original_callback_register|, \emph{must} retain compatibility
+% with the kernel mechanism and \emph{must} ensure that all callback
+% use registered when it is loaded are honoured.
+%
+% \endgroup
+%
+% \StopEventually{}
+%
+%    \begin{macrocode}
+%<*2ekernel>
+%    \end{macrocode}
+%
+% \section{Fix-ups}
+%
+% The code below depends on some changes that may be made elsewhere in
+% the kernel. Rather than intermix things, any suggested alterations
+% are collected here. Note that this section will therefore be removed
+% before addition to the kernel.
+%
+% The current thinking is to enable the additional Lua\TeX{} primitives
+% with unadorned names. That will be implemented in |ltdirchk.dtx| if
+% finally agreed.
+%    \begin{macrocode}
+\directlua{
+  tex.enableprimitives(
+    "",
+    tex.extraprimitives("omega", "aleph", "luatex")
+  )
+}
+%    \end{macrocode}
+%
+% \section{Minimum Lua\TeX{} version}
+%
+% Lua\TeX{} has changed a lot over time. In the kernel support for ancient
+% versions is not provided: trying to build a format with a very old binary
+% therefore gives some information in the log and loading stops. The cut-off
+% selected here relates to the tree-searching behaviour of |require()|: 
+% from version~0.60, Lua\TeX{} will correctly find Lua files in the |texmf|
+% tree without `help'.
+%    \begin{macrocode}
+\ifnum\luatexversion<60 %
+  \wlog{***************************************************}
+  \wlog{* LuaTeX version too old for kernel-level support *}
+  \wlog{***************************************************}
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+%
+% \section{Attributes}
+%
+% \begin{macro}{\newattribute}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+%   Note that unlike other \TeX{} registers these need to be `unset' to be
+%   initialised correctly. As is generally the case for the Lua\TeX{} registers
+%   we start here from~$1$. Notably, some code assumes that |\attribute0| is
+%   never used so this is important in this case.
+%    \begin{macrocode}
+\def\newattribute#1{%
+  \e@alloc\attribute\attributedef
+    {\count258}\m@ne\e@alloc@top#1%
+  #1=-"7FFFFFFF\relax
+}
+\count258=\z@
+%    \end{macrocode}
+% \end{macro}
+%
+% \section{Category code tables}
+%
+% \begin{macro}{\newcatcodetable}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+%   Category code tables are allocated with a limit half of that used by Lua\TeX{}
+%   for everything else. At the end of allocation there needs to be an
+%   initialisation step. Table~$0$ is already taken (it's the global one for
+%   current use) so the allocation starts at~$1$.
+%    \begin{macrocode}
+\def\newcatcodetable#1{%
+  \e@alloc\catcodetable\chardef
+    {\count259}\m@ne{"8000}#1%
+  \initcatcodetable\allocationnumber
+}
+\count259=\z@
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \begin{macro}{\catcodetable@initex}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+% \begin{macro}{\catcodetable@string}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+% \begin{macro}{\catcodetable@latex}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+% \begin{macro}{\catcodetable@atletter}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+%   Save a small set of standard tables.
+%    \begin{macrocode}
+\newcatcodetable\catcodetable@initex
+\newcatcodetable\catcodetable@string
+\begingroup
+  \def\setrangecatcode#1#2#3{%
+    \ifnum#1>#2 %
+      \expandafter\@gobble
+    \else
+      \expandafter\@firstofone
+    \fi
+      {%
+        \catcode#1=#3 %
+        \expandafter\setrangecatcode\expandafter
+          {\number\numexpr#1 + 1\relax}{#2}{#3}
+      }%
+  }
+  \@firstofone{%
+    \catcodetable\catcodetable@initex
+      \catcode0 =12 %
+      \catcode12=12 %
+      \catcode37=12 %
+      \setrangecatcode{65}{90}{12}%
+      \setrangecatcode{97}{122}{12}%
+      \catcode92= 12%
+      \catcode127=12 %
+      \savecatcodetable\catcodetable@string
+    \endgroup
+  }%
+\newcatcodetable\catcodetable@latex
+\begingroup
+  \@firstofone{%
+    \makeatother
+    \savecatcodetable\catcodetable@latex
+   }
+\endgroup
+\newcatcodetable\catcodetable@atletter
+\savecatcodetable\catcodetable@atletter
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \section{Named Lua functions}
+%
+% \begin{macro}{\newluafunction}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+%   Much the same story for allocating Lua\TeX{} functions except here they are
+%   just numbers so are allocated in the same way as boxes. Lua index from~$1$
+%   so once again slot ~$0$ is skipped.
+%    \begin{macrocode}
+\def\newluafunction{%
+  \e@alloc\luafunction\e@alloc@chardef
+    {\count260}\m@ne\e@alloc@top
+}
+\count260=\z@
+%    \end{macrocode}
+% \end{macro}
+%
+% \section{Lua loader}
+%
+% Load the Lua code at the start of every job
+%
+%    \begin{macrocode}
+\everyjob\expandafter{%
+  \the\everyjob
+  \directlua{require("latex2e")}%
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</2ekernel>
+%    \end{macrocode}
+%    
+% \begingroup
+% 
+%  \begingroup\lccode`~=`_
+%  \lowercase{\endgroup\let~}_
+%  \catcode`_=12
+%
+% \section{Lua callback management}
+%
+% The native mechanism for callbacks in Lua allows only one per function.
+% That is extremely restrictive and so a mechanism is needed to add and
+% remove callbacks from the appropriate hooks.
+%
+%    \begin{macrocode}
+%<*2elua>
+%    \end{macrocode}
+%
+% \subsubsection{Basics and support}
+%
+% \begin{macro}{latex}
+% \changes{v1.0a}{0000/00/00}{Table added}
+%   Set up the table for the returned functions. This is used to expose
+%   all of the public functions.
+%    \begin{macrocode}
+latex       = latex or { }
+local latex = latex
+%    \end{macrocode}
+% \end{macro}
+% 
+% Some Lua best practice: use local versions of functions where possible.
+%    \begin{macrocode}
+local string_gsub = string.gsub
+local write_nl = texio.write_nl
+%    \end{macrocode}
+%
+% There are various warnings and errors that need to be given. For warnings
+% we can get exactly the same formatting as from \TeX{}. For errors we have to
+% make some changes. Here we give the text of the error in the \LaTeX{} format
+% then force an error from Lua to halt the run. Splitting the message text is
+% done using |\n| which takes the place of |\MessageBreak|.
+%    \begin{macrocode}
+local function msg_format(text, leader)
+  local cont = string_gsub(leader, ".", " ")
+  return leader .. " " .. string_gsub(text, "\n", "\n" .. cont .. " ") .. "\n"
+end
+local function latex_warning(text)
+  local i
+  for _,i in ipairs(msg_format(text, "LaTeX Warning:"):explode("\n")) do
+    write_nl("term and log", i)
+  end
+end
+local function latex_error(text)
+  local i
+  for _,i in ipairs(msg_format(text, "! LaTeX Error:"):explode("\n")) do
+    write_nl("term and log", i)
+  end
+  write_nl("term and log", "\n")
+  error("See LaTeX Error")
+end
+%    \end{macrocode}
+%
+% \subsubsection{Housekeeping}
+%
+% \begin{macro}{latex.callbacklist}
+%   The main table: keys are callback names, and values are the associated lists
+%   of functions. More precisely, the entries in the list are tables holding the
+%   actual function as |func| and the identifying description as |description|.
+%   Only callbacks with a non-empty list of functions have an entry in this
+%   list.
+%    \begin{macrocode}
+local callbacklist = callbacklist or { }
+latex.callbacklist = callbacklist
+%    \end{macrocode}
+% \end{macro}
+%
+%   Numerical codes for callback types, and name-to-value association (the
+%   table keys are strings, the values are numbers).
+%    \begin{macrocode}
+local list, data, exclusive, simple = 1, 2, 3, 4
+local types = {
+  list      = list,
+  data      = data,
+  exclusive = exclusive,
+  simple    = simple,
+}
+%    \end{macrocode}
+% 
+%  Now, list all predefined callbacks with their current type, based on the
+%  Lua\TeX{} manual version~0.80. A full list of the currently-available
+%  callbacks can be obtained using
+%  \begin{verbatim}
+%    \directlua{
+%      for i,_ in pairs(callback.list()) do
+%        texio.write_nl("- " .. i)
+%      end
+%    }
+%    \bye
+%  \end{verbatim}
+%  in plain Lua\TeX{}. (Some undocumented callbacks are omitted as they are
+%  to be removed.)
+%    \begin{macrocode}
+local callbacktypes = callbacktypes or {
+%    \end{macrocode}
+%   Section 4.1.1: file discovery callbacks.
+%    \begin{macrocode}
+  find_read_file     = exclusive,
+  find_write_file    = exclusive,
+  find_font_file     = data,
+  find_output_file   = data,
+  find_format_file   = data,
+  find_vf_file       = data,
+  find_map_file      = data,
+  find_enc_file      = data,
+  find_sfd_file      = data,
+  find_pk_file       = data,
+  find_data_file     = data,
+  find_opentype_file = data,
+  find_truetype_file = data,
+  find_type1_file    = data,
+  find_image_file    = data,
+%    \end{macrocode}
+%   Section 4.1.2: file reading callbacks.
+%    \begin{macrocode}
+  open_read_file     = exclusive,
+  read_font_file     = exclusive,
+  read_vf_file       = exclusive,
+  read_map_file      = exclusive,
+  read_enc_file      = exclusive,
+  read_sfd_file      = exclusive,
+  read_pk_file       = exclusive,
+  read_data_file     = exclusive,
+  read_truetype_file = exclusive,
+  read_type1_file    = exclusive,
+  read_opentype_file = exclusive,
+%    \end{macrocode}
+%   Section 4.1.3: data processing callbacks.
+%    \begin{macrocode}
+  process_input_buffer  = data,
+  process_output_buffer = data,
+  process_jobname       = data,
+  token_filter          = exclusive,
+%    \end{macrocode}
+%   Section 4.1.4: node list processing callbacks.
+%    \begin{macrocode}
+  buildpage_filter      = simple,
+  pre_linebreak_filter  = list,
+  linebreak_filter      = list,
+  post_linebreak_filter = list,
+  hpack_filter          = list,
+  vpack_filter          = list,
+  pre_output_filter     = list,
+  hyphenate             = simple,
+  ligaturing            = simple,
+  kerning               = simple,
+  mlist_to_hlist        = list,
+%    \end{macrocode}
+%   Section 4.1.5: information reporting callbacks.
+%    \begin{macrocode}
+  pre_dump            = simple,
+  start_run           = simple,
+  stop_run            = simple,
+  start_page_number   = simple,
+  stop_page_number    = simple,
+  show_error_hook     = simple,
+  show_error_message  = simple,
+  show_lua_error_hook = simple,
+  start_file          = simple,
+  stop_file           = simple,
+%    \end{macrocode}
+%   Section 4.1.6: PDF-related callbacks.
+%    \begin{macrocode}
+  finish_pdffile = data,
+  finish_pdfpage = data,
+%    \end{macrocode}
+%   Section 4.1.7: font-related callbacks.
+%    \begin{macrocode}
+  define_font = first,
+%    \end{macrocode}
+%   Undocumented callbacks which are likely to get documented.
+%    \begin{macrocode}
+  find_cidmap_file           = data,
+  pdf_stream_filter_callback = data,
+}
+%    \end{macrocode}
+%
+% \begin{macro}{original_callback_register}
+% \changes{v1.0a}{0000/00/00}{Function modified}
+% \begin{macro}{callback.register}
+% \changes{v1.0a}{0000/00/00}{Function modified}
+%   Save the original function for registering callbacks and prevent the
+%   original being used. The original is saved in a place that remains
+%   available so other more sophisticated code can override the approach
+%   taken by the kernel is desired.
+%    \begin{macrocode}
+original_callback_register = original_callback_register or callback.register
+latex.original_callback_register = original_callback_register
+function callback.register()
+  latex_error("Attempt to use callback.register() directly.")
+end
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Handlers}
+%
+% The handler function is registered into the callback when the
+% first function is added to this callback's list. Then, when the callback
+% is called, then handler takes care of running all functions in the list.
+% When the last function is removed from the callback's list, the handler
+% is unregistered.
+%
+% More precisely, the functions below are used to generate a specialized
+% function (closure) for a given callback, which is the actual handler.
+%
+% Handler for |data| callbacks.
+%    \begin{macrocode}
+local function data_handler(name)
+  return function(data, ...)
+    local i
+    for _,i in ipairs(callbacklist[name]) do
+      data = i.func(data)
+    end
+    return data
+  end
+end
+%    \end{macrocode}
+% Handler for |exclusive| callbacks. We can assume |callbacklist[name]| is not
+% empty: otherwise, the function wouldn't be registered in the callback any
+% more.
+%    \begin{macrocode}
+local function exclusive_handler(name)
+  return function(...)
+    return callbacklist[name][1].func(...)
+  end
+end
+%    \end{macrocode}
+% Handler for |list| callbacks.
+%    \begin{macrocode}
+local function list_handler(name)
+  return function(head, ...)
+    local ret
+    local alltrue = true
+    local i
+    for _i in ipairs(callbacklist[name]) do
+      ret = i.func(head, ...)
+      if ret == false then
+        latex_warning(
+          "Function `i.description' returned false\n"
+            .. "in callback `name'"
+         )
+         break
+      end
+      if ret ~= true then
+        alltrue = false
+        head = ret
+      end
+    end
+    return alltrue and true or head
+  end
+end
+%    \end{macrocode}
+% Handler for |simple| callbacks.
+%    \begin{macrocode}
+local function simple_handler(name)
+  return function(...)
+    local i
+    for _,i in ipairs(callbacklist[name]) do
+      i.func(...)
+    end
+  end
+end
+%    \end{macrocode}
+%
+% Keep a handlers table for indexed access.
+%    \begin{macrocode}
+local handlers = {
+  [data]      = data_handler,
+  [exclusive] = exclusive_handler,
+  [list]      = list_handler,
+  [simple]    = simple_handler,
+}
+%    \end{macrocode}
+%
+% \subsubsection{Public functions for callback management}
+%
+% \begin{macro}{latex.add_to_callback}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   Add a function to a callback. First check arguments.
+%    \begin{macrocode}
+local function add_to_callback(name, func, description)
+  if
+    not name or
+    name == "" or
+    not callbacktypes[name] or
+    type(func) ~= "function" or
+    not description or 
+    description == "" then
+    latex_error(
+      "Unable to register callback.\n\n"
+        .. "Correct usage:\n"
+        .. "add_to_callback(<callback>, <function>, <description>)"
+    )
+    return
+  end
+%    \end{macrocode}
+%   Then test if this callback is already in use. If not, initialise its list
+%   and register the proper handler.
+%    \begin{macrocode}
+  local l = callbacklist[name]
+  if not l then
+    l = { }
+    callbacklist[name] = l
+    original_callback_register(name, handlers[callbacktypes[name]](name))
+  end
+%    \end{macrocode}
+%  Actually register the function and give an error if more than one
+%  |exclusive| one is registered.
+%    \begin{macrocode}
+  local f = {
+    func        = func,
+    description = description,
+  }
+  local priority = #l + 1
+  if callbacktypes[name] == exclusive then
+    if #l == 1 then
+      latex_error(
+        "Cannot add second callback to exclusive function `" .. name .. "'."
+      )
+    end
+  end
+  table.insert(l, priority, f)
+%    \end{macrocode}
+%  Keep user informed.
+%    \begin{macrocode}
+  write_nl(
+    "Inserting `" .. description .. "' at position "
+      .. priority .. " in `" .. name .. "'."
+  )
+end
+latex.add_to_callback = add_to_callback
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{latex.remove_from_callback}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   Remove a function from a callback. First check arguments.
+%    \begin{macrocode}
+local function remove_from_callback(name, description)
+  if
+    not name or
+    name == "" or
+    not callbacktypes[name] or
+    not description or 
+    description == "" then
+    latex_error(
+      "Unable to remove function from callback.\n\n"
+        .. "Correct usage:\n"
+        .. "remove_to_callback(<callback>, <description>)"
+    )
+    return
+  end
+  local l = callbacklist[name]
+  if not l then
+    latex_error("No callback list for `" .. name .. "'.")
+  end
+%    \end{macrocode}
+%  Loop over the callback's function list until we find a matching entry.
+%  Remove it and check if the list is empty: if so, unregister the
+%   callback handler.
+%    \begin{macrocode}
+  local index = false
+  local i,j
+  for i,j in ipairs(l) do
+    if j.description == description then
+      index = i
+      break
+    end
+  end
+  if not index then
+    latex_error(
+      "No callback `" .. description .. "' registered for `" .. name .. "'."
+    )
+    return
+  end
+  table.remove(l, index)
+  write_nl(
+    "Removing  `" .. description .. "' from `" .. name .. "'."
+  )
+  if #l == 0 then
+    callbacklist[name] = nil
+    original_callback_register(name, nil)
+  end
+end
+latex.remove_from_callback = remove_from_callback
+%    \end{macrocode}
+% \end{macro}
+%
+% \endgroup
+%
+%    \begin{macrocode}
+%</2elua>
+%    \end{macrocode}
+%
+% \Finale
