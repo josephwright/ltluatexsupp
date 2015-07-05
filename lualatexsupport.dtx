@@ -1,0 +1,193 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2015 David Carlisle and Joseph Wright
+%
+% It may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License (LPPL), either version 1.3c of
+% this license or (at your option) any later version.  The latest
+% version of this license is in the file:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+% \fi
+% \iffalse
+%<*package>
+\ProvidesPackage{lualatexsupport}
+%</package>
+% \fi
+% \ProvidesFile{lualatexsupport.dtx}
+  [0000/00/00 v1.0 LuaTeX support add-ons for modern LaTeX2e kernels]
+% \iffalse
+%<*driver>
+\documentclass{ltxdoc}
+\usepackage{lualatexsupport}
+\begin{document}
+\DocInput{\jobname.dtx}
+\end{document}
+%</driver>
+% \fi
+% 
+% \GetFileInfo{lualatexsupport.dtx}
+%
+% \title{\filename\\(Lua\TeX{}-specific support)\thanks{This file has
+%   version number \fileversion, last revised \filedate.}}
+% \author{David Carlisle and Joseph Wright\footnote{Portions
+%  of the code here are adapted/simplified from the packages \textsf{luatex}
+%  and \textsf{luatexbase} written by Heiko Oberdiek, \'{E}lie Roux,
+%  Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang.}}
+% \date{\filedate}
+%
+% \maketitle
+%
+% \CheckSum{0}
+%
+% \section{Accessing \TeX{} register numbers from Lua}
+%
+% \DescribeMacro{latex.registernumber}
+% |latex.regisernumer(|\meta{name}|)|
+% Sometimes (notably in the case of Lua attributes) it is necessary to
+% access a register \emph{by number} that has been allocated by \TeX{}.
+% This package provides a function to look up the relevant number
+% using Lua\TeX{}'s internal tables. So after for example
+% |\newattribute\myattrib|, |\myattrib| would be defined by (say)
+% |\myattrib=\attribute15. The funtion call |latex.regisernumer("myattrib")|
+% will then return the register number, 15 in this case. If the string passed
+% as argument does not correspond to a token defined by |\attributedef|,
+% |\countdef| or similar commands, the lua value |false| is returned.
+%
+% \StopEventually{}
+%
+% \section{Preliminaries}
+% 
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%
+% Obviously we need Lua\TeX{} so simply stop if that is not in use.
+%    \begin{macrocode}
+\ifx\directlua\@undefined
+  \PackageInfo{luatexsupport}
+    {LuaTeX not in use: package loading aborted.}
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+% Next, check that both the kernel a new enough.
+%    \begin{macrocode}
+\ifx\newluafunction\@undefined
+  \PackageInfo{luatexsupport}
+    {Kernel support unavailable: kernel too old.}
+  \expandafter\endinput
+\fi
+\ifnum\luatexversion<60 %
+  \PackageInfo{luatexsupport}
+    {Kernel support unavailable: LuaTeX too old.}
+  \expandafter\endinput
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+%
+% \section{Accessing register numbers from Lua}
+%
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%
+% To convert the \TeX{} names into register numbers in Lua we use the
+% hash table and the fact that for each type they are stored sequentially.
+% That then requires knowing the name of a \TeX{} definition for each
+% zero-numbered register. We could use some from the kernel, but within
+% a group we can make things easier to read. As a result of these
+% requirements, the Lua code is all loaded here.
+%    \begin{macrocode}
+\begingroup
+  \attributedef\attributezero=0 %
+  \chardef     \charzero     =0 %
+  \countdef    \countzero    =0 %
+  \dimendef    \dimenzero    =0 %
+  \mathchardef \mathcharzero =0 %
+  \muskipdef   \muskipzero   =0 %
+  \skipdef     \skipzero     =0 %
+  \toksdef     \tokszero     =0 %
+  \directlua{require("lualatexsupport")}
+\endgroup
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</package>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%<*lua>
+%    \end{macrocode}
+%
+% As this code supplements the kernel we use the same table as it
+% does: allowed as this is a product written by the same authors for
+% a very specific reason!
+%    \begin{macrocode}
+latex = latex or { }
+%    \end{macrocode}
+%
+% Collect up the data from the \TeX{} level into a Lua table: from
+% version~0.80, Lua\TeX{} makes that easy.
+%    \begin{macrocode}
+local luaregisterbasetable = { }
+local registermap = {
+  attributezero = "assign_attr"    ,
+  charzero      = "char_given"     ,
+  countzero     = "assign_int"     ,
+  dimenzero     = "assign_dimen"   ,
+  mathcharzero  = "math_given"     ,
+  muskipzero    = "assign_mu_skip" ,
+  skipzero      = "assign_skip"    ,
+  tokszero      = "assign_toks"    ,
+}
+local i, j
+for i,j in pairs (registermap) do
+  if tex.luatexversion < 80 then
+    luaregisterbasetable[tex.hashtokens()[i][1]] = 
+      tex.hashtokens()[i][2]
+  else
+    luaregisterbasetable[j] = newtoken.create(i).mode
+  end
+end
+%    \end{macrocode}
+%
+% \begin{macro}{latex.registernumber}
+% Working out the correct return value can be done in two ways. For older
+% Lua\TeX{} releases it has to be extracted from the |hashtokens|. On the
+% otehr hand, newer Lua\TeX{}'s have |newtoken|, and whilst |.mode| isn't
+% currentld documented, Hans Hagen pointed to this approach so we should be
+% OK.
+%    \begin{macrocode}
+local registernumber
+if tex.luatexversion < 80 then
+  function registernumber(name)
+    local nt = tex.hashtokens()[name]
+    if(nt and luaregisterbasetable[nt[1]]) then
+      return nt[2] - luaregisterbasetable[nt[1]]
+    else
+      return false
+    end
+  end
+else
+  function registernumber(name)
+    local nt = newtoken.create(name)
+    if(luaregisterbasetable[nt.cmdname]) then
+      return nt.mode - luaregisterbasetable[nt.cmdname]
+    else
+      return false
+    end
+  end
+end
+latex.registernumber = registernumber
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+%</lua>
+%    \end{macrocode}
+%
+% \Finale
