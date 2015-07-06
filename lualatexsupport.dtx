@@ -52,10 +52,10 @@
 % This package provides a function to look up the relevant number
 % using Lua\TeX{}'s internal tables. So after for example
 % |\newattribute\myattrib|, |\myattrib| would be defined by (say)
-% |\myattrib=\attribute15|. The funtion call |latex.regisernumer("myattrib")|
+% |\myattrib=\attribute15|. The function call |latex.regisernumer("myattrib")|
 % will then return the register number, 15 in this case. If the string passed
 % as argument does not correspond to a token defined by |\attributedef|,
-% |\countdef| or similar commands, the lua value |false| is returned.
+% |\countdef| or similar commands, the Lua value |false| is returned.
 %
 % \subsection{Example}
 %
@@ -115,7 +115,7 @@
 %
 %\fi
 %
-% If this document has been processed with lualatex then the above
+% If this document has been processed with Lua\LaTeX{} then the above
 % code would have produced the following in the log and terminal
 % output.
 %\begin{verbatim}
@@ -139,7 +139,7 @@
 %      12
 %\end{verbatim}
 %
-% Notice how undefined commands, or commands unreleated to registers
+% Notice how undefined commands, or commands unrelated to registers
 % do not produce an error, just return |false| and so print
 % |bad input| here. Note also that commands defined by |\newbox| work and
 % return the number of the box register even though the actual command
@@ -188,7 +188,7 @@
 % allow restoration of the non-standard codes at the conclusion. Importantly,
 % it does not require that anything is known about the catcode situation in
 % advance (\emph{cf.}~a more traditional approach to saving the state of
-% targetting characters).
+% targeting characters).
 %
 % \StopEventually{}
 %
@@ -388,8 +388,8 @@ end
 % \begin{macro}{latex.registernumber}
 % Working out the correct return value can be done in two ways. For older
 % Lua\TeX{} releases it has to be extracted from the |hashtokens|. On the
-% otehr hand, newer Lua\TeX{}'s have |newtoken|, and whilst |.mode| isn't
-% currentld documented, Hans Hagen pointed to this approach so we should be
+% other hand, newer Lua\TeX{}'s have |newtoken|, and whilst |.mode| isn't
+% currently documented, Hans Hagen pointed to this approach so we should be
 % OK.
 %    \begin{macrocode}
 local registernumber
