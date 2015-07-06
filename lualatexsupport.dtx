@@ -21,6 +21,11 @@
 % \iffalse
 %</!lua>
 %<*driver>
+% At present the kernel hasn't changed so we need
+\ifx\directlua\undefined\else
+  \RequirePackage{ltluatex}
+  \directlua{require("latex2e")}
+\fi
 \documentclass{ltxdoc}
 \usepackage{lualatexsupport}
 \begin{document}
