@@ -377,12 +377,14 @@ local registermap = {
   tokszero      = "assign_toks"    ,
 }
 local i, j
+local createtoken = newtoken.create
+local hashtokens = tex.hashtokens 
 for i,j in pairs (registermap) do
   if tex.luatexversion < 80 then
-    luaregisterbasetable[tex.hashtokens()[i][1]] =
-      tex.hashtokens()[i][2]
+    luaregisterbasetable[hashtokens()[i][1]] =
+      hashtokens()[i][2]
   else
-    luaregisterbasetable[j] = newtoken.create(i).mode
+    luaregisterbasetable[j] = createtoken(i).mode
   end
 end
 %    \end{macrocode}
@@ -397,7 +399,7 @@ end
 local registernumber
 if tex.luatexversion < 80 then
   function registernumber(name)
-    local nt = tex.hashtokens()[name]
+    local nt = hashtokens()[name]
     if(nt and luaregisterbasetable[nt[1]]) then
       return nt[2] - luaregisterbasetable[nt[1]]
     else
@@ -406,7 +408,7 @@ if tex.luatexversion < 80 then
   end
 else
   function registernumber(name)
-    local nt = newtoken.create(name)
+    local nt = createtoken(name)
     if(luaregisterbasetable[nt.cmdname]) then
       return nt.mode - luaregisterbasetable[nt.cmdname]
     else
