@@ -146,6 +146,38 @@
 % holding this number is a |\chardef| defined token (there is no
 % |\boxdef|).
 %
+% \section{Category code table support}
+% 
+% \DescribeMacro{\setcatcodetable}
+% |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|
+% Sets the \meta{table} (which must have been previously defined) to
+% apply the \meta{catcodes} specified.
+%
+% \DescribeMacro{\setcatcoderange}
+% |\setcatcoderange{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|
+% Sets all characters in the range \meta{start}--\meta{end} inclusive to
+% have the \meta{catcode} specified.
+%
+% \DescribeMacro{\pushcatcodes}
+% \DescribeMacro{\popcatcodes}
+% This pair of commands enable the current category code r\e{e}gime to
+% be saved and restored meaning that arbitrary catcode changes can be made.
+% This functionality will normally be used in concert with applying
+% catcode tables. For example
+% \begin{verbatim}
+% \catcode`\Z=4 %
+% \pushcatcodes
+% \expandafter\catcodetable\csname catcodetable@latex\endcsname
+% % Code here
+% \popcatcodes
+% \showthe\catcode`\Z
+% \end{verbatim}
+% will ensure that the `content' is set with normal category codes but
+% allow restoration of the non-standard codes at the conclusion. Importantly,
+% it does not require that anything is known about the catcode situation in
+% advance (\emph{cf.}~a more traditional approach to saving the state of
+% targetting characters).
+%
 % \StopEventually{}
 %
 % \section{Preliminaries}
@@ -176,15 +208,97 @@
 \fi
 %    \end{macrocode}
 %
+% \section{Category code tables}
+%
+% \begin{macro}{\setcatcodetable}
+% \begin{macro}{\setcatcoderange}
+%   Handy utilities.
 %    \begin{macrocode}
-%</package>
+\newcommand*\setcatcodetable[2]{%
+  \begingroup
+    #2%
+    \savecatcodetable#1%
+  \endgroup
+}
+\newcommand*\setcatcoderange[3]{%
+  \ifnum#1>#2 %
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi
+    {%
+      \catcode#1=#3 %
+      \expandafter\setcatcoderange\expandafter
+        {\number\numexpr#1+1\relax}{#2}{#3}%
+    }%
+}
 %    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@catcodetablelist}
+% \begin{macro}{\@catcodetablestack}
+%   Data structures for a stack: a list of free tables in the stack and
+%   the stack record itself.
+%    \begin{macrocode}
+\newcommand*\@catcodetablelist{}
+\newcommand*\@catcodetablestack{}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@catcodetablestackcnt}
+%   A count for adding to the list of scratch tables.
+%    \begin{macrocode}
+\newcount\@catcodetablestackcnt
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\pushcatcodes}
+% \begin{macro}{\@pushctbl}
+%   To push a table, first check there is a free one in the pool and if
+%   not create one. Then take the top table in the pool and use it to save
+%   the current table.
+%    \begin{macrocode}
+\newcommand*\pushcatcodes{%
+  \ifx\@catcodetablelist\@empty
+    \global\advance\@catcodetablestackcnt by\@ne
+    \edef\@tempa{\@nameuse{ct@\the\@catcodetablestackcnt}}%
+    \expandafter\newcatcodetable\@tempa
+    \xdef\@catcodetablelist{\@tempa}%
+  \fi
+  \expandafter\@pushctbl\@catcodetablelist\@nil
+}
+\def\@pushctbl#1#2\@nil{%
+  \gdef\@catcodetablelist{#2}%
+  \xdef\@catcodetablestack{#1\@catcodetablestack}%
+  \savecatcodetable#1%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\popcatcodes}
+% \begin{macro}{\@popctbl}
+%   Much the same in reverse.
+%    \begin{macrocode}
+\newcommand*\popcurrentcatcodes{%
+  \ifx\@catcodetablestack\@empty
+    \PackageError{lualatexsupport}
+      {Attempt to pop empty catcodetable stack}\@ehc
+  \fi
+  \expandafter\@popctbl\@catcodetablestack\@nil
+}
+\def\@popctbl#1#2\@nil{%
+  \gdef\@catcodetablestack{#2}%
+  \xdef\@catcodetablelist{\@catcodetablelist#1}%
+  \catcodetable#1%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
 %
 % \section{Accessing register numbers from Lua}
-%
-%    \begin{macrocode}
-%<*package>
-%    \end{macrocode}
 %
 % To convert the \TeX{} names into register numbers in Lua we use the
 % hash table and the fact that for each type they are stored sequentially.
