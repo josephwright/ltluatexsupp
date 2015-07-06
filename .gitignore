@@ -1,0 +1,6 @@
+*.aux
+*.gz
+*.pdf
+*.log
+*.lua
+*.sty
