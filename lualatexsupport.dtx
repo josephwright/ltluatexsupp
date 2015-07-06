@@ -146,6 +146,16 @@
 % holding this number is a |\chardef| defined token (there is no
 % |\boxdef|).
 %
+% \section{Attribute setting}
+%
+% \DescribeMacro{\setattribute}
+% \DescribeMacro{\unsetattribute}
+% |\setattribute{|\meta{attribute}|}{|\meta{value}|}|
+% |\unsetattribute{|\meta{attribute}|}|
+% Set and unset attributes in a manner analogous to |\setlength|. Note that
+% attributes take a marker value when unset so this operation is distinct
+% from setting the value to zero.
+%
 % \section{Category code table support}
 %
 % \DescribeMacro{\setcatcodetable}
@@ -207,6 +217,18 @@
   \expandafter\endinput
 \fi
 %    \end{macrocode}
+%
+% \section{Attributes}
+%
+% \begin{macro}{\setattribute}
+% \begin{macro}{\unsetattribute}
+%   Handy utilities.
+%    \begin{macrocode}
+\newcommand*\setattribute#1#2{#1=\numexpr#2\relax}
+\newcommand*\unsetattribute#1{#1=-"7FFFFFFF\relax}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
 %
 % \section{Category code tables}
 %
