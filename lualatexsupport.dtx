@@ -46,7 +46,7 @@
 % \section{Accessing \TeX{} register numbers from Lua}
 %
 % \DescribeMacro{latex.registernumber}
-% |latex.registernumer(|\meta{name}|)|
+% |latex.registernumer(|\meta{name}|)|\\
 % Sometimes (notably in the case of Lua attributes) it is necessary to
 % access a register \emph{by number} that has been allocated by \TeX{}.
 % This package provides a function to look up the relevant number
@@ -150,8 +150,8 @@
 %
 % \DescribeMacro{\setattribute}
 % \DescribeMacro{\unsetattribute}
-% |\setattribute{|\meta{attribute}|}{|\meta{value}|}|
-% |\unsetattribute{|\meta{attribute}|}|
+% |\setattribute{|\meta{attribute}|}{|\meta{value}|}|\\
+% |\unsetattribute{|\meta{attribute}|}|\\
 % Set and unset attributes in a manner analogous to |\setlength|. Note that
 % attributes take a marker value when unset so this operation is distinct
 % from setting the value to zero.
@@ -159,17 +159,19 @@
 % \section{Category code table support}
 %
 % \DescribeMacro{\setcatcodetable}
-% |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|
+% |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|\\
 % Sets the \meta{table} (which must have been previously defined) to
 % apply the \meta{catcodes} specified.
 %
 % \DescribeMacro{\setcatcoderange}
-% |\setcatcoderange{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|
+% |\setcatcoderange{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|\\
 % Sets all characters in the range \meta{start}--\meta{end} inclusive to
 % have the \meta{catcode} specified.
 %
 % \DescribeMacro{\pushcatcodes}
 % \DescribeMacro{\popcatcodes}
+% |\pushcatcodes|\\
+% |\popcatcodes|\\
 % This pair of commands enable the current category code r\'{e}gime to
 % be saved and restored meaning that arbitrary catcode changes can be made.
 % This functionality will normally be used in concert with applying
