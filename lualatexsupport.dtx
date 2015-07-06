@@ -28,7 +28,7 @@
 \end{document}
 %</driver>
 % \fi
-% 
+%
 % \GetFileInfo{lualatexsupport.dtx}
 %
 % \title{\filename\\(Lua\TeX{}-specific support)\thanks{This file has
@@ -65,18 +65,18 @@
 % \space\space\space\space
 % \directlua{tex.write(latex.registernumber("#1") or "bad input")}%
 % }}
-% 
+%
 % \test{undefinedrubbish}
-% 
+%
 % \test{space}
-% 
+%
 % \test{hbox}
-% 
+%
 % \test{@MM}
-% 
+%
 % \test{@tempdima}
 % \test{@tempdimb}
-% 
+%
 % \test{strutbox}
 %
 % \test{sixt@@n}
@@ -93,18 +93,18 @@
 % \space\space\space\space
 % \directlua{tex.write(latex.registernumber("#1") or "bad input")}%
 % }}
-% 
+%
 % \test{undefinedrubbish}
-% 
+%
 % \test{space}
-% 
+%
 % \test{hbox}
-% 
+%
 % \test{@MM}
-% 
+%
 % \test{@tempdima}
 % \test{@tempdimb}
-% 
+%
 % \test{strutbox}
 %
 % \test{sixt@@n}
@@ -120,23 +120,23 @@
 % output.
 %\begin{verbatim}
 % undefinedrubbish: \relax
-%      bad input 
-% space: macro:-> 
-%      bad input 
+%      bad input
+% space: macro:->
+%      bad input
 % hbox: \hbox
-%      bad input 
+%      bad input
 % @MM: \mathchar"4E20
-%      20000 
+%      20000
 % @tempdima: \dimen14
-%      14 
+%      14
 % @tempdimb: \dimen15
-%      15 
+%      15
 % strutbox: \char"B
-%      11 
+%      11
 % sixt@@n: \char"10
-%      16 
+%      16
 % myattr: \attribute12
-%      12 
+%      12
 %\end{verbatim}
 %
 % Notice how undefined commands, or commands unreleated to registers
@@ -147,7 +147,7 @@
 % |\boxdef|).
 %
 % \section{Category code table support}
-% 
+%
 % \DescribeMacro{\setcatcodetable}
 % |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|
 % Sets the \meta{table} (which must have been previously defined) to
@@ -181,7 +181,7 @@
 % \StopEventually{}
 %
 % \section{Preliminaries}
-% 
+%
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
@@ -353,7 +353,7 @@ local registermap = {
 local i, j
 for i,j in pairs (registermap) do
   if tex.luatexversion < 80 then
-    luaregisterbasetable[tex.hashtokens()[i][1]] = 
+    luaregisterbasetable[tex.hashtokens()[i][1]] =
       tex.hashtokens()[i][2]
   else
     luaregisterbasetable[j] = newtoken.create(i).mode
