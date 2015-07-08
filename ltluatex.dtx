@@ -308,7 +308,7 @@ local latex = latex
 % Some Lua best practice: use local versions of functions where possible.
 %    \begin{macrocode}
 local string_gsub = string.gsub
-local write_nl = texio.write_nl
+local texio_write_nl = texio.write_nl
 %    \end{macrocode}
 %
 % There are various warnings and errors that need to be given. For warnings
@@ -324,15 +324,15 @@ end
 local function latex_warning(text)
   local i
   for _,i in ipairs(msg_format(text, "LaTeX Warning:"):explode("\n")) do
-    write_nl("term and log", i)
+    texio_write_nl("term and log", i)
   end
 end
 local function latex_error(text)
   local i
   for _,i in ipairs(msg_format(text, "! LaTeX Error:"):explode("\n")) do
-    write_nl("term and log", i)
+    texio_write_nl("term and log", i)
   end
-  write_nl("term and log", "\n")
+  texio_write_nl("term and log", "\n")
   error("See LaTeX Error")
 end
 %    \end{macrocode}
@@ -610,7 +610,7 @@ local function add_to_callback(name, func, description)
 %    \end{macrocode}
 %  Keep user informed.
 %    \begin{macrocode}
-  write_nl(
+  texio_write_nl(
     "Inserting `" .. description .. "' at position "
       .. priority .. " in `" .. name .. "'."
   )
@@ -661,7 +661,7 @@ local function remove_from_callback(name, description)
     return
   end
   table.remove(l, index)
-  write_nl(
+  texio_write_nl(
     "Removing  `" .. description .. "' from `" .. name .. "'."
   )
   if #l == 0 then
