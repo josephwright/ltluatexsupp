@@ -100,19 +100,6 @@
 % |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
-% \DescribeMacro{latex.original_callback_register}
-% A copy of the built-in function |callback.register| as direct use of the
-% latter is disabled. This copy is available such that more sophisticated
-% callback management may be provided at a package level.
-%
-% \DescribeMacro{latex.callbacklist}
-% Stores the list of callbacks registered.
-% 
-% Any more sophisticated implmentation of callback management, making use
-% of |latex.original_callback_register|, \emph{must} retain compatibility
-% with the kernel mechanism and \emph{must} ensure that all callback
-% use registered when it is loaded are honoured.
-%
 % \endgroup
 %
 % \StopEventually{}
@@ -339,7 +326,6 @@ end
 %
 % \subsubsection{Housekeeping}
 %
-% \begin{macro}{latex.callbacklist}
 %   The main table: keys are callback names, and values are the associated lists
 %   of functions. More precisely, the entries in the list are tables holding the
 %   actual function as |func| and the identifying description as |description|.
@@ -347,9 +333,7 @@ end
 %   list.
 %    \begin{macrocode}
 local callbacklist = callbacklist or { }
-latex.callbacklist = callbacklist
 %    \end{macrocode}
-% \end{macro}
 %
 %   Numerical codes for callback types, and name-to-value association (the
 %   table keys are strings, the values are numbers).
@@ -461,8 +445,6 @@ local callbacktypes = callbacktypes or {
 }
 %    \end{macrocode}
 %
-% \begin{macro}{original_callback_register}
-% \changes{v1.0a}{0000/00/00}{Function modified}
 % \begin{macro}{callback.register}
 % \changes{v1.0a}{0000/00/00}{Function modified}
 %   Save the original function for registering callbacks and prevent the
@@ -470,13 +452,11 @@ local callbacktypes = callbacktypes or {
 %   available so other more sophisticated code can override the approach
 %   taken by the kernel is desired.
 %    \begin{macrocode}
-original_callback_register = original_callback_register or callback.register
-latex.original_callback_register = original_callback_register
+local callback_register = callback_register or callback.register
 function callback.register()
   latex_error("Attempt to use callback.register() directly.")
 end
 %    \end{macrocode}
-% \end{macro}
 % \end{macro}
 %
 % \subsubsection{Handlers}
@@ -588,7 +568,7 @@ local function add_to_callback(name, func, description)
   if not l then
     l = { }
     callbacklist[name] = l
-    original_callback_register(name, handlers[callbacktypes[name]](name))
+    callback_register(name, handlers[callbacktypes[name]](name))
   end
 %    \end{macrocode}
 %  Actually register the function and give an error if more than one
@@ -666,7 +646,7 @@ local function remove_from_callback(name, description)
   )
   if #l == 0 then
     callbacklist[name] = nil
-    original_callback_register(name, nil)
+    callback_register(name, nil)
   end
 end
 latex.remove_from_callback = remove_from_callback
