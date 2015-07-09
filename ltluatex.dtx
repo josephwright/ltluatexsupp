@@ -326,17 +326,17 @@ end
 %
 % \subsubsection{Housekeeping}
 %
-%   The main table: keys are callback names, and values are the associated lists
-%   of functions. More precisely, the entries in the list are tables holding the
-%   actual function as |func| and the identifying description as |description|.
-%   Only callbacks with a non-empty list of functions have an entry in this
-%   list.
+% The main table: keys are callback names, and values are the associated lists
+% of functions. More precisely, the entries in the list are tables holding the
+% actual function as |func| and the identifying description as |description|.
+% Only callbacks with a non-empty list of functions have an entry in this
+% list.
 %    \begin{macrocode}
 local callbacklist = callbacklist or { }
 %    \end{macrocode}
 %
-%   Numerical codes for callback types, and name-to-value association (the
-%   table keys are strings, the values are numbers).
+% Numerical codes for callback types, and name-to-value association (the
+% table keys are strings, the values are numbers).
 %    \begin{macrocode}
 local list, data, exclusive, simple = 1, 2, 3, 4
 local types = {
@@ -347,9 +347,9 @@ local types = {
 }
 %    \end{macrocode}
 % 
-%  Now, list all predefined callbacks with their current type, based on the
-%  Lua\TeX{} manual version~0.80. A full list of the currently-available
-%  callbacks can be obtained using
+% Now, list all predefined callbacks with their current type, based on the
+% Lua\TeX{} manual version~0.80. A full list of the currently-available
+% callbacks can be obtained using
 %  \begin{verbatim}
 %    \directlua{
 %      for i,_ in pairs(callback.list()) do
@@ -358,8 +358,8 @@ local types = {
 %    }
 %    \bye
 %  \end{verbatim}
-%  in plain Lua\TeX{}. (Some undocumented callbacks are omitted as they are
-%  to be removed.)
+% in plain Lua\TeX{}. (Some undocumented callbacks are omitted as they are
+% to be removed.)
 %    \begin{macrocode}
 local callbacktypes = callbacktypes or {
 %    \end{macrocode}
@@ -381,7 +381,7 @@ local callbacktypes = callbacktypes or {
   find_type1_file    = data,
   find_image_file    = data,
 %    \end{macrocode}
-%   Section 4.1.2: file reading callbacks.
+% Section 4.1.2: file reading callbacks.
 %    \begin{macrocode}
   open_read_file     = exclusive,
   read_font_file     = exclusive,
@@ -395,14 +395,14 @@ local callbacktypes = callbacktypes or {
   read_type1_file    = exclusive,
   read_opentype_file = exclusive,
 %    \end{macrocode}
-%   Section 4.1.3: data processing callbacks.
+% Section 4.1.3: data processing callbacks.
 %    \begin{macrocode}
   process_input_buffer  = data,
   process_output_buffer = data,
   process_jobname       = data,
   token_filter          = exclusive,
 %    \end{macrocode}
-%   Section 4.1.4: node list processing callbacks.
+% Section 4.1.4: node list processing callbacks.
 %    \begin{macrocode}
   buildpage_filter      = simple,
   pre_linebreak_filter  = list,
@@ -416,7 +416,7 @@ local callbacktypes = callbacktypes or {
   kerning               = simple,
   mlist_to_hlist        = list,
 %    \end{macrocode}
-%   Section 4.1.5: information reporting callbacks.
+% Section 4.1.5: information reporting callbacks.
 %    \begin{macrocode}
   pre_dump            = simple,
   start_run           = simple,
@@ -429,16 +429,16 @@ local callbacktypes = callbacktypes or {
   start_file          = simple,
   stop_file           = simple,
 %    \end{macrocode}
-%   Section 4.1.6: PDF-related callbacks.
+% Section 4.1.6: PDF-related callbacks.
 %    \begin{macrocode}
   finish_pdffile = data,
   finish_pdfpage = data,
 %    \end{macrocode}
-%   Section 4.1.7: font-related callbacks.
+% Section 4.1.7: font-related callbacks.
 %    \begin{macrocode}
   define_font = first,
 %    \end{macrocode}
-%   Undocumented callbacks which are likely to get documented.
+% Undocumented callbacks which are likely to get documented.
 %    \begin{macrocode}
   find_cidmap_file           = data,
   pdf_stream_filter_callback = data,
