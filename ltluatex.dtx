@@ -100,6 +100,31 @@
 % |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
+% \DescribeMacro{latex.provides_module}
+% |latex.provides_module(|\meta{name}, \meta{info}|)|
+% This function is used by modules to identify themselves; the |info| argument
+% is a table containing information about the module. The required argument
+% |name| must contain the name of the module. It is recommended to provide a
+% field |date| in the usual \LaTeX{} format |yyyy/mm/dd|. Optional fields
+% |version| (a string) and |description| may be used if present. This
+% information will be recorded in the log. Other fields are ignored.
+%
+% \DescribeMacro{latex.module_info}
+% \DescribeMacro{latex.module_warning}
+% \DescribeMacro{latex.module_error}
+% |latex.module_info(|\meta{module}, \meta{text}|)|
+% |latex.module_warning(|\meta{module}, \meta{text}|)|
+% |latex.module_error(|\meta{module}, \meta{text}|)|
+% These functions are similar to \LaTeX{}'s |\PackageError|, |\PackageWarning|
+% and |\PackageInfo| in the way they format the output.  No automatic line
+% breaking is done, you may still use |\n| as usual for that, and the name of
+% the package will be prepended to each output line.
+%
+% Note that |latex.module_error| raises an actual Lua error with |error()|,
+% which currently means a call stack will be dumped. While this may not
+% look pretty, at least it provides useful information for tracking the
+% error down.
+%
 % \endgroup
 %
 % \StopEventually{}
@@ -263,24 +288,21 @@
 %    \begin{macrocode}
 %</2ekernel>
 %    \end{macrocode}
-%    
+%
+% \section{Lua module preliminaries}
+%  
 % \begingroup
 % 
 %  \begingroup\lccode`~=`_
 %  \lowercase{\endgroup\let~}_
 %  \catcode`_=12
 %
-% \section{Lua callback management}
-%
-% The native mechanism for callbacks in Lua allows only one per function.
-% That is extremely restrictive and so a mechanism is needed to add and
-% remove callbacks from the appropriate hooks.
-%
 %    \begin{macrocode}
 %<*2elua>
 %    \end{macrocode}
 %
-% \subsubsection{Basics and support}
+% Some set up for the Lua module which is needed for all of the Lua
+% functionality added here.
 %
 % \begin{macro}{latex}
 % \changes{v1.0a}{0000/00/00}{Table added}
@@ -291,38 +313,135 @@ latex       = latex or { }
 local latex = latex
 %    \end{macrocode}
 % \end{macro}
-% 
+%
+%
 % Some Lua best practice: use local versions of functions where possible.
 %    \begin{macrocode}
-local string_gsub = string.gsub
+local string_gsub    = string.gsub
 local texio_write_nl = texio.write_nl
 %    \end{macrocode}
+%
+% \section{Lua module utilities}
+%
+% \subsection{Module tracking}
+%
+% \begin{macro}{latex.modules}
+% \changes{v1.0a}{0000/00/00}{Function modified}
+%   To allow tracking of module usage, a structure is provided to store
+%   information and to return it.
+%    \begin{macrocode}
+local modules = modules or { }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{latex.provides_module}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   Modelled on |\ProvidesPackage|, we store much the same information but
+%   with a little more structure.
+%    \begin{macrocode}
+local function provides_module(name, info)
+  local function spaced(text)
+    return text and (" " .. text) or ""
+  end
+  texio_write_nl(
+    "log",
+    "Lua module: " .. name
+      .. spaced(info.date) 
+      .. spaced(info.version)
+      .. spaced(info.description)
+  )
+  module[name] = info
+end
+latex.provides_module = provides_module
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Module messages}
 %
 % There are various warnings and errors that need to be given. For warnings
 % we can get exactly the same formatting as from \TeX{}. For errors we have to
 % make some changes. Here we give the text of the error in the \LaTeX{} format
 % then force an error from Lua to halt the run. Splitting the message text is
 % done using |\n| which takes the place of |\MessageBreak|.
+%
+% First an auxiliary for the formatting: this measures up the message
+% leader so we always get the correct indent.
 %    \begin{macrocode}
-local function msg_format(text, leader)
-  local cont = string_gsub(leader, ".", " ")
-  return leader .. " " .. string_gsub(text, "\n", "\n" .. cont .. " ") .. "\n"
-end
-local function latex_warning(text)
-  local i
-  for _,i in ipairs(msg_format(text, "LaTeX Warning:"):explode("\n")) do
-    texio_write_nl("term and log", i)
+local function msg_format(mod, msg_type, text)
+  local leader
+  if type == "Error" then
+    leader = "! "
+  else
   end
-end
-local function latex_error(text)
-  local i
-  for _,i in ipairs(msg_format(text, "! LaTeX Error:"):explode("\n")) do
-    texio_write_nl("term and log", i)
+  local cont
+  if mod == "LaTeX" then
+    cont = string_gsub(leader, ".", " ")
+    leader = leader .. "LaTeX: "
+  else
+    cont = "(" .. mod .. ")" 
+      .. string_gsub(first_head .. "Module: " .. ms_type, ".", " ")
+    first_head = leader .. "Module " .. mod .. " " .. type .. ": "
   end
-  texio_write_nl("term and log", "\n")
-  error("See LaTeX Error")
+  return leader .. " "
+    .. string_gsub(
+         text .. " on input line "
+         .. tex.inputlineno, "\n", "\n" .. cont .. " "
+      )
+   .. "\n"
 end
 %    \end{macrocode}
+%
+% \begin{macro}{latex.module_info}
+% \changes{v1.0a}{0000/00/00}{Function added}
+% \begin{macro}{latex.module_warning}
+% \changes{v1.0a}{0000/00/00}{Function added}
+% \begin{macro}{latex.module_error}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   Write messages.
+%    \begin{macrocode}
+local function module_info(mod, text)
+  local i
+  for _,i in ipairs(msg_format(mod, "Info", text):explode("\n")) do
+    write_nl("log", i)
+  end
+end
+latex.module_info = module_info
+local function module_warning(mod, text)
+  local i
+  for _,i in ipairs(msg_format(mod, "Warning", text):explode("\n")) do
+    write_nl("term and log", i)
+  end
+end
+latex.module_warning = module_warning
+local function module_error(mod, text)
+  local i
+  for _,i in ipairs(msg_format(mod, "Error", text):explode("\n")) do
+    write_nl("term and log", i)
+  end
+  write_nl("term and log", "\n")
+  error("See " .. mod .. " Error")
+end
+latex.module_error = module_error
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% Dedicated versions for the rest of the code here.
+%    \begin{macrocode}
+local function latex_warning(text)
+  module_warning("LaTeX", text)
+end
+local function latex_error(text)
+  module_error("LaTeX", text)
+end
+%    \end{macrocode}
+%
+% \section{Lua callback management}
+%
+% The native mechanism for callbacks in Lua allows only one per function.
+% That is extremely restrictive and so a mechanism is needed to add and
+% remove callbacks from the appropriate hooks.
 %
 % \subsubsection{Housekeeping}
 %
