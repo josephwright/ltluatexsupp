@@ -363,7 +363,7 @@ local function provides_module(name, info)
       .. spaced(info.version)
       .. spaced(info.description)
   )
-  module[name] = info
+  modules[name] = info
 end
 latex.provides_module = provides_module
 %    \end{macrocode}
@@ -381,10 +381,9 @@ latex.provides_module = provides_module
 % leader so we always get the correct indent.
 %    \begin{macrocode}
 local function msg_format(mod, msg_type, text)
-  local leader
+  local leader = ""
   if type == "Error" then
     leader = "! "
-  else
   end
   local cont
   if mod == "LaTeX" then
@@ -415,23 +414,23 @@ end
 local function module_info(mod, text)
   local i
   for _,i in ipairs(msg_format(mod, "Info", text):explode("\n")) do
-    write_nl("log", i)
+    texio_write_nl("log", i)
   end
 end
 latex.module_info = module_info
 local function module_warning(mod, text)
   local i
   for _,i in ipairs(msg_format(mod, "Warning", text):explode("\n")) do
-    write_nl("term and log", i)
+    texio_write_nl("term and log", i)
   end
 end
 latex.module_warning = module_warning
 local function module_error(mod, text)
   local i
   for _,i in ipairs(msg_format(mod, "Error", text):explode("\n")) do
-    write_nl("term and log", i)
+    texio_write_nl("term and log", i)
   end
-  write_nl("term and log", "\n")
+  texio_write_nl("term and log", "\n")
   error("See " .. mod .. " Error")
 end
 latex.module_error = module_error
