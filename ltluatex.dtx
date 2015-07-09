@@ -30,7 +30,7 @@
 \end{document}
 %</driver>
 % \fi
-% 
+%
 % \CheckSum{0}
 %
 % \section{Overview}
@@ -39,11 +39,11 @@
 % these require set up that is best done in the kernel or need related support
 % functions. This file provides \emph{basic} support for Lua\TeX{} at the
 % \LaTeXe{} kernel level.
-% 
+%
 % This file contains code for both \TeX{} (to be stored as part of the format)
 % and Lua (to be loaded at the start of each job). In the Lua code, the kernel
 % uses the namespace |latex| which is \emph{reserved for use by the team}.
-% 
+%
 % The following |\count| registers are used here for register allocation:
 % \begin{itemize}
 %  \item[\texttt{258}] Attributes
@@ -66,19 +66,19 @@
 % Defines a named \cs{attribute}, indexed from~$1$
 % (\emph{i.e.}~|\attribue0| is never defined). The attribute will be
 % initialised with the marker value |-"7FFFFFFF| (`unset').
-% 
+%
 % \DescribeMacro{\newcatcodetable}
 % |\newcatcodetable{|\meta{catcodetable}|}|
 % Defines a named \cs{catcodetable}, indexed from~$1$
 % (|\catcodetable0| never assigned). A new catcode table will be
 % populated with exactly those values assigned by Ini\TeX{} (as described
 % in the Lua\TeX{} manual).
-% 
+%
 % \DescribeMacro{\newluafunction}
 % |\newluafunction{|\meta{function}|}|
 % Defines a named \cs{luafunction}, indexed from~$1$ (Lua indexes from
 % $1$ so |\luafunction0| is not available).
-% 
+%
 % \DescribeMacro{\catcodetable@initex}
 % \DescribeMacro{\catcodetable@string}
 % \DescribeMacro{\catcodetable@latex}
@@ -90,7 +90,7 @@
 % \section{Lua functionality}
 %
 % \begingroup
-% 
+%
 % \begingroup\lccode`~=`_
 % \lowercase{\endgroup\let~}_
 % \catcode`_=12
@@ -123,7 +123,7 @@
 % error down.
 %
 % \subsection{Callback management}
-% 
+%
 % \DescribeMacro{latex.add_to_callback}
 % |latex.add_to_callback(|^^A
 % \meta{callback}, \meta{function}, \meta{description}|)|
@@ -169,7 +169,7 @@
 % Lua\TeX{} has changed a lot over time. In the kernel support for ancient
 % versions is not provided: trying to build a format with a very old binary
 % therefore gives some information in the log and loading stops. The cut-off
-% selected here relates to the tree-searching behaviour of |require()|: 
+% selected here relates to the tree-searching behaviour of |require()|:
 % from version~0.60, Lua\TeX{} will correctly find Lua files in the |texmf|
 % tree without `help'.
 %    \begin{macrocode}
@@ -301,9 +301,9 @@
 %    \end{macrocode}
 %
 % \subsection{Lua module preliminaries}
-%  
+%
 % \begingroup
-% 
+%
 %  \begingroup\lccode`~=`_
 %  \lowercase{\endgroup\let~}_
 %  \catcode`_=12
@@ -356,7 +356,7 @@ local function provides_module(name, info)
   texio_write_nl(
     "log",
     "Lua module: " .. name
-      .. spaced(info.date) 
+      .. spaced(info.date)
       .. spaced(info.version)
       .. spaced(info.description)
   )
@@ -388,7 +388,7 @@ local function msg_format(mod, msg_type, text)
     cont = string_gsub(leader, ".", " ")
     leader = leader .. "LaTeX: "
   else
-    cont = "(" .. mod .. ")" 
+    cont = "(" .. mod .. ")"
       .. string_gsub(first_head .. "Module: " .. ms_type, ".", " ")
     first_head = leader .. "Module " .. mod .. " " .. type .. ": "
   end
@@ -475,7 +475,7 @@ local types = {
   simple    = simple,
 }
 %    \end{macrocode}
-% 
+%
 % Now, list all predefined callbacks with their current type, based on the
 % Lua\TeX{} manual version~0.80. A full list of the currently-available
 % callbacks can be obtained using
@@ -680,7 +680,7 @@ local function add_to_callback(name, func, description)
     name == "" or
     not callbacktypes[name] or
     type(func) ~= "function" or
-    not description or 
+    not description or
     description == "" then
     latex_error(
       "Unable to register callback.\n\n"
@@ -737,7 +737,7 @@ local function remove_from_callback(name, description)
     not name or
     name == "" or
     not callbacktypes[name] or
-    not description or 
+    not description or
     description == "" then
     latex_error(
       "Unable to remove function from callback.\n\n"
