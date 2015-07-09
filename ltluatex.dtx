@@ -62,20 +62,22 @@
 % \section{\TeX{} functionality}
 %
 % \DescribeMacro{\newattribute}
-% |\newattribute{|\meta{attribute}|}|
+% |\newattribute{|\meta{attribute}|}|\\
 % Defines a named \cs{attribute}, indexed from~$1$
 % (\emph{i.e.}~|\attribue0| is never defined). The attribute will be
 % initialised with the marker value |-"7FFFFFFF| (`unset').
 %
+% \noindent
 % \DescribeMacro{\newcatcodetable}
-% |\newcatcodetable{|\meta{catcodetable}|}|
+% |\newcatcodetable{|\meta{catcodetable}|}|\\
 % Defines a named \cs{catcodetable}, indexed from~$1$
 % (|\catcodetable0| never assigned). A new catcode table will be
 % populated with exactly those values assigned by Ini\TeX{} (as described
 % in the Lua\TeX{} manual).
 %
+% \noindent
 % \DescribeMacro{\newluafunction}
-% |\newluafunction{|\meta{function}|}|
+% |\newluafunction{|\meta{function}|}|\\
 % Defines a named \cs{luafunction}, indexed from~$1$ (Lua indexes from
 % $1$ so |\luafunction0| is not available).
 %
@@ -98,7 +100,7 @@
 % \subsection{Module utilities}
 %
 % \DescribeMacro{latex.provides_module}
-% |latex.provides_module(|\meta{name}, \meta{info}|)|
+% |latex.provides_module(|\meta{name}, \meta{info}|)|\\
 % This function is used by modules to identify themselves; the |info| argument
 % is a table containing information about the module. The required argument
 % |name| must contain the name of the module. It is recommended to provide a
@@ -106,12 +108,13 @@
 % |version| (a string) and |description| may be used if present. This
 % information will be recorded in the log. Other fields are ignored.
 %
+% \noindent
 % \DescribeMacro{latex.module_info}
 % \DescribeMacro{latex.module_warning}
 % \DescribeMacro{latex.module_error}
-% |latex.module_info(|\meta{module}, \meta{text}|)|
-% |latex.module_warning(|\meta{module}, \meta{text}|)|
-% |latex.module_error(|\meta{module}, \meta{text}|)|
+% |latex.module_info(|\meta{module}, \meta{text}|)|\\
+% |latex.module_warning(|\meta{module}, \meta{text}|)|\\
+% |latex.module_error(|\meta{module}, \meta{text}|)|\\
 % These functions are similar to \LaTeX{}'s |\PackageError|, |\PackageWarning|
 % and |\PackageInfo| in the way they format the output.  No automatic line
 % breaking is done, you may still use |\n| as usual for that, and the name of
