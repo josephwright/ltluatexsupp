@@ -630,7 +630,7 @@ local function list_handler(name)
     local ret
     local alltrue = true
     local i
-    for _i in ipairs(callbacklist[name]) do
+    for _,i in ipairs(callbacklist[name]) do
       ret = i.func(head, ...)
       if ret == false then
         latex_warning(
