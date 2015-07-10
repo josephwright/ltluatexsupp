@@ -105,6 +105,79 @@
 % code but this function does \emph{not} define a token using
 % |\attributedef|.
 %
+% \section{Lua access to \TeX{} register numbers}
+%
+% \DescribeMacro{latex.registernumber}
+% |latex.registernumer(|\meta{name}|)|\\
+% Sometimes (notably in the case of Lua attributes) it is necessary to
+% access a register \emph{by number} that has been allocated by \TeX{}.
+% This package provides a function to look up the relevant number
+% using Lua\TeX{}'s internal tables. So after for example
+% |\newattribute\myattrib|, |\myattrib| would be defined by (say)
+% |\myattrib=\attribute15|. The function call |latex.registernumer("myattrib")|
+% will then return the register number, $15$ in this case. If the string passed
+% as argument does not correspond to a token defined by |\attributedef|,
+% |\countdef| or similar commands, the Lua value |false| is returned.
+%
+% As an example, consider the input:
+%\begin{verbatim}
+% \newcommand\test[1]{%
+% \typeout{#1: \expandafter\meaning\csname#1\endcsname^^J
+% \space\space\space\space
+% \directlua{tex.write(latex.registernumber("#1") or "bad input")}%
+% }}
+%
+% \test{undefinedrubbish}
+%
+% \test{space}
+%
+% \test{hbox}
+%
+% \test{@MM}
+%
+% \test{@tempdima}
+% \test{@tempdimb}
+%
+% \test{strutbox}
+%
+% \test{sixt@@n}
+%
+% \attrbutedef\myattr=12
+% \myattr=200
+% \test{myattr}
+%
+%\end{verbatim}
+%
+% If the demosntration code is processed with Lua\LaTeX{} then the following
+% would be produeced in the log and terminal output.
+%\begin{verbatim}
+% undefinedrubbish: \relax
+%      bad input
+% space: macro:->
+%      bad input
+% hbox: \hbox
+%      bad input
+% @MM: \mathchar"4E20
+%      20000
+% @tempdima: \dimen14
+%      14
+% @tempdimb: \dimen15
+%      15
+% strutbox: \char"B
+%      11
+% sixt@@n: \char"10
+%      16
+% myattr: \attribute12
+%      12
+%\end{verbatim}
+%
+% Notice how undefined commands, or commands unrelated to registers
+% do not produce an error, just return |false| and so print
+% |bad input| here. Note also that commands defined by |\newbox| work and
+% return the number of the box register even though the actual command
+% holding this number is a |\chardef| defined token (there is no
+% |\boxdef|).
+%
 % \subsection{Module utilities}
 %
 % \DescribeMacro{latex.provides_module}
@@ -298,13 +371,26 @@
 %
 % \subsection{Lua loader}
 %
-% Load the Lua code at the start of every job
-%
+% Load the Lua code at the start of every job.
+% For the conversion of \TeX{} into numbers at the Lua side we need some
+% known registers: for convenience we use a set of systematic names, which
+% means using a group around the Lua loader.
 %    \begin{macrocode}
-\everyjob\expandafter{%
-  \the\everyjob
-  \directlua{require("latex2e")}%
-}
+%%\everyjob\expandafter{%
+%%  \the\everyjob
+%% Whilst in testing, load at every run.
+  \begingroup
+    \attributedef\attributezero=0 %
+    \chardef     \charzero     =0 %
+    \countdef    \countzero    =0 %
+    \dimendef    \dimenzero    =0 %
+    \mathchardef \mathcharzero =0 %
+    \muskipdef   \muskipzero   =0 %
+    \skipdef     \skipzero     =0 %
+    \toksdef     \tokszero     =0 %
+    \directlua{require("latex2e")}
+  \endgroup
+%%}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -478,6 +564,67 @@ local function new_attribute(name)
   return tex_count[258]
 end
 latex.new_attribute = new_attribute
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Accessing register numbers from Lua}
+%
+% Collect up the data from the \TeX{} level into a Lua table: from
+% version~0.80, Lua\TeX{} makes that easy.
+%    \begin{macrocode}
+local luaregisterbasetable = { }
+local registermap = {
+  attributezero = "assign_attr"    ,
+  charzero      = "char_given"     ,
+  countzero     = "assign_int"     ,
+  dimenzero     = "assign_dimen"   ,
+  mathcharzero  = "math_given"     ,
+  muskipzero    = "assign_mu_skip" ,
+  skipzero      = "assign_skip"    ,
+  tokszero      = "assign_toks"    ,
+}
+local i, j
+local createtoken   = newtoken.create
+local hashtokens    = tex.hashtokens
+local luatexversion = tex.luatexversion
+for i,j in pairs (registermap) do
+  if luatexversion < 80 then
+    luaregisterbasetable[hashtokens()[i][1]] =
+      hashtokens()[i][2]
+  else
+    luaregisterbasetable[j] = createtoken(i).mode
+  end
+end
+%    \end{macrocode}
+%
+% \begin{macro}{latex.registernumber}
+%   Working out the correct return value can be done in two ways. For older
+%   Lua\TeX{} releases it has to be extracted from the |hashtokens|. On the
+%   other hand, newer Lua\TeX{}'s have |newtoken|, and whilst |.mode| isn't
+%   currently documented, Hans Hagen pointed to this approach so we should be
+%   OK.
+%    \begin{macrocode}
+local registernumber
+if luatexversion < 80 then
+  function registernumber(name)
+    local nt = hashtokens()[name]
+    if(nt and luaregisterbasetable[nt[1]]) then
+      return nt[2] - luaregisterbasetable[nt[1]]
+    else
+      return false
+    end
+  end
+else
+  function registernumber(name)
+    local nt = createtoken(name)
+    if(luaregisterbasetable[nt.cmdname]) then
+      return nt.mode - luaregisterbasetable[nt.cmdname]
+    else
+      return false
+    end
+  end
+end
+latex.registernumber = registernumber
 %    \end{macrocode}
 % \end{macro}
 %
