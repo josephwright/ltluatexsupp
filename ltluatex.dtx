@@ -49,6 +49,7 @@
 %  \item[\texttt{258}] Attributes
 %  \item[\texttt{259}] Category code tables
 %  \item[\texttt{260}] Lua functions
+%  \item[\texttt{261}] User whatsits
 % \end{itemize}
 % (|\count256| is used for |\newmarks| allocation and |\count257|
 % is used for\break
@@ -97,6 +98,8 @@
 % \lowercase{\endgroup\let~}_
 % \catcode`_=12
 %
+% \section{Allocators in Lua}
+%
 % \DescribeMacro{latex.new_attribute}
 % |latex.new_attribute(|\meta{attribute}|)|\\
 % Returns an allocation number for the \cs{attribute}, indexed from~$1$.
@@ -104,6 +107,10 @@
 % (`unset'). The attribute allocation sequence is shared with the \TeX{}
 % code but this function does \emph{not} define a token using
 % |\attributedef|.
+% 
+% \DescribeMacro{latex.new_whatsit}
+% |latex.new_whatsit(|\meta{whatsit}|)|\\
+% Returns an allocation number for the custom \meta{whatsit}, indexed from~$1$.
 %
 % \section{Lua access to \TeX{} register numbers}
 %
@@ -564,6 +571,25 @@ local function new_attribute(name)
   return tex_count[258]
 end
 latex.new_attribute = new_attribute
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{User whatsit allocation}
+%
+% \begin{macro}{latex.new_whatsit}
+%  Much the same as for attribute alocation in Lua
+%    \begin{macrocode}
+local function new_whatsit(name)
+  tex_setcount("global", 261, tex_count[261] + 1)
+  if tex_count[261] > 65534 then
+    latex_error("No room for a new custom whatsit")
+    return -1
+  end
+  tex_setattribute(tex_count[259], -0x7FFFFFFF)
+  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[258])
+  return tex_count[261]
+end
+latex.new_whatsit = new_whatsit
 %    \end{macrocode}
 % \end{macro}
 %
