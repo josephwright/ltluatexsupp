@@ -97,6 +97,14 @@
 % \lowercase{\endgroup\let~}_
 % \catcode`_=12
 %
+% \DescribeMacro{latex.new_attribute}
+% |latex.new_attribute(|\meta{attribute}|)|\\
+% Returns an allocation number for the \cs{attribute}, indexed from~$1$.
+% The attribute will be initialised with the marker value |-"7FFFFFFF|
+% (`unset'). The attribute allocation sequence is shared with the \TeX{}
+% code but this function does \emph{not} define a token using
+% |\attributedef|.
+%
 % \subsection{Module utilities}
 %
 % \DescribeMacro{latex.provides_module}
@@ -330,8 +338,11 @@ local latex = latex
 %
 % Some Lua best practice: use local versions of functions where possible.
 %    \begin{macrocode}
-local string_gsub    = string.gsub
-local texio_write_nl = texio.write_nl
+local string_gsub      = string.gsub
+local tex_count        = tex.count
+local tex_setattribute = tex.setattribute
+local tex_setcount     = tex.setcount
+local texio_write_nl   = texio.write_nl
 %    \end{macrocode}
 %
 % \subsection{Lua module utilities}
@@ -448,6 +459,27 @@ local function latex_error(text)
   module_error("LaTeX", text)
 end
 %    \end{macrocode}
+%
+% \subsection{Attribute allocation}
+%
+% \begin{macro}{latex.new_attribute}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   As attributes are used for Lua manipulations its useful to be able
+%   to assign from this end.
+%    \begin{macrocode}
+local function new_attribute(name)
+  tex_setcount("global", 258, tex_count[258] + 1)
+  if tex_count[258] > 65534 then
+    latex_error("No room for a new \\attribute")
+    return -1
+  end
+  tex_setattribute(tex_count[258], -0x7FFFFFFF)
+  texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
+  return tex_count[258]
+end
+latex.new_attribute = new_attribute
+%    \end{macrocode}
+% \end{macro}
 %
 % \subsection{Lua callback management}
 %
