@@ -155,8 +155,8 @@
 %
 %\end{verbatim}
 %
-% If the demosntration code is processed with Lua\LaTeX{} then the following
-% would be produeced in the log and terminal output.
+% If the demonstration code is processed with Lua\LaTeX{} then the following
+% would be produced in the log and terminal output.
 %\begin{verbatim}
 % undefinedrubbish: \relax
 %      bad input
@@ -585,7 +585,6 @@ local function new_whatsit(name)
     latex_error("No room for a new custom whatsit")
     return -1
   end
-  tex_setattribute(tex_count[259], -0x7FFFFFFF)
   texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[258])
   return tex_count[261]
 end
