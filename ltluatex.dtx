@@ -82,6 +82,11 @@
 % Defines a named \cs{luafunction}, indexed from~$1$ (Lua indexes from
 % $1$ so |\luafunction0| is not available).
 %
+% \noindent
+% \DescribeMacro{\newwhatsit}
+% |\newwhatsite{|\meta{whatsit}|}|\\
+% Defines a custom \cs{whatsit}, indexed from~$1$.
+%
 % \DescribeMacro{\catcodetable@initex}
 % \DescribeMacro{\catcodetable@string}
 % \DescribeMacro{\catcodetable@latex}
@@ -374,6 +379,21 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \subsection{Custom whatsits}
+%
+% \begin{macro}{\newwhatsit}
+% \changes{v1.0a}{0000/00/00}{Macro added}
+%   These are only settable from Lua but for consistency are definable
+%   here.
+%    \begin{macrocode}
+\def\newwhatsit#1{%
+  \e@alloc\wahtsit\e@alloc@chardef
+    {\count261}\m@ne\e@alloc@top#1%
+}
+\count261=\z@
+%    \end{macrocode}
+% \end{macro}
+%
 % \subsection{Lua loader}
 %
 % Load the Lua code at the start of every job.
@@ -571,7 +591,7 @@ latex.new_attribute = new_attribute
 %    \end{macrocode}
 % \end{macro}
 %
-% \subsection{User whatsit allocation}
+% \subsection{Custom whatsit allocation}
 %
 % \begin{macro}{latex.new_whatsit}
 %  Much the same as for attribute alocation in Lua
@@ -582,7 +602,7 @@ local function new_whatsit(name)
     latex_error("No room for a new custom whatsit")
     return -1
   end
-  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[258])
+  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[261])
   return tex_count[261]
 end
 latex.new_whatsit = new_whatsit
