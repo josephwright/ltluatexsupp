@@ -65,8 +65,8 @@
 % \DescribeMacro{\newattribute}
 % |\newattribute{|\meta{attribute}|}|\\
 % Defines a named \cs{attribute}, indexed from~$1$
-% (\emph{i.e.}~|\attribute0| is never defined). The attribute will be
-% initialised with the marker value |-"7FFFFFFF| (`unset').
+% (\emph{i.e.}~|\attribute0| is never defined). Attributes intially
+% have the the marker value |-"7FFFFFFF| (`unset') set by the engine.
 %
 % \noindent
 % \DescribeMacro{\newcatcodetable}
@@ -276,15 +276,13 @@
 %
 % \begin{macro}{\newattribute}
 % \changes{v1.0a}{0000/00/00}{Macro added}
-%   Note that unlike other \TeX{} registers these need to be `unset' to be
-%   initialised correctly. As is generally the case for the Lua\TeX{} registers
-%   we start here from~$1$. Notably, some code assumes that |\attribute0| is
-%   never used so this is important in this case.
+%   As is generally the case for the Lua\TeX{} registers we start here
+%   from~$1$. Notably, some code assumes that |\attribute0| is never used so
+%   this is important in this case.
 %    \begin{macrocode}
 \def\newattribute#1{%
   \e@alloc\attribute\attributedef
     {\count258}\m@ne\e@alloc@top#1%
-  #1=-"7FFFFFFF\relax
 }
 \count258=\z@
 %    \end{macrocode}
@@ -566,7 +564,6 @@ local function new_attribute(name)
     latex_error("No room for a new \\attribute")
     return -1
   end
-  tex_setattribute(tex_count[258], -0x7FFFFFFF)
   texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
   return tex_count[258]
 end
