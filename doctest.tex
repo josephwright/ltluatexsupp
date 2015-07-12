@@ -30,10 +30,8 @@
 % Once more stable hopefully this will not be needed.
 luatexbase={}
 %
-% Module declaration interface slightly different
-function luatexbase.provides_module(m)
-latex.provides_module(m.name or "unnamed",m)
-end
+% copy Module declaration
+luatexbase.provides_module = latex.provides_module
 %
 % luatexbase version records name in the attributes table.
 function luatexbase.new_attribute (name,...)
