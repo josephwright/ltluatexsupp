@@ -193,9 +193,9 @@
 % \subsection{Module utilities}
 %
 % \DescribeMacro{latex.provides_module}
-% |latex.provides_module(|\meta{name}, \meta{info}|)|\\
-% This function is used by modules to identify themselves; the |info| argument
-% is a table containing information about the module. The required argument
+% |latex.provides_module(|\meta{info}|)|\\
+% This function is used by modules to identify themselves; the |info| should be
+% ia table containing information about the module. The required field
 % |name| must contain the name of the module. It is recommended to provide a
 % field |date| in the usual \LaTeX{} format |yyyy/mm/dd|. Optional fields
 % |version| (a string) and |description| may be used if present. This
@@ -474,18 +474,22 @@ local modules = modules or { }
 %   Modelled on |\ProvidesPackage|, we store much the same information but
 %   with a little more structure.
 %    \begin{macrocode}
-local function provides_module(name, info)
+local function provides_module(info)
+  if not (info and info.name) then
+    latex_error("Missing module name for provides_modules")
+    return
+  end
   local function spaced(text)
     return text and (" " .. text) or ""
   end
   texio_write_nl(
     "log",
-    "Lua module: " .. name
+    "Lua module: " .. info.name
       .. spaced(info.date)
       .. spaced(info.version)
       .. spaced(info.description)
   )
-  modules[name] = info
+  modules[info.name] = info
 end
 latex.provides_module = provides_module
 %    \end{macrocode}
