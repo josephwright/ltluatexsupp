@@ -231,6 +231,11 @@
 % |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
+% \DescribeMacro{latex.added_to_callback}
+% |latex.added_to_callback(|\meta{callback}, \meta{description}|)|
+% Checks if the \meta{description} matches one of the functions added
+% to the list for the \meta{callback}, returning a boolean value.
+%
 % \DescribeMacro{latex.disable_callback}
 % |latex.disable_callback(|\meta{callback}|)|
 % Sets the \metha{callback} to \texttt{false} as described in the Lua\TeX{}
@@ -1013,6 +1018,29 @@ local function remove_from_callback(name, description)
   end
 end
 latex.remove_from_callback = remove_from_callback
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{latex.added_to_callback}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   Look for a function description in a callback.
+%    \begin{macrocode}
+local function added_to_callback(name, description)
+  if not name
+    or name = ""
+    or not callbacktypes[name]
+    or not description then
+      return false
+  end
+  local i
+  for _, i in pairs(callbacklist[name]) do
+    if i.description == description then
+      return true
+    end
+  end
+  return false
+end
+latex.added_to_callback = added_to_callback
 %    \end{macrocode}
 % \end{macro}
 %
