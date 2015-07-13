@@ -1,67 +1,6 @@
 
 \input{ltluatex}
-
-% Prevent luatexbase loading when it is referenced
-% by fontspec.
-\expandafter\def\csname luatexbase@sty@endinput\endcsname{}
-
-% Simple require wrapper so that luaotfload does get loaded.
-\def\RequireLuaModule#1{\directlua{require("#1")}}
-
-
-\directlua{
-% Fake a mininmal amount of the luatexbase
-% table to avoid needing to edit luaotfload.
-% Once more stable hopefully this will not be needed.
-luatexbase={}
-%
-% copy Module declaration
-luatexbase.provides_module = latex.provides_module
-%
-% luatexbase version records name in the attributes table.
-function luatexbase.new_attribute (name,...)
-local n = latex.new_attribute(name)
-luatexbase.attributes[name]=n
-return n
-end
-%
-% New allocator does not maintain a separate table
-% of attribute names, relies on registernumber
-% for that lookup, attributes declared in lua
-% use same sequence but calling lua code responsible
-% for keeping track of names.
-luatexbase.attributes={}
-%
-%
-% ltluatex does not copy the user defined callback mechanism
-% luaotfload needs (or at least uses) a simple one.
-% Here provide a very simple callback mechanism based on a
-% table of functions.
-% No provision for having lists of functions in a callback
-% But this is enough here.
-luatexbase.callbacks={}
-function luatexbase.create_callback(a,b,c)
-luatexbase.callbacks[a]=b
-end
-function luatexbase.reset_callback(a)
-luatexbase.callbacks[a]=nil
-end
-function luatexbase.call_callback(name,...)
-luatexbase.callbacks[name](...)
-end
-function luatexbase.add_to_callback(a,b,c,d)
-luatexbase.add_to_callback(a,b,c)
-end
-function luatexbase.add_to_callback(a,b,c)
-if(luatexbase.callbacks[a] == nil)
-then
-  latex.add_to_callback(a,b,c)
-else
-  luatexbase.callbacks[a]=b
-end
-end
-}
-
+\input{emu-luatexbase.sty}
 \input{luaotfload.sty}
 
 \font\llrm="Linux Libertine O"
