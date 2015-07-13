@@ -77,9 +77,10 @@ end
 end
 %
 % fontspec uses a latex-package catcode table
-% just define that to be table 0 for now.
+% this is called catcodetable@atletter in ltluatex.
+% We also need to emulate the catcodetables table.
 luatexbase.catcodetables={}
-luatexbase.catcodetables['latex-package']=0
+luatexbase.catcodetables['latex-package']=latex.registernumber("catcodetable@atletter")
 }
 \fi
 
