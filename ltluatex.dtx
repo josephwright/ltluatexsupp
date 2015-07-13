@@ -66,13 +66,13 @@
 % |\newattribute{|\meta{attribute}|}|\\
 % Defines a named \cs{attribute}, indexed from~$1$
 % (\emph{i.e.}~|\attribute0| is never defined). Attributes intially
-% have the the marker value |-"7FFFFFFF| (`unset') set by the engine.
+% have the marker value |-"7FFFFFFF| (`unset') set by the engine.
 %
 % \noindent
 % \DescribeMacro{\newcatcodetable}
 % |\newcatcodetable{|\meta{catcodetable}|}|\\
 % Defines a named \cs{catcodetable}, indexed from~$1$
-% (|\catcodetable0| never assigned). A new catcode table will be
+% (|\catcodetable0| is never assigned). A new catcode table will be
 % populated with exactly those values assigned by Ini\TeX{} (as described
 % in the Lua\TeX{} manual).
 %
@@ -84,7 +84,7 @@
 %
 % \noindent
 % \DescribeMacro{\newwhatsit}
-% |\newwhatsite{|\meta{whatsit}|}|\\
+% |\newwhatsit{|\meta{whatsit}|}|\\
 % Defines a custom \cs{whatsit}, indexed from~$1$.
 %
 % \DescribeMacro{\catcodetable@initex}
@@ -112,7 +112,8 @@
 % (`unset'). The attribute allocation sequence is shared with the \TeX{}
 % code but this function does \emph{not} define a token using
 % |\attributedef|.
-% 
+%
+% \noindent
 % \DescribeMacro{latex.new_whatsit}
 % |latex.new_whatsit(|\meta{whatsit}|)|\\
 % Returns an allocation number for the custom \meta{whatsit}, indexed from~$1$.
@@ -195,7 +196,7 @@
 % \DescribeMacro{latex.provides_module}
 % |latex.provides_module(|\meta{info}|)|\\
 % This function is used by modules to identify themselves; the |info| should be
-% ia table containing information about the module. The required field
+% a table containing information about the module. The required field
 % |name| must contain the name of the module. It is recommended to provide a
 % field |date| in the usual \LaTeX{} format |yyyy/mm/dd|. Optional fields
 % |version| (a string) and |description| may be used if present. This
@@ -610,7 +611,7 @@ latex.new_attribute = new_attribute
 % \subsection{Custom whatsit allocation}
 %
 % \begin{macro}{latex.new_whatsit}
-%  Much the same as for attribute alocation in Lua
+% Much the same as for attribute allocation in Lua
 %    \begin{macrocode}
 local function new_whatsit(name)
   tex_setcount("global", 261, tex_count[261] + 1)
@@ -818,7 +819,7 @@ local callbacktypes = callbacktypes or {
 %   Save the original function for registering callbacks and prevent the
 %   original being used. The original is saved in a place that remains
 %   available so other more sophisticated code can override the approach
-%   taken by the kernel is desired.
+%   taken by the kernel if desired.
 %    \begin{macrocode}
 local callback_register = callback_register or callback.register
 function callback.register()
