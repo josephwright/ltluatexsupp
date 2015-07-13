@@ -275,8 +275,8 @@
 %
 % This code adds |\string| to the error to avoid assuming the
 % token is defined and non expandable. (needed for whatsit allocator
-%    \begin{macrocode}
 % as currently defined).
+%    \begin{macrocode}
 \gdef\e@ch@ck#1#2#3#4{%
   \ifnum#1<#2\else
     \ifnum#1=#2\relax
