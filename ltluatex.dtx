@@ -231,8 +231,8 @@
 % |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
-% \DescribeMacro{latex.set_callback_false}
-% |latex.set_callback_false(|\meta{callback}|)|
+% \DescribeMacro{latex.disable_callback}
+% |latex.disable_callback(|\meta{callback}|)|
 % Sets the \metha{callback} to \texttt{false} as described in the Lua\TeX{}
 % manual for the underlying \texttt{callback.register} built-in. Callbacks
 % will only be set to false (and thus be skipped entirely) if there are
@@ -1016,19 +1016,19 @@ latex.remove_from_callback = remove_from_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.set_callback_false}
+% \begin{macro}{latex.disable_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   As we subvert the engine interface we need to provide a way to access
 %   this functionality.
 %    \begin{macrocode}
-local function set_callback_false(name)
+local function disable_callback(name)
   if(callbacklist[name] == nil) then
     callback_register(name, false)
   else
     latex_error("Callback list for " .. name .. " not empty")
   end
 end
-latex.set_callback_false=set_callback_false
+latex.disable_callback = disable_callback
 %    \end{macrocode}
 % \end{macro}
 %
