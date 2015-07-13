@@ -1027,7 +1027,7 @@ latex.remove_from_callback = remove_from_callback
 %    \begin{macrocode}
 local function added_to_callback(name, description)
   if not name
-    or name = ""
+    or name == ""
     or not callbacktypes[name]
     or not description then
       return false
