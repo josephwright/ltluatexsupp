@@ -8,12 +8,14 @@
 
 %
 % fixes to etex.src, 
-% These couldand probably should be made directly in an
+% These could and probably should be made directly in an
 % update to etex.src which already has some luatex-specific
 % code, but does not define the correct range for luatex.
 
 % 2015-07-13 higher range in luatex
 \edef \et@xmaxregs {\ifx\directlua\@undefined 32768\else 65536\fi}
+% etex allows more math fam
+\edef \et@xmaxfam {\ifx\Umathchar\@undefined\@cclvi\else\sixt@@n\fi}
 
 \count 270=\et@xmaxregs % locally allocates \count registers 32767, 32766, ...
 \count 271=\et@xmaxregs % ditto for \dimen registers
@@ -23,7 +25,14 @@
 \count 275=\et@xmaxregs % ditto for \toks registers
 \count 276=\et@xmaxregs % ditto for \marks classes
 
-% switch to global cf luatex.sty to leave room for inserts
+% and 256 or 16 fam
+\outer\def\newfam{\alloc@8\fam\chardef\et@xmaxfam}
+
+% end of proposed changes to etex.src
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% Switch to global cf luatex.sty to leave room for inserts
 % not really needed for luatex but possibly most compatible
 % with existing use.
 \let\newcount\globcount
@@ -32,7 +41,6 @@
 \let\newbox\globbox
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 
 
 
