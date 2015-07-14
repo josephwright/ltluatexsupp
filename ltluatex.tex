@@ -14,8 +14,8 @@
 
 % 2015-07-13 higher range in luatex
 \edef \et@xmaxregs {\ifx\directlua\@undefined 32768\else 65536\fi}
-% etex allows more math fam
-\edef \et@xmaxfam {\ifx\Umathchar\@undefined\@cclvi\else\sixt@@n\fi}
+% luatex/xetex also allow more math fam
+\edef \et@xmaxfam {\ifx\Umathchar\@undefined\sixt@@n\else\@cclvi\fi}
 
 \count 270=\et@xmaxregs % locally allocates \count registers 32767, 32766, ...
 \count 271=\et@xmaxregs % ditto for \dimen registers
