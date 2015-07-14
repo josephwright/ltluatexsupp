@@ -36,10 +36,10 @@ abc Difficult Volume AVAW
 \ifx\newluatexattribute\undefined\else
 \let\newattribute\newluatexattribute
 \fi
-
-% an undefined attribute, an attribute allovated in lua (in luaotfload)
-% and an attribute allocated in teX above.
 \newattribute\myattr
+
+% An undefined attribute, an attribute allocated from lua (in luaotfload)
+% and an attribute allocated from TeX in the line above.
 \directlua{
 texio.write_nl("attr test A: " .. (luatexbase.attributes["zzz"] or "nil"))
 texio.write_nl("attr test B: " .. (luatexbase.attributes["luaotfload@state"] or "nil"))
