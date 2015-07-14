@@ -31,4 +31,18 @@ abc Difficult Volume AVAW
 
 \textsf{xyz find fling Win}
 
+% get luatexbase or ltluatex version, not luatex.sty version
+% for this test
+\ifx\newluatexattribute\undefined\else
+\let\newattribute\newluatexattribute
+\fi
+
+% an undefined attribute, an attribute allovated in lua (in luaotfload)
+% and an attribute allocated in teX above.
+\newattribute\myattr
+\directlua{
+texio.write_nl("attr test A: " .. (luatexbase.attributes["zzz"] or "nil"))
+texio.write_nl("attr test B: " .. (luatexbase.attributes["luaotfload@state"] or "nil"))
+texio.write_nl("attr test C: " .. (luatexbase.attributes["myattr"] or "nil"))
+}
 \end{document}

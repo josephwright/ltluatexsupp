@@ -29,8 +29,15 @@ end
 % of attribute names, relies on registernumber
 % for that lookup, attributes declared in lua
 % use same sequence but calling lua code responsible
-% for keeping track of names.
-luatexbase.attributes={}
+% for keeping track of names. Use a metatable to look up
+% the names for any tex-allocated attributes.
+luatexbase.attributes=setmetatable(
+{},
+{
+__index = function(t,key)
+return latex.registernumber(key) or nil
+end}
+)
 %
 %
 % ltluatex does not copy the user defined callback mechanism
