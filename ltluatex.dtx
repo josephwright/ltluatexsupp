@@ -253,7 +253,7 @@
 % \subsection{Fix-ups}
 %
 %    \begin{macrocode}
-%<*2ekernel>
+%<*kernel|package>
 %    \end{macrocode}
 %
 % The code below depends on some changes that may be made elsewhere in
@@ -431,9 +431,8 @@
 % known registers: for convenience we use a set of systematic names, which
 % means using a group around the Lua loader.
 %    \begin{macrocode}
-%%\everyjob\expandafter{%
-%%  \the\everyjob
-%% Whilst in testing, load at every run.
+%<kernel>\everyjob\expandafter{%
+%<kernel>  \the\everyjob
   \begingroup
     \attributedef\attributezero=0 %
     \chardef     \charzero     =0 %
@@ -443,13 +442,13 @@
     \muskipdef   \muskipzero   =0 %
     \skipdef     \skipzero     =0 %
     \toksdef     \tokszero     =0 %
-    \directlua{require("latex2e")}
+    \directlua{require("ltluatex")}
   \endgroup
-%%}
+%<kernel>}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-%</2ekernel>
+%</kernel|package>
 %    \end{macrocode}
 %
 % \subsection{Lua module preliminaries}
@@ -461,7 +460,7 @@
 %  \catcode`_=12
 %
 %    \begin{macrocode}
-%<*2elua>
+%<*lua>
 %    \end{macrocode}
 %
 % Some set up for the Lua module which is needed for all of the Lua
@@ -1081,7 +1080,7 @@ latex.disable_callback = disable_callback
 % \endgroup
 %
 %    \begin{macrocode}
-%</2elua>
+%</lua>
 %    \end{macrocode}
 %
 % \Finale
