@@ -590,8 +590,7 @@
 %    \begin{macrocode}
 \def\popcatcodes{%
   \ifx\@catcodetablestack\@empty
-    \PackageError{lualatexsupport}
-      {Attempt to pop empty catcodetable stack}\@ehc
+    \errmessage{Attempt to pop empty catcodetable stack}%
   \fi
   \expandafter\@popctbl\@catcodetablestack\@nil
 }
