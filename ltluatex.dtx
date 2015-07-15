@@ -38,7 +38,9 @@
 % Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Several of
 % these require set up that is best done in the kernel or need related support
 % functions. This file provides \emph{basic} support for Lua\TeX{} at the
-% \LaTeXe{} kernel level.
+% \LaTeXe{} kernel level plus as a loadable package which can be used with plain
+% \TeX{} and \LaTeX{}. For \LaTeX{}, the package adds a small number of commands
+% which do not fit into the scope of the kernel.
 %
 % This file contains code for both \TeX{} (to be stored as part of the format)
 % and Lua (to be loaded at the start of each job). In the Lua code, the kernel
@@ -60,7 +62,7 @@
 % \LaTeXe{} kernel did not provide any functionality for the extended
 % allocation area).
 %
-% \section{\TeX{} functionality}
+% \section{Core \TeX{} functionality}
 %
 % \DescribeMacro{\newattribute}
 % |\newattribute{|\meta{attribute}|}|\\
@@ -94,6 +96,48 @@
 % Predefined category code tables with the obvious assingments. Note
 % that the |latex| and |atletter| tables set the full Unicode range
 % to the codes predefined by the kernel.
+%
+% \section{Package-only \TeX{} functionality}
+%
+% \DescribeMacro{\setattribute}
+% \DescribeMacro{\unsetattribute}
+% |\setattribute{|\meta{attribute}|}{|\meta{value}|}|\\
+% |\unsetattribute{|\meta{attribute}|}|\\
+% Set and unset attributes in a manner analogous to |\setlength|. Note that
+% attributes take a marker value when unset so this operation is distinct
+% from setting the value to zero.
+%
+% \DescribeMacro{\setcatcodetable}
+% |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|\\
+% Sets the \meta{table} (which must have been previously defined) to
+% apply the \meta{catcodes} specified.
+%
+% \DescribeMacro{\setrangecatcode}
+% |\setrangecatcode{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|\\
+% Sets all characters in the range \meta{start}--\meta{end} inclusive to
+% have the \meta{catcode} specified.
+%
+% \DescribeMacro{\pushcatcodes}
+% \DescribeMacro{\popcatcodes}
+% |\pushcatcodes|\\
+% |\popcatcodes|\\
+% This pair of commands enable the current category code r\'{e}gime to
+% be saved and restored meaning that arbitrary catcode changes can be made.
+% This functionality will normally be used in concert with applying
+% catcode tables. For example
+% \begin{verbatim}
+% \catcode`\Z=4 %
+% \pushcatcodes
+% \expandafter\catcodetable\csname catcodetable@latex\endcsname
+% % Code here
+% \popcatcodes
+% \showthe\catcode`\Z
+% \end{verbatim}
+% will ensure that the `content' is set with normal category codes but
+% allow restoration of the non-standard codes at the conclusion. Importantly,
+% it does not require that anything is known about the catcode situation in
+% advance (\emph{cf.}~a more traditional approach to saving the state of
+% targeting characters).
 %
 % \section{Lua functionality}
 %
@@ -449,6 +493,118 @@
 %
 %    \begin{macrocode}
 %</kernel|package>
+%    \end{macrocode}
+%
+% \subsection{Package-only functionality}
+%
+%    \begin{macrocode}
+%<*package>
+%    \end{macrocode}
+%
+% \subsubsection{Attributes}
+%
+% \begin{macro}{\setattribute}
+% \begin{macro}{\unsetattribute}
+%   Handy utilities.
+%    \begin{macrocode}
+\def\setattribute#1#2{#1=\numexpr#2\relax}
+\def\unsetattribute#1{#1=-"7FFFFFFF\relax}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \subsubsection{Category code table support}
+%
+% \begin{macro}{\setcatcodetable}
+% \begin{macro}{\setrangecatcode}
+%   Handy utilities.
+%    \begin{macrocode}
+\def\setcatcodetable#1#2{%
+  \begingroup
+    #2%
+    \savecatcodetable#1%
+  \endgroup
+}
+\def\setrangecatcode#1#2#3{%
+  \ifnum#1>#2 %
+    \expandafter\@gobble
+  \else
+    \expandafter\@firstofone
+  \fi
+    {%
+      \catcode#1=#3 %
+      \expandafter\setrangecatcode\expandafter
+        {\number\numexpr#1+1\relax}{#2}{#3}%
+    }%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@catcodetablelist}
+% \begin{macro}{\@catcodetablestack}
+%   Data structures for a stack: a list of free tables in the stack and
+%   the stack record itself.
+%    \begin{macrocode}
+\def\@catcodetablelist{}
+\def\@catcodetablestack{}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\@catcodetablestackcnt}
+%   A count for adding to the list of scratch tables.
+%    \begin{macrocode}
+\newcount\@catcodetablestackcnt
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\pushcatcodes}
+% \begin{macro}{\@pushctbl}
+%   To push a table, first check there is a free one in the pool and if
+%   not create one. Then take the top table in the pool and use it to save
+%   the current table.
+%    \begin{macrocode}
+\def\pushcatcodes{%
+  \ifx\@catcodetablelist\empty
+    \global\advance\@catcodetablestackcnt by\@ne
+    \edef\@tempa{\@nameuse{ct@\the\@catcodetablestackcnt}}%
+    \expandafter\newcatcodetable\@tempa
+    \xdef\@catcodetablelist{\@tempa}%
+  \fi
+  \expandafter\@pushctbl\@catcodetablelist\@nil
+}
+\def\@pushctbl#1#2\@nil{%
+  \gdef\@catcodetablelist{#2}%
+  \xdef\@catcodetablestack{#1\@catcodetablestack}%
+  \savecatcodetable#1%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\popcatcodes}
+% \begin{macro}{\@popctbl}
+%   Much the same in reverse.
+%    \begin{macrocode}
+\def\popcatcodes{%
+  \ifx\@catcodetablestack\@empty
+    \PackageError{lualatexsupport}
+      {Attempt to pop empty catcodetable stack}\@ehc
+  \fi
+  \expandafter\@popctbl\@catcodetablestack\@nil
+}
+\def\@popctbl#1#2\@nil{%
+  \gdef\@catcodetablestack{#2}%
+  \xdef\@catcodetablelist{\@catcodetablelist#1}%
+  \catcodetable#1%
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+%    \begin{macrocode}
+%</package>
 %    \end{macrocode}
 %
 % \subsection{Lua module preliminaries}
