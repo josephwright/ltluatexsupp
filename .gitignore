@@ -1,6 +1,7 @@
 *.aux
+*.def
 *.gz
 *.pdf
 *.log
 *.lua
-*.sty
+ltluatex.sty
