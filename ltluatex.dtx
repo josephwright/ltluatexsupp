@@ -150,8 +150,8 @@
 %
 % \section{Allocators in Lua}
 %
-% \DescribeMacro{latex.new_attribute}
-% |latex.new_attribute(|\meta{attribute}|)|\\
+% \DescribeMacro{luatexbase.new_attribute}
+% |luatexbase.new_attribute(|\meta{attribute}|)|\\
 % Returns an allocation number for the \meta{attribute}, indexed from~$1$.
 % The attribute will be initialised with the marker value |-"7FFFFFFF|
 % (`unset'). The attribute allocation sequence is shared with the \TeX{}
@@ -162,20 +162,20 @@
 % consistently for attributes declared in \TeX\ or lua.
 %
 % \noindent
-% \DescribeMacro{latex.new_whatsit}
-% |latex.new_whatsit(|\meta{whatsit}|)|\\
+% \DescribeMacro{luatexbase.new_whatsit}
+% |luatexbase.new_whatsit(|\meta{whatsit}|)|\\
 % Returns an allocation number for the custom \meta{whatsit}, indexed from~$1$.
 %
 % \section{Lua access to \TeX{} register numbers}
 %
-% \DescribeMacro{latex.registernumber}
-% |latex.registernumer(|\meta{name}|)|\\
+% \DescribeMacro{luatexbase.registernumber}
+% |luatexbase.registernumer(|\meta{name}|)|\\
 % Sometimes (notably in the case of Lua attributes) it is necessary to
 % access a register \emph{by number} that has been allocated by \TeX{}.
 % This package provides a function to look up the relevant number
 % using Lua\TeX{}'s internal tables. So after for example
 % |\newattribute\myattrib|, |\myattrib| would be defined by (say)
-% |\myattrib=\attribute15|. The function call |latex.registernumer("myattrib")|
+% |\myattrib=\attribute15|. The function call |luatexbase.registernumer("myattrib")|
 % will then return the register number, $15$ in this case. If the string passed
 % as argument does not correspond to a token defined by |\attributedef|,
 % |\countdef| or similar commands, the Lua value |false| is returned.
@@ -185,7 +185,7 @@
 % \newcommand\test[1]{%
 % \typeout{#1: \expandafter\meaning\csname#1\endcsname^^J
 % \space\space\space\space
-% \directlua{tex.write(latex.registernumber("#1") or "bad input")}%
+% \directlua{tex.write(luatexbase.registernumber("#1") or "bad input")}%
 % }}
 %
 % \test{undefinedrubbish}
@@ -241,8 +241,8 @@
 %
 % \subsection{Module utilities}
 %
-% \DescribeMacro{latex.provides_module}
-% |latex.provides_module(|\meta{info}|)|\\
+% \DescribeMacro{luatexbase.provides_module}
+% |luatexbase.provides_module(|\meta{info}|)|\\
 % This function is used by modules to identify themselves; the |info| should be
 % a table containing information about the module. The required field
 % |name| must contain the name of the module. It is recommended to provide a
@@ -251,18 +251,18 @@
 % information will be recorded in the log. Other fields are ignored.
 %
 % \noindent
-% \DescribeMacro{latex.module_info}
-% \DescribeMacro{latex.module_warning}
-% \DescribeMacro{latex.module_error}
-% |latex.module_info(|\meta{module}, \meta{text}|)|\\
-% |latex.module_warning(|\meta{module}, \meta{text}|)|\\
-% |latex.module_error(|\meta{module}, \meta{text}|)|\\
+% \DescribeMacro{luatexbase.module_info}
+% \DescribeMacro{luatexbase.module_warning}
+% \DescribeMacro{luatexbase.module_error}
+% |luatexbase.module_info(|\meta{module}, \meta{text}|)|\\
+% |luatexbase.module_warning(|\meta{module}, \meta{text}|)|\\
+% |luatexbase.module_error(|\meta{module}, \meta{text}|)|\\
 % These functions are similar to \LaTeX{}'s |\PackageError|, |\PackageWarning|
 % and |\PackageInfo| in the way they format the output.  No automatic line
 % breaking is done, you may still use |\n| as usual for that, and the name of
 % the package will be prepended to each output line.
 %
-% Note that |latex.module_error| raises an actual Lua error with |error()|,
+% Note that |luatexbase.module_error| raises an actual Lua error with |error()|,
 % which currently means a call stack will be dumped. While this may not
 % look pretty, at least it provides useful information for tracking the
 % error down.
@@ -270,41 +270,41 @@
 % \subsection{Callback management}
 %
 % \noindent
-% \DescribeMacro{latex.add_to_callback}
-% |latex.add_to_callback(|^^A
+% \DescribeMacro{luatexbase.add_to_callback}
+% |luatexbase.add_to_callback(|^^A
 % \meta{callback}, \meta{function}, \meta{description}|)|
 % Registers the \meta{function} into the \meta{callback} with a textual
 % \meta{description} of the function. Functions are inserted into the callback
 % in the order loaded.
 %
 % \noindent
-% \DescribeMacro{latex.remove_from_callback}
-% |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
+% \DescribeMacro{luatexbase.remove_from_callback}
+% |luatexbase.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
 % \noindent
-% \DescribeMacro{latex.added_to_callback}
-% |latex.added_to_callback(|\meta{callback}, \meta{description}|)|
+% \DescribeMacro{luatexbase.added_to_callback}
+% |luatexbase.added_to_callback(|\meta{callback}, \meta{description}|)|
 % Checks if the \meta{description} matches one of the functions added
 % to the list for the \meta{callback}, returning a boolean value.
 %
 % \noindent
-% \DescribeMacro{latex.disable_callback}
-% |latex.disable_callback(|\meta{callback}|)|
+% \DescribeMacro{luatexbase.disable_callback}
+% |luatexbase.disable_callback(|\meta{callback}|)|
 % Sets the \meta{callback} to \texttt{false} as described in the Lua\TeX{}
 % manual for the underlying \texttt{callback.register} built-in. Callbacks
 % will only be set to false (and thus be skipped entirely) if there are
 % no functions registered using the callback.
 %
 % \noindent
-% \DescribeMacro{latex.create_callback}
-% |latex.create_callback(|\meta{name},meta{type},\meta{default}|)|
+% \DescribeMacro{luatexbase.create_callback}
+% |luatexbase.create_callback(|\meta{name},meta{type},\meta{default}|)|
 % Defines a user defined callback. The last argument is a default
 % functtion of |false|.
 %
 % \noindent
-% \DescribeMacro{latex.call_callback}
-% |latex.create_callback(|\meta{name},\ldots|)|
+% \DescribeMacro{luatexbase.call_callback}
+% |luatexbase.create_callback(|\meta{name},\ldots|)|
 % Calls a user defined callback with the supplied arguments.
 %
 % \endgroup
@@ -640,13 +640,13 @@
 % Some set up for the Lua module which is needed for all of the Lua
 % functionality added here.
 %
-% \begin{macro}{latex}
+% \begin{macro}{luatexbase}
 % \changes{v1.0a}{0000/00/00}{Table added}
 %   Set up the table for the returned functions. This is used to expose
 %   all of the public functions.
 %    \begin{macrocode}
-latex       = latex or { }
-local latex = latex
+luatexbase       = luatexbase or { }
+local luatexbase = luatexbase
 %    \end{macrocode}
 % \end{macro}
 %
@@ -663,7 +663,7 @@ local texio_write_nl   = texio.write_nl
 %
 % \subsubsection{Module tracking}
 %
-% \begin{macro}{latex.modules}
+% \begin{macro}{luatexbase.modules}
 % \changes{v1.0a}{0000/00/00}{Function modified}
 %   To allow tracking of module usage, a structure is provided to store
 %   information and to return it.
@@ -672,14 +672,14 @@ local modules = modules or { }
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.provides_module}
+% \begin{macro}{luatexbase.provides_module}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Modelled on |\ProvidesPackage|, we store much the same information but
 %   with a little more structure.
 %    \begin{macrocode}
 local function provides_module(info)
   if not (info and info.name) then
-    latex_error("Missing module name for provides_modules")
+    luatexbase_error("Missing module name for provides_modules")
     return
   end
   local function spaced(text)
@@ -694,7 +694,7 @@ local function provides_module(info)
   )
   modules[info.name] = info
 end
-latex.provides_module = provides_module
+luatexbase.provides_module = provides_module
 %    \end{macrocode}
 % \end{macro}
 %
@@ -732,11 +732,11 @@ local function msg_format(mod, msg_type, text)
 end
 %    \end{macrocode}
 %
-% \begin{macro}{latex.module_info}
+% \begin{macro}{luatexbase.module_info}
 % \changes{v1.0a}{0000/00/00}{Function added}
-% \begin{macro}{latex.module_warning}
+% \begin{macro}{luatexbase.module_warning}
 % \changes{v1.0a}{0000/00/00}{Function added}
-% \begin{macro}{latex.module_error}
+% \begin{macro}{luatexbase.module_error}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Write messages.
 %    \begin{macrocode}
@@ -746,14 +746,14 @@ local function module_info(mod, text)
     texio_write_nl("log", i)
   end
 end
-latex.module_info = module_info
+luatexbase.module_info = module_info
 local function module_warning(mod, text)
   local i
   for _,i in ipairs(msg_format(mod, "Warning", text):explode("\n")) do
     texio_write_nl("term and log", i)
   end
 end
-latex.module_warning = module_warning
+luatexbase.module_warning = module_warning
 local function module_error(mod, text)
   local i
   for _,i in ipairs(msg_format(mod, "Error", text):explode("\n")) do
@@ -762,7 +762,7 @@ local function module_error(mod, text)
   texio_write_nl("term and log", "\n")
   error("See " .. mod .. " Error")
 end
-latex.module_error = module_error
+luatexbase.module_error = module_error
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -770,11 +770,11 @@ latex.module_error = module_error
 %
 % Dedicated versions for the rest of the code here.
 %    \begin{macrocode}
-local function latex_warning(text)
-  module_warning("LaTeX", text)
+local function luatexbase_warning(text)
+  module_warning("luatexbase", text)
 end
-local function latex_error(text)
-  module_error("LaTeX", text)
+local function luatexbase_error(text)
+  module_error("luatexbase", text)
 end
 %    \end{macrocode}
 %
@@ -809,7 +809,7 @@ for i,j in pairs (registermap) do
 end
 %    \end{macrocode}
 %
-% \begin{macro}{latex.registernumber}
+% \begin{macro}{luatexbase.registernumber}
 %   Working out the correct return value can be done in two ways. For older
 %   Lua\TeX{} releases it has to be extracted from the |hashtokens|. On the
 %   other hand, newer Lua\TeX{}'s have |newtoken|, and whilst |.mode| isn't
@@ -836,13 +836,13 @@ else
     end
   end
 end
-latex.registernumber = registernumber
+luatexbase.registernumber = registernumber
 %    \end{macrocode}
 % \end{macro}
 %
 % \subsection{Attribute allocation}
 %
-% \begin{macro}{latex.new_attribute}
+% \begin{macro}{luatexbase.new_attribute}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   As attributes are used for Lua manipulations its useful to be able
 %   to assign from this end.
@@ -854,39 +854,39 @@ __index = function(t,key)
 return registernumber(key) or nil
 end}
 )
-latex.attributes=attributes
+luatexbase.attributes=attributes
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 local function new_attribute(name)
   tex_setcount("global", 258, tex_count[258] + 1)
   if tex_count[258] > 65534 then
-    latex_error("No room for a new \\attribute")
+    luatexbase_error("No room for a new \\attribute")
     return -1
   end
   attributes[name]= tex_count[258]
   texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
   return tex_count[258]
 end
-latex.new_attribute = new_attribute
+luatexbase.new_attribute = new_attribute
 %    \end{macrocode}
 % \end{macro}
 %
 % \subsection{Custom whatsit allocation}
 %
-% \begin{macro}{latex.new_whatsit}
+% \begin{macro}{luatexbase.new_whatsit}
 % Much the same as for attribute allocation in Lua
 %    \begin{macrocode}
 local function new_whatsit(name)
   tex_setcount("global", 261, tex_count[261] + 1)
   if tex_count[261] > 65534 then
-    latex_error("No room for a new custom whatsit")
+    luatexbase_error("No room for a new custom whatsit")
     return -1
   end
   texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[261])
   return tex_count[261]
 end
-latex.new_whatsit = new_whatsit
+luatexbase.new_whatsit = new_whatsit
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1026,7 +1026,7 @@ local callbacktypes = callbacktypes or {
 %    \begin{macrocode}
 local callback_register = callback_register or callback.register
 function callback.register()
-  latex_error("Attempt to use callback.register() directly.")
+  luatexbase_error("Attempt to use callback.register() directly.")
 end
 %    \end{macrocode}
 % \end{macro}
@@ -1074,7 +1074,7 @@ local function list_handler(name)
     for _,i in ipairs(callbacklist[name]) do
       ret = i.func(head, ...)
       if ret == false then
-        latex_warning(
+        luatexbase_warning(
           "Function `i.description' returned false\n"
             .. "in callback `name'"
          )
@@ -1121,7 +1121,7 @@ local handlers = {
 local user_callbacks_defaults = { }
 %    \end{macrocode}
 %
-% \begin{macro}{latex.create_callback}
+% \begin{macro}{luatexbase.create_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   The allocator itself.
 %    \begin{macrocode}
@@ -1131,16 +1131,16 @@ local function create_callback(name, ctype, default)
     callbacktypes[name] or
     not(default == false or  type(default) == "function")
     then
-      latex_error("Unable to create callback " .. name)
+      luatexbase_error("Unable to create callback " .. name)
   end
   user_callbacks_defaults[name] = default
   callbacktypes[name] = types[ctype]
 end
-latex.create_callback = create_callback
+luatexbase.create_callback = create_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.call_callback}
+% \begin{macro}{luatexbase.call_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %  Call a user defined callback. First check arguments.
 %    \begin{macrocode}
@@ -1149,7 +1149,7 @@ local function call_callback(name,...)
     name == "" or
     user_callbacks_defaults[name] == nil
     then
-        latex_error("Unable to call callback " .. name)
+        luatexbase_error("Unable to call callback " .. name)
   end
   local l = callbacklist[name]
   local f
@@ -1163,11 +1163,11 @@ local function call_callback(name,...)
   end
   return f(...)
 end
-latex.call_callback=call_callback
+luatexbase.call_callback=call_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.add_to_callback}
+% \begin{macro}{luatexbase.add_to_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Add a function to a callback. First check arguments.
 %    \begin{macrocode}
@@ -1179,7 +1179,7 @@ local function add_to_callback(name, func, description)
     type(func) ~= "function" or
     not description or
     description == "" then
-    latex_error(
+    luatexbase_error(
       "Unable to register callback.\n\n"
         .. "Correct usage:\n"
         .. "add_to_callback(<callback>, <function>, <description>)"
@@ -1212,7 +1212,7 @@ local function add_to_callback(name, func, description)
   local priority = #l + 1
   if callbacktypes[name] == exclusive then
     if #l == 1 then
-      latex_error(
+      luatexbase_error(
         "Cannot add second callback to exclusive function `" .. name .. "'."
       )
     end
@@ -1226,11 +1226,11 @@ local function add_to_callback(name, func, description)
       .. priority .. " in `" .. name .. "'."
   )
 end
-latex.add_to_callback = add_to_callback
+luatexbase.add_to_callback = add_to_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.remove_from_callback}
+% \begin{macro}{luatexbase.remove_from_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Remove a function from a callback. First check arguments.
 %    \begin{macrocode}
@@ -1241,7 +1241,7 @@ local function remove_from_callback(name, description)
     not callbacktypes[name] or
     not description or
     description == "" then
-    latex_error(
+    luatexbase_error(
       "Unable to remove function from callback.\n\n"
         .. "Correct usage:\n"
         .. "remove_to_callback(<callback>, <description>)"
@@ -1250,7 +1250,7 @@ local function remove_from_callback(name, description)
   end
   local l = callbacklist[name]
   if not l then
-    latex_error("No callback list for `" .. name .. "'.")
+    luatexbase_error("No callback list for `" .. name .. "'.")
   end
 %    \end{macrocode}
 %  Loop over the callback's function list until we find a matching entry.
@@ -1266,7 +1266,7 @@ local function remove_from_callback(name, description)
     end
   end
   if not index then
-    latex_error(
+    luatexbase_error(
       "No callback `" .. description .. "' registered for `" .. name .. "'."
     )
     return
@@ -1280,11 +1280,11 @@ local function remove_from_callback(name, description)
     callback_register(name, nil)
   end
 end
-latex.remove_from_callback = remove_from_callback
+luatexbase.remove_from_callback = remove_from_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.added_to_callback}
+% \begin{macro}{luatexbase.added_to_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Look for a function description in a callback.
 %    \begin{macrocode}
@@ -1303,11 +1303,11 @@ local function added_to_callback(name, description)
   end
   return false
 end
-latex.added_to_callback = added_to_callback
+luatexbase.added_to_callback = added_to_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{latex.disable_callback}
+% \begin{macro}{luatexbase.disable_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   As we subvert the engine interface we need to provide a way to access
 %   this functionality.
@@ -1316,10 +1316,10 @@ local function disable_callback(name)
   if(callbacklist[name] == nil) then
     callback_register(name, false)
   else
-    latex_error("Callback list for " .. name .. " not empty")
+    luatexbase_error("Callback list for " .. name .. " not empty")
   end
 end
-latex.disable_callback = disable_callback
+luatexbase.disable_callback = disable_callback
 %    \end{macrocode}
 % \end{macro}
 %
