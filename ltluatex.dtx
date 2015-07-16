@@ -266,6 +266,7 @@
 %
 % \subsection{Callback management}
 %
+% \noindent
 % \DescribeMacro{latex.add_to_callback}
 % |latex.add_to_callback(|^^A
 % \meta{callback}, \meta{function}, \meta{description}|)|
@@ -273,21 +274,35 @@
 % \meta{description} of the function. Functions are inserted into the callback
 % in the order loaded.
 %
+% \noindent
 % \DescribeMacro{latex.remove_from_callback}
 % |latex.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
 %
+% \noindent
 % \DescribeMacro{latex.added_to_callback}
 % |latex.added_to_callback(|\meta{callback}, \meta{description}|)|
 % Checks if the \meta{description} matches one of the functions added
 % to the list for the \meta{callback}, returning a boolean value.
 %
+% \noindent
 % \DescribeMacro{latex.disable_callback}
 % |latex.disable_callback(|\meta{callback}|)|
 % Sets the \meta{callback} to \texttt{false} as described in the Lua\TeX{}
 % manual for the underlying \texttt{callback.register} built-in. Callbacks
 % will only be set to false (and thus be skipped entirely) if there are
 % no functions registered using the callback.
+%
+% \noindent
+% \DescribeMacro{latex.create_callback}
+% |latex.create_callback(|\meta{name},meta{type},\meta{default}|)|
+% Defines a user defined callback. The last argument is a default
+% functtion of |false|.
+%
+% \noindent
+% \DescribeMacro{latex.call_callback}
+% |latex.create_callback(|\meta{name},\ldots|)|
+% Calls a user defined callback with the supplied arguments.
 %
 % \endgroup
 %
@@ -1112,6 +1127,7 @@ latex.create_callback = create_callback
 % \begin{macro}{latex.call_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %  Call a user defined callback. First check arguments.
+%    \begin{macrocode}
 local function call_callback(name,...)
 if
 not name or
