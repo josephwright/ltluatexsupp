@@ -2,9 +2,13 @@
 % minimal luatexbase emulation, for testing with
 % current luaotfload package
 %
-% Prevent luatexbase loading when it is referenced
+% Prevent luatex/luatexbase loading when it is referenced
 \expandafter\def\csname luatexbase@sty@endinput\endcsname{}
 \expandafter\def\csname ver@luatexbase.sty\endcsname{}
+\expandafter\def\csname ver@luatexbase-modutils.sty\endcsname{}
+\expandafter\def\csname ver@luatexbase-mcb.sty\endcsname{}
+\expandafter\def\csname ver@luatexbase-attr.sty\endcsname{}
+\expandafter\def\csname ver@luatex.sty\endcsname{}
 %
 % Simple require wrapper so that luaotfload does get loaded.
 \def\RequireLuaModule#1{\directlua{require("#1")}}
