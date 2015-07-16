@@ -157,6 +157,9 @@
 % (`unset'). The attribute allocation sequence is shared with the \TeX{}
 % code but this function does \emph{not} define a token using
 % |\attributedef|.
+% The attribute name is recorded in the |attributes| table. A
+% metatable is provided so that the table syntax can be used
+% consistently for attributes declared in \TeX\ or lua.
 %
 % \noindent
 % \DescribeMacro{latex.new_whatsit}
@@ -775,43 +778,6 @@ local function latex_error(text)
 end
 %    \end{macrocode}
 %
-% \subsection{Attribute allocation}
-%
-% \begin{macro}{latex.new_attribute}
-% \changes{v1.0a}{0000/00/00}{Function added}
-%   As attributes are used for Lua manipulations its useful to be able
-%   to assign from this end.
-%    \begin{macrocode}
-local function new_attribute(name)
-  tex_setcount("global", 258, tex_count[258] + 1)
-  if tex_count[258] > 65534 then
-    latex_error("No room for a new \\attribute")
-    return -1
-  end
-  texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
-  return tex_count[258]
-end
-latex.new_attribute = new_attribute
-%    \end{macrocode}
-% \end{macro}
-%
-% \subsection{Custom whatsit allocation}
-%
-% \begin{macro}{latex.new_whatsit}
-% Much the same as for attribute allocation in Lua
-%    \begin{macrocode}
-local function new_whatsit(name)
-  tex_setcount("global", 261, tex_count[261] + 1)
-  if tex_count[261] > 65534 then
-    latex_error("No room for a new custom whatsit")
-    return -1
-  end
-  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[261])
-  return tex_count[261]
-end
-latex.new_whatsit = new_whatsit
-%    \end{macrocode}
-% \end{macro}
 %
 % \subsection{Accessing register numbers from Lua}
 %
@@ -871,6 +837,56 @@ else
   end
 end
 latex.registernumber = registernumber
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Attribute allocation}
+%
+% \begin{macro}{latex.new_attribute}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   As attributes are used for Lua manipulations its useful to be able
+%   to assign from this end.
+%    \begin{macrocode}
+local attributes=setmetatable(
+{},
+{
+__index = function(t,key)
+return registernumber(key) or nil
+end}
+)
+latex.attributes=attributes
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+local function new_attribute(name)
+  tex_setcount("global", 258, tex_count[258] + 1)
+  if tex_count[258] > 65534 then
+    latex_error("No room for a new \\attribute")
+    return -1
+  end
+  attributes[name]= tex_count[258]
+  texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
+  return tex_count[258]
+end
+latex.new_attribute = new_attribute
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Custom whatsit allocation}
+%
+% \begin{macro}{latex.new_whatsit}
+% Much the same as for attribute allocation in Lua
+%    \begin{macrocode}
+local function new_whatsit(name)
+  tex_setcount("global", 261, tex_count[261] + 1)
+  if tex_count[261] > 65534 then
+    latex_error("No room for a new custom whatsit")
+    return -1
+  end
+  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[261])
+  return tex_count[261]
+end
+latex.new_whatsit = new_whatsit
 %    \end{macrocode}
 % \end{macro}
 %

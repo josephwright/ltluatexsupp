@@ -18,26 +18,10 @@ luatexbase={}
 % copy Module declaration
 luatexbase.provides_module = latex.provides_module
 %
-% luatexbase version records name in the attributes table.
-function luatexbase.new_attribute (name,...)
-local n = latex.new_attribute(name)
-luatexbase.attributes[name]=n
-return n
-end
-%
-% New allocator does not maintain a separate table
-% of attribute names, relies on registernumber
-% for that lookup, attributes declared in lua
-% use same sequence but calling lua code responsible
-% for keeping track of names. Use a metatable to look up
-% the names for any tex-allocated attributes.
-luatexbase.attributes=setmetatable(
-{},
-{
-__index = function(t,key)
-return latex.registernumber(key) or nil
-end}
-)
+% attributes
+luatexbase.new_attribute=latex.new_attribute
+luatexbase.attributes=latex.attributes
+
 %
 %
 % callbacks
