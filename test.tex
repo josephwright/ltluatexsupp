@@ -25,7 +25,7 @@
 \newcatcodetable\ctbl
 \newattribute\lattr
 
-\directlua{registernumber = latex.registernumber}
+\directlua{registernumber = luatexbase.registernumber}
 
 \begin{document}
 
@@ -90,11 +90,27 @@ end
 function zzzC (s)
 return string.gsub(s,"C", "[Capital c was here]")
 end
-latex.add_to_callback('process_input_buffer',zzzX,"testing X")
-latex.add_to_callback('process_input_buffer',zzzC,"testing C")
+luatexbase.add_to_callback('process_input_buffer',zzzX,"testing X")
+luatexbase.add_to_callback('process_input_buffer',zzzC,"testing C")
 }
 
 \typeout{123XYZ456ABC}
+
+
+\newwhatsit\fromtexwhatsita
+\typeout{fromtexwhatsita=\the\fromtexwhatsita}
+
+\directlua{
+luatexbase.new_whatsit("fromluawhatsita")
+}
+
+\newwhatsit\fromtexwhatsitb
+
+\typeout{fromtexwhatsitb=\the\fromtexwhatsitb}
+
+\directlua{
+luatexbase.new_whatsit("fromluawhatsitb")
+}
 
 
 \end{document}
