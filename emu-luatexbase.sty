@@ -9,6 +9,11 @@
 % Simple require wrapper so that luaotfload does get loaded.
 \def\RequireLuaModule#1{\directlua{require("#1")}}
 
+
+% resolve name clashes...
+\let\newluatexattribute\newattribute
+
+
 \directlua{
 % probably this shouldn't be allowed on primitive callbacks
 % but this version allows otfload to run.
