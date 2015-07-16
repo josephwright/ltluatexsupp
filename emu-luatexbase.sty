@@ -40,32 +40,14 @@ end}
 )
 %
 %
-% ltluatex does not copy the user defined callback mechanism
-% luaotfload needs (or at least uses) a simple one.
-% Here provide a very simple callback mechanism based on a
-% table of functions.
-% No provision for having lists of functions in a callback
-% But this is enough here.
-luatexbase.callbacks={}
-function luatexbase.create_callback(a,b,c)
-luatexbase.callbacks[a]=b
-end
+% callbacks
+luatexbase.create_callback=latex.create_callback
+luatexbase.call_callback=latex.call_callback
+luatexbase.add_to_callback=latex.add_to_callback
+% probably this shouldn't be allowed on primitive callbacks
+% but this version allows otfload to run.
 function luatexbase.reset_callback(a)
-luatexbase.callbacks[a]=nil
-end
-function luatexbase.call_callback(name,...)
-luatexbase.callbacks[name](...)
-end
-function luatexbase.add_to_callback(a,b,c,d)
-luatexbase.add_to_callback(a,b,c)
-end
-function luatexbase.add_to_callback(a,b,c)
-if(luatexbase.callbacks[a] == nil)
-then
-  latex.add_to_callback(a,b,c)
-else
-  luatexbase.callbacks[a]=b
-end
+latex.disable_callback(a)
 end
 %
 % fontspec uses a latex-package catcode table
@@ -75,3 +57,4 @@ luatexbase.catcodetables={}
 luatexbase.catcodetables['latex-package'] =
       latex.registernumber("catcodetable@atletter")
 }
+
