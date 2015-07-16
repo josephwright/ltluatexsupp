@@ -72,37 +72,16 @@
 %%%%%%
 \long\def \@gobble #1{}
 \long\def\@firstofone#1{#1}
-\input ltluatex.sty\relax
-
 
 % fix up allocations not to clash with etex.src
-% \count registers 256-259 and 267-269 are not (yet) used
-% 
 
-% ltluatex uses 258 and 259
-% also uses 260 and 261 but change them to 267 and 268
-\def\newluafunction{%
-  \e@alloc\luafunction\e@alloc@chardef
-    {\count267}\m@ne\e@alloc@top
-}
-\count267=\z@
-\def\newwhatsit#1{%
-  \e@alloc\whatsit\e@alloc@chardef
-    {\count268}\m@ne\e@alloc@top#1%
-}
-\count268=\z@
+\newcount\e@alloc@attribute@count
+\newcount\e@alloc@ccodetable@count
+\newcount\e@alloc@luafunction@count
+\newcount\e@alloc@whatsit@count
 
-\directlua{
-local function new_whatsit(name)
-  tex_setcount("global", 268, tex_count[268] + 1)
-  if tex_count[268] > 65534 then
-    luatexbase_error("No room for a new custom whatsit")
-    return -1
-  end
-  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[268])
-  return tex_count[268]
-end
-luatexbase.new_whatsit = new_whatsit
-}
+% input the main code
+\input ltluatex.sty\relax
+
 
 \catcode`\@=\etatcatcode\relax

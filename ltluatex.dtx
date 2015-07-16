@@ -48,10 +48,10 @@
 %
 % The following |\count| registers are used here for register allocation:
 % \begin{itemize}
-%  \item[\texttt{258}] Attributes
-%  \item[\texttt{259}] Category code tables
-%  \item[\texttt{260}] Lua functions
-%  \item[\texttt{261}] User whatsits
+%  \item[\texttt{\string\e@alloc@attribute@count}] Attributes (default 258)
+%  \item[\texttt{\string\e@alloc@ccodetable@count}] Category code tables (default 259)
+%  \item[\texttt{\string\e@alloc@luafunction@count}] Lua functions (default 260)
+%  \item[\texttt{\string\e@alloc@whatsit@count}] User whatsits (default 261)
 % \end{itemize}
 % (|\count256| is used for |\newmarks| allocation and |\count257|
 % is used for\break
@@ -378,11 +378,14 @@
 %   from~$1$. Notably, some code assumes that |\attribute0| is never used so
 %   this is important in this case.
 %    \begin{macrocode}
+\ifx\e@alloc@attribute@count\@undefined
+  \countdef\e@alloc@attribute@count=258
+\fi
 \def\newattribute#1{%
   \e@alloc\attribute\attributedef
-    {\count258}\m@ne\e@alloc@top#1%
+    \e@alloc@attribute@count\m@ne\e@alloc@top#1%
 }
-\count258=\z@
+\e@alloc@attribute@count=\z@
 %    \end{macrocode}
 % \end{macro}
 %
@@ -395,12 +398,15 @@
 %   initialisation step. Table~$0$ is already taken (it's the global one for
 %   current use) so the allocation starts at~$1$.
 %    \begin{macrocode}
+\ifx\e@alloc@ccodetable@count\@undefined
+  \countdef\e@alloc@ccodetable@count=259
+\fi
 \def\newcatcodetable#1{%
   \e@alloc\catcodetable\chardef
-    {\count259}\m@ne{"8000}#1%
+    \e@alloc@ccodetable@count\m@ne{"8000}#1%
   \initcatcodetable\allocationnumber
 }
-\count259=\z@
+\e@alloc@ccodetable@count=\z@
 %    \end{macrocode}
 % \end{macro}
 %
@@ -464,11 +470,14 @@
 %   just numbers so are allocated in the same way as boxes. Lua index from~$1$
 %   so once again slot ~$0$ is skipped.
 %    \begin{macrocode}
+\ifx\e@alloc@luafunction@count\@undefined
+  \countdef\e@alloc@luafunction@count=260
+\fi
 \def\newluafunction{%
   \e@alloc\luafunction\e@alloc@chardef
-    {\count260}\m@ne\e@alloc@top
+    \e@alloc@luafunction@count\m@ne\e@alloc@top
 }
-\count260=\z@
+\e@alloc@luafunction@count=\z@
 %    \end{macrocode}
 % \end{macro}
 %
@@ -479,11 +488,14 @@
 %   These are only settable from Lua but for consistency are definable
 %   here.
 %    \begin{macrocode}
+\ifx\e@alloc@whatsit@count\@undefined
+  \countdef\e@alloc@whatsit@count=261
+\fi
 \def\newwhatsit#1{%
   \e@alloc\whatsit\e@alloc@chardef
-    {\count261}\m@ne\e@alloc@top#1%
+    \e@alloc@whatsit@count\m@ne\e@alloc@top#1%
 }
-\count261=\z@
+\e@alloc@whatsit@count=\z@
 %    \end{macrocode}
 % \end{macro}
 %
@@ -859,14 +871,15 @@ luatexbase.attributes=attributes
 %
 %    \begin{macrocode}
 local function new_attribute(name)
-  tex_setcount("global", 258, tex_count[258] + 1)
-  if tex_count[258] > 65534 then
+  tex_setcount("global", "e@alloc@attribute@count",
+                          tex_count["e@alloc@attribute@count"] + 1)
+  if tex_count["e@alloc@attribute@count"] > 65534 then
     luatexbase_error("No room for a new \\attribute")
     return -1
   end
-  attributes[name]= tex_count[258]
-  texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count[258])
-  return tex_count[258]
+  attributes[name]= tex_count["e@alloc@attribute@count"]
+  texio_write_nl("Lua-only attribute " .. name .. " = " .. tex_count["e@alloc@attribute@count"])
+  return tex_count["e@alloc@attribute@count"]
 end
 luatexbase.new_attribute = new_attribute
 %    \end{macrocode}
@@ -878,13 +891,14 @@ luatexbase.new_attribute = new_attribute
 % Much the same as for attribute allocation in Lua
 %    \begin{macrocode}
 local function new_whatsit(name)
-  tex_setcount("global", 261, tex_count[261] + 1)
-  if tex_count[261] > 65534 then
+  tex_setcount("global", "e@alloc@whatsit@count", 
+                         tex_count["e@alloc@whatsit@count"] + 1)
+  if tex_count["e@alloc@whatsit@count"] > 65534 then
     luatexbase_error("No room for a new custom whatsit")
     return -1
   end
-  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[261])
-  return tex_count[261]
+  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count["e@alloc@whatsit@count"])
+  return tex_count["e@alloc@whatsit@count"]
 end
 luatexbase.new_whatsit = new_whatsit
 %    \end{macrocode}
