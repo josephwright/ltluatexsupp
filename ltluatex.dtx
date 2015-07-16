@@ -1113,28 +1113,28 @@ local handlers = {
 %
 % \subsubsection{Public functions for callback management}
 %
-% \begin{macro}{latex.create_callback}
-% \changes{v1.0a}{0000/00/00}{Function added}
-% Definining user callbacks (perhaps should be in package code,
-% but impacts on |add_to_callback|)
+% Defining user callbacks perhaps should be in package code,
+% but impacts on |add_to_callback|.
 % If a default function is not required, may may be declared as |false|.
-%
+% First we need a list of user callbacks.
 %    \begin{macrocode}
-local user_callbacks_defaults = {}
+local user_callbacks_defaults = { }
 %    \end{macrocode}
 %
+% \begin{macro}{latex.create_callback}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   The allocator itself.
 %    \begin{macrocode}
-local function create_callback(name,ctype,default)
-if
-not name or
+local function create_callback(name, ctype, default)
+  if not name or
     name == "" or
     callbacktypes[name] or
     not(default == false or  type(default) == "function")
     then
-        latex_error("Unable to create callback " .. name)
-end
-    user_callbacks_defaults[name] = default
-    callbacktypes[name] = types[ctype]
+      latex_error("Unable to create callback " .. name)
+  end
+  user_callbacks_defaults[name] = default
+  callbacktypes[name] = types[ctype]
 end
 latex.create_callback = create_callback
 %    \end{macrocode}
@@ -1145,24 +1145,23 @@ latex.create_callback = create_callback
 %  Call a user defined callback. First check arguments.
 %    \begin{macrocode}
 local function call_callback(name,...)
-if
-not name or
+  if not name or
     name == "" or
-    user_callbacks_defaults[name] ==nil
+    user_callbacks_defaults[name] == nil
     then
         latex_error("Unable to call callback " .. name)
-end
-    local l = callbacklist[name]
-    local f
-    if not l then
-        f = user_callbacks_defaults[name]
-	if l ==false then
-	  return nil
-	end
-    else
-        f = handlers[callbacktypes[name]](name)
-    end
-    return f(...)
+  end
+  local l = callbacklist[name]
+  local f
+  if not l then
+    f = user_callbacks_defaults[name]
+    if l == false then
+	   return nil
+	 end
+  else
+    f = handlers[callbacktypes[name]](name)
+  end
+  return f(...)
 end
 latex.call_callback=call_callback
 %    \end{macrocode}
