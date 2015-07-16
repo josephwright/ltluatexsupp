@@ -431,12 +431,12 @@
   }
   \@firstofone{%
     \catcodetable\catcodetable@initex
-      \catcode0 =12 %
+      \catcode0=12 %
       \catcode12=12 %
       \catcode37=12 %
       \setrangecatcode{65}{90}{12}%
       \setrangecatcode{97}{122}{12}%
-      \catcode92= 12 %
+      \catcode92=12 %
       \catcode127=12 %
       \savecatcodetable\catcodetable@string
     \endgroup
@@ -444,7 +444,7 @@
 \newcatcodetable\catcodetable@latex
 \begingroup
   \@firstofone{%
-    \makeatother
+    \catcode64=12 %
     \savecatcodetable\catcodetable@latex
    }
 \endgroup
