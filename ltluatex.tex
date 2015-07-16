@@ -95,15 +95,15 @@
 
 \directlua{
 local function new_whatsit(name)
-  tex_setcount("global", 267, tex_count[267] + 1)
-  if tex_count[267] > 65534 then
+  tex_setcount("global", 268, tex_count[268] + 1)
+  if tex_count[268] > 65534 then
     latex_error("No room for a new custom whatsit")
     return -1
   end
-  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[267])
-  return tex_count[267]
+  texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[268])
+  return tex_count[268]
 end
-latex.new_whatsit = new_whatsit
+luatexbase.new_whatsit = new_whatsit
 }
 
 \catcode`\@=\etatcatcode\relax
