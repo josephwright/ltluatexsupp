@@ -96,7 +96,7 @@
 local function new_whatsit(name)
   tex_setcount("global", 268, tex_count[268] + 1)
   if tex_count[268] > 65534 then
-    latex_error("No room for a new custom whatsit")
+    luatexbase_error("No room for a new custom whatsit")
     return -1
   end
   texio_write_nl("Custom whatsit " .. name .. " = " .. tex_count[268])
