@@ -731,9 +731,9 @@ local function msg_format(mod, msg_type, text)
     cont = string_gsub(leader, ".", " ")
     leader = leader .. "LaTeX: "
   else
+    first_head = leader .. "Module " .. mod .. " " .. msg_type .. ": "
     cont = "(" .. mod .. ")"
-      .. string_gsub(first_head .. "Module: " .. ms_type, ".", " ")
-    first_head = leader .. "Module " .. mod .. " " .. type .. ": "
+      .. string_gsub(first_head .. "Module: " .. msg_type, ".", " ")
   end
   return leader .. " "
     .. string_gsub(

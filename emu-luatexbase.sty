@@ -36,6 +36,18 @@ luatexbase.catcodetables['latex-package'] =
 % eg polyglossia-frpt.lua rather than needing the priority.
 % this covers that usage (only).
 luatexbase.priority_in_callback = luatexbase.added_to_callback
-
+%
+%
+% ltluatex provides_module does not return print functions
+% so provide modified version here.
+luatexbase.base_provides_module=luatexbase.provides_module
+function luatexbase.provides_module(info)
+luatexbase.base_provides_module(info)
+return
+function(s) return luatexbase.module_error(info.name, s) end,
+function(s) return luatexbase.module_warning(info.name, s) end,
+function(s) return luatexbase.module_info(info.name, s) end,
+function(s) return luatexbase.module_warning(info.name, s) end
+end
 }
 
