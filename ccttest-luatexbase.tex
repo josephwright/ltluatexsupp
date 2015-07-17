@@ -1,0 +1,24 @@
+\RequirePackage{luatexbase}
+
+\newluatexcatcodetable\mycc
+\setluatexcatcodetable\mycc{
+\catcode`\A=7
+\catcode`!=13
+}
+
+{\luatexcatcodetable\mycc
+\def!{zzz}
+\typeout{mcc exclaim = \meaning!}
+}
+
+{\luatexcatcodetable\CatcodeTableExpl
+\typeout{Expl\space underscore~ =~ \the\catcode`\_}
+}
+
+\typeout{string A = \ifcat .\directlua{
+tex.print(luatexbase.catcodetables.string, "A")}yes\else no\fi}
+
+\typeout{myy A = \ifcat ^\directlua{
+tex.print(luatexbase.catcodetables.mycc, "A")}yes\else no\fi}
+
+\stop
