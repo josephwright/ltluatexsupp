@@ -43,6 +43,15 @@
   }
 
 
+\def\BeginCatcodeRegime#1{%
+\pushcatcodes
+\luatexcatcodetable#1\relax}
+
+\def\EndCatcodeRegime{%
+\popcatcodes
+}
+
+
 \directlua{
 % probably this shouldn't be allowed on primitive callbacks
 % but this version allows otfload to run.
