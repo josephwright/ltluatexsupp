@@ -13,6 +13,7 @@ computer
 
 % four packages using luatexbase/luaotfload
 \usepackage{polyglossia}
+\setmainlanguage{english}\setotherlanguage{french}
 \usepackage{spelling}
 \usepackage{chickenize}\boustrophedon
 \usepackage{fontspec}
@@ -37,5 +38,15 @@ since computer text files are so easy to change and to reprocess. \
 (If such claims sound too good to be true, keep in mind that they were made
 by \TeX's designer, on a day when \TeX\ happened to
 be working, so the statements may be biased; but read on anyway.)
+
+\unboustrophedon
+
+
+
+\paragraph{French} should get extra space:
+
+foo: bar; foobar!
+
+\begin{french}foo: bar; foobar!\end{french}
 
 \end{document}

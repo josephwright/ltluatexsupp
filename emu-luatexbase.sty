@@ -31,5 +31,11 @@ end
 luatexbase.catcodetables={}
 luatexbase.catcodetables['latex-package'] =
       luatexbase.registernumber("catcodetable@atletter")
+
+% priority_in_callback usually used as a boolean test
+% eg polyglossia-frpt.lua rather than needing the priority.
+% this covers that usage (only).
+luatexbase.priority_in_callback = luatexbase.added_to_callback
+
 }
 
