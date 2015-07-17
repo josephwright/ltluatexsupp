@@ -13,7 +13,8 @@ computer
 
 % four packages using luatexbase/luaotfload
 \usepackage{polyglossia}
-\setmainlanguage{english}\setotherlanguage{french}
+\setmainlanguage{english}\setotherlanguages{french,tibetan}
+\newfontfamily\tibetanfont{Microsoft Himalaya}% or any other suitable font
 \usepackage{spelling}
 \usepackage{chickenize}\boustrophedon
 \usepackage{fontspec}
@@ -49,4 +50,10 @@ foo: bar; foobar!
 
 \begin{french}foo: bar; foobar!\end{french}
 
+\paragraph{Tibetan}should break at tshegs
+
+\begin{tibetan}\raggedright
+འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་འངངས་
+
+\end{tibetan}
 \end{document}
