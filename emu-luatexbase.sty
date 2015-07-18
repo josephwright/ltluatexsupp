@@ -69,27 +69,19 @@ end
 % this is called catcodetable@atletter in ltluatex.
 % We also need to emulate the catcodetables table.
 luatexbase.catcodetables=setmetatable(
-{},
 {
+['latex-package'] = luatexbase.registernumber("catcodetable@atletter"),
+ini    = luatexbase.registernumber("catcodetable@initex"),
+string = luatexbase.registernumber("catcodetable@string"),
+other  = luatexbase.registernumber("CatcodeTableOther"),
+latex  = luatexbase.registernumber("catcodetable@latex"),
+expl   = luatexbase.registernumber("CatcodeTableExpl"),
+expl3  = luatexbase.registernumber("CatcodeTableExpl")
+},{
 __index = function(t,key)
 return luatexbase.registernumber(key) or nil
 end}
 )
-
-luatexbase.catcodetables['latex-package'] =
-      luatexbase.registernumber("catcodetable@atletter")
-luatexbase.catcodetables['ini'] =
-      luatexbase.registernumber("catcodetable@initex")
-luatexbase.catcodetables['string'] =
-      luatexbase.registernumber("catcodetable@string")
-luatexbase.catcodetables['other'] =
-      luatexbase.registernumber("CatcodeTableOther")
-luatexbase.catcodetables['latex'] =
-      luatexbase.registernumber("catcodetable@latex")
-luatexbase.catcodetables['expl'] =
-      luatexbase.registernumber("CatcodeTableExpl")
-luatexbase.catcodetables['expl3'] =
-      luatexbase.registernumber("CatcodeTableExpl")
 
 % priority_in_callback usually used as a boolean test
 % eg polyglossia-frpt.lua rather than needing the priority.
