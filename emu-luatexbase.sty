@@ -43,13 +43,19 @@
   }
 
 
+% Environment form of ctacodetable stack
 \def\BeginCatcodeRegime#1{%
 \pushcatcodes
-\luatexcatcodetable#1\relax}
+\catcodetable#1\relax}
 
 \def\EndCatcodeRegime{%
 \popcatcodes
 }
+
+% The implementation of the stack is completely
+% different, but usage should match.
+\let\PushCatcodeTableNumStack\pushcatcodes
+\let\PopCatcodeTableNumStack\popcatcodes
 
 
 \directlua{
