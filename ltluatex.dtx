@@ -599,7 +599,7 @@
 \def\pushcatcodes{%
   \ifx\@catcodetablelist\empty
     \global\advance\@catcodetablestackcnt by\@ne
-    \edef\@tempa{\@nameuse{ct@\the\@catcodetablestackcnt}}%
+    \edef\@tempa{\csname ct@\the\@catcodetablestackcnt\endcsname}%
     \expandafter\newcatcodetable\@tempa
     \xdef\@catcodetablelist{\@tempa}%
   \fi

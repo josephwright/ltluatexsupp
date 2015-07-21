@@ -10,4 +10,105 @@
 
 {\lbsf xyz find fling Win}
 
+
+\def\showcs#1{%
+  \message{#1:
+    @=\the\catcode`\@, 
+    space=\the\catcode32,
+    Z=\the\catcode`\Z}%
+}
+
+\newcatcodetable\ctbl
+\newattribute\lattr
+
+\directlua{registernumber = luatexbase.registernumber}
+
+\showcs{A1}
+
+\pushcatcodes
+
+\catcode`\Z=13
+
+\showcs{B1}
+
+\pushcatcodes
+
+\catcodetable\CatcodeTableExpl
+
+\showcs{C1}
+
+\catcode`\Z=4
+
+\showcs{C2}
+
+
+\popcatcodes
+
+\showcs{B3}
+
+\popcatcodes
+
+\showcs{A4}
+
+\directlua{print("\string\nctbl" .. " is register:  " 
+.. (registernumber("ctbl") or "??"))}
+\directlua{print("\string\nlattr" .. " is register:"
+.. (registernumber("lattr") or "??"))}
+
+\newbox\mybox
+{
+\setbox2\hbox{xyz}
+\lattr=5
+\setbox0\hbox{abc}
+\lattr=6
+\setbox\mybox\hbox{123}
+
+\directlua{
+local n0=tex.getbox(0)
+local n2=tex.getbox(2)
+local nmybox=tex.getbox(registernumber("mybox"))
+local a = registernumber("lattr")
+print("\string\n test lattr on box 0: " 
+.. (node.has_attribute(n0,a) or "unset"))
+print("\string\n test lattr on box 2: "
+ .. (node.has_attribute(n2,a) or "unset"))
+print("\string\n test lattr on box mybox: " 
+.. (node.has_attribute(nmybox,a) or "unset"))
+}
+}
+
+\directlua{
+function zzzX (s)
+return string.gsub(s,"X", "[Capital x was here]")
+end
+function zzzC (s)
+return string.gsub(s,"C", "[Capital c was here]")
+end
+luatexbase.add_to_callback('process_input_buffer',zzzX,"testing X")
+luatexbase.add_to_callback('process_input_buffer',zzzC,"testing C")
+}
+
+\message{123XYZ456ABC}
+
+
+\newwhatsit\fromtexwhatsita
+\message{fromtexwhatsita=\the\fromtexwhatsita}
+
+\directlua{
+luatexbase.new_whatsit("fromluawhatsita")
+}
+
+\newwhatsit\fromtexwhatsitb
+
+\message{fromtexwhatsitb=\the\fromtexwhatsitb}
+
+\directlua{
+luatexbase.new_whatsit("fromluawhatsitb")
+}
+
+\newcount\lcount
+\lcount=88
+\directlua{print("\string\nlcount" .. " is register:  " 
+.. registernumber("lcount") )}
+
 \bye

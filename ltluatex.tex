@@ -49,6 +49,8 @@
 % 26x and 27x count range. For compatibility the existing register
 % allocation is not changed.
 
+\chardef\e@alloc@top=65535
+\let\e@alloc@chardef\chardef
 
 \def\e@alloc#1#2#3#4#5#6{%
   \global\advance#3\@ne
