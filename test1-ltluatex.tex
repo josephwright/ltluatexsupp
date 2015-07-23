@@ -22,8 +22,8 @@
   \catcode58  11 % colon letter
   }
 
-\newcatcodetable\ctbl
-\newattribute\lattr
+\newcatcodetable\localCatTable
+\newattribute\localAttribute
 
 \directlua{registernumber = luatexbase.registernumber}
 
@@ -56,30 +56,30 @@
 
 \showcs{A4}
 
-\directlua{print("\string\nctbl" .. " is register:  " 
-.. registernumber("ctbl") )}
-\directlua{print("\string\nlattr" .. " is register:"
-.. registernumber("lattr") )}
+\directlua{print("\string\nlocalCatTable" .. " is register:  " 
+.. registernumber("localCatTable") )}
+\directlua{print("\string\nlocalAttribute" .. " is register:"
+.. registernumber("localAttribute") )}
 
-\newbox\mybox
+\newbox\myBox
 {
 \setbox2\hbox{xyz}
-\lattr=5
+\localAttribute=5
 \setbox0\hbox{abc}
-\lattr=6
-\setbox\mybox\hbox{123}
+\localAttribute=6
+\setbox\myBox\hbox{123}
 
 \directlua{
 local n0=tex.getbox(0)
 local n2=tex.getbox(2)
-local nmybox=tex.getbox(registernumber("mybox"))
-local a = registernumber("lattr")
-print("\string\n test lattr on box 0: " 
+local myBox=tex.getbox(registernumber("myBox"))
+local a = registernumber("localAttribute")
+print("\string\n test localAttribute on box 0: " 
 .. (node.has_attribute(n0,a) or "unset"))
-print("\string\n test lattr on box 2: "
+print("\string\n test localAttribute on box 2: "
  .. (node.has_attribute(n2,a) or "unset"))
-print("\string\n test lattr on box mybox: " 
-.. (node.has_attribute(nmybox,a) or "unset"))
+print("\string\n test localAttribute on box myBox: " 
+.. (node.has_attribute(myBox,a) or "unset"))
 }
 }
 

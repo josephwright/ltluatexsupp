@@ -1,3 +1,5 @@
+\edef\emuatcatcode{\the\catcode`\@}
+\catcode`\@=11
 % emu-luatexbase.sty v 0.01 2015/07/14
 % minimal luatexbase emulation, for testing with
 % current luaotfload package
@@ -10,14 +12,30 @@
 \expandafter\def\csname ver@luatexbase-attr.sty\endcsname{}
 \expandafter\def\csname ver@luatex.sty\endcsname{}
 %
+
+\ifx\e@alloc\@undefined
+% In pre 2014 latex, or plain TeX load etex.{sty,src}
+  \ifx\documentclass\@undefined
+    \input{etex.src}
+    \catcode`\@=11
+  \else
+    \RequirePackage{etex}
+  \fi
+  \input{ltluatex.tex}
+\else
+  \ifx\catcodetable@initex\@undefined
+% in 2015/01/01 latex load ltluatex.sty
+  \input{ltluatex.sty}
+  \else
+% we are done
+  \fi
+\fi
+
+% restetex.src 
 % Simple require wrapper so that luaotfload does get loaded.
 \def\RequireLuaModule#1{\directlua{require("#1")}}
 
 
-% resolve name clashes...
-\let\newluatexattribute\newattribute
-\let\newluatexcatcodetable\newcatcodetable
-\let\setluatexcatcodetable\setcatcodetable
 
 
 
@@ -29,12 +47,12 @@
 
 \newcatcodetable\CatcodeTableOther
 \setcatcodetable\CatcodeTableOther{%
-  \luatexcatcodetable\CatcodeTableString
+  \catcodetable\CatcodeTableString
   \catcode32 12 }
 
 \newcatcodetable\CatcodeTableExpl
 \setcatcodetable\CatcodeTableExpl{%
-\luatexcatcodetable\CatcodeTableLaTeX
+\catcodetable\CatcodeTableLaTeX
   \catcode126 10 % tilde is a space char
   \catcode32  9  % space is ignored
   \catcode9   9  % tab also ignored
@@ -43,7 +61,7 @@
   }
 
 
-% Environment form of ctacodetable stack
+% Top level access to catcodetable stack
 \def\BeginCatcodeRegime#1{%
 \pushcatcodes
 \catcodetable#1\relax}
@@ -71,9 +89,9 @@ end
 luatexbase.catcodetables=setmetatable(
 {
 ['latex-package'] = luatexbase.registernumber("catcodetable@atletter"),
-ini    = luatexbase.registernumber("catcodetable@initex"),
-string = luatexbase.registernumber("catcodetable@string"),
-other  = luatexbase.registernumber("CatcodeTableOther"),
+ini    = \number\CatcodeTableIniTeX,%luatexbase.registernumber("catcodetable@initex"),
+string = \number\CatcodeTableString,%luatexbase.registernumber("catcodetable@string"),
+other  = \number\CatcodeTableOther,%luatexbase.registernumber("CatcodeTableOther"),
 latex  = luatexbase.registernumber("catcodetable@latex"),
 expl   = luatexbase.registernumber("CatcodeTableExpl"),
 expl3  = luatexbase.registernumber("CatcodeTableExpl")
@@ -82,7 +100,22 @@ __index = function(t,key)
 return luatexbase.registernumber(key) or nil
 end}
 )
+}
 
+% on old luatex workaround hashtable issues.
+
+\ifnum\luatexversion<80 %
+\def\newcatcodetable#1{%
+  \e@alloc\catcodetable\chardef
+    \e@alloc@ccodetable@count\m@ne{"8000}#1%
+  \initcatcodetable\allocationnumber
+  {\escapechar=\m@ne
+  \directlua{luatexbase.catcodetables['\string#1']=%
+    \the\allocationnumber}}%
+}
+\fi
+
+\directlua{
 % priority_in_callback usually used as a boolean test
 % eg polyglossia-frpt.lua rather than needing the priority.
 % this covers that usage (only).
@@ -102,3 +135,22 @@ function luatexbase.provides_module(info)
 end
 }
 
+
+% same for attribute table as catcode
+\ifnum\luatexversion<80 %
+\def\attribute#1{%
+  \e@alloc\attribute\attributedef
+    \e@alloc@attribute@count\m@ne\e@alloc@top#1%
+  {\escapechar=\m@ne
+  \directlua{luatexbase.attributes['\string#1']=%
+    \the\allocationnumber}}%
+}
+\fi
+
+% resolve name clashes...
+\let\newluatexattribute\newattribute
+\let\newluatexcatcodetable\newcatcodetable
+\let\setluatexcatcodetable\setcatcodetable
+
+
+\catcode`\@=\emuatcatcode\relax

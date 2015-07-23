@@ -1,26 +1,33 @@
-% !TeX program = LuaTeX
-\input{emu-luatexbase.sty}
-\input{luaotfload.sty}
+% !TeX program = LuaLaTeX
 
-\font\llrm="Linux Libertine O"
-\font\lbsf="Linux Biolinum O"
+% These bits are for the kernel
+\RequirePackage{emu-luatexbase}
 
-{\llrm abc Difficult Volume AVAW}
+\documentclass{article}
 
-{\lbsf xyz find fling Win}
-
-
-\def\showcs#1{%
-  \message{#1:
+\newcommand*\showcs[1]{%
+  \typeout{#1:
     @=\the\catcode`\@, 
     space=\the\catcode32,
     Z=\the\catcode`\Z}%
 }
 
+\newcatcodetable\CatcodeTableExpl
+\setcatcodetable\CatcodeTableExpl{%
+  \catcodetable\csname catcodetable@latex\endcsname
+  \catcode126 10 % tilde is a space char
+  \catcode32  9  % space is ignored
+  \catcode9   9  % tab also ignored
+  \catcode95  11 % underscore letter
+  \catcode58  11 % colon letter
+  }
+
 \newcatcodetable\localCatTable
 \newattribute\localAttribute
 
 \directlua{registernumber = luatexbase.registernumber}
+
+\begin{document}
 
 \showcs{A1}
 
@@ -50,10 +57,9 @@
 \showcs{A4}
 
 \directlua{print("\string\nlocalCatTable" .. " is register:  " 
-.. (registernumber("localCatTable") or "??"))}
+.. registernumber("localCatTable") )}
 \directlua{print("\string\nlocalAttribute" .. " is register:"
-.. (registernumber("localAttribute") or "??"))}
-
+.. registernumber("localAttribute") )}
 
 \newbox\myBox
 {
@@ -62,8 +68,6 @@
 \setbox0\hbox{abc}
 \localAttribute=6
 \setbox\myBox\hbox{123}
-
-
 
 \directlua{
 local n0=tex.getbox(0)
@@ -86,19 +90,15 @@ end
 function zzzC (s)
 return string.gsub(s,"C", "[Capital c was here]")
 end
-% need this before callback zzzC is activated
-function restorecallbackc ()
-luatexbase.remove_from_callback('process_input_buffer',"testing C")
-end
 luatexbase.add_to_callback('process_input_buffer',zzzX,"testing X")
 luatexbase.add_to_callback('process_input_buffer',zzzC,"testing C")
 }
 
-\message{123XYZ456ABC}
+\typeout{123XYZ456ABC}
 
 
 \newwhatsit\fromtexwhatsita
-\message{fromtexwhatsita=\the\fromtexwhatsita}
+\typeout{fromtexwhatsita=\the\fromtexwhatsita}
 
 \directlua{
 luatexbase.new_whatsit("fromluawhatsita")
@@ -106,17 +106,11 @@ luatexbase.new_whatsit("fromluawhatsita")
 
 \newwhatsit\fromtexwhatsitb
 
-\message{fromtexwhatsitb=\the\fromtexwhatsitb}
+\typeout{fromtexwhatsitb=\the\fromtexwhatsitb}
 
 \directlua{
 luatexbase.new_whatsit("fromluawhatsitb")
-restorecallbackc()
 }
 
 
-\newcount\localCount
-\localCount=88
-\directlua{print("\string\nlocalCount" .. " is register:  " 
-.. registernumber("localCount") )}
-
-\bye
+\end{document}

@@ -511,7 +511,7 @@
   \begingroup
     \attributedef\attributezero=0 %
     \chardef     \charzero     =0 %
-    \countdef    \countzero    =0 %
+    \countdef    \CountZero    =0 % this name change required on older luatex
     \dimendef    \dimenzero    =0 %
     \mathchardef \mathcharzero =0 %
     \muskipdef   \muskipzero   =0 %
@@ -801,7 +801,7 @@ local luaregisterbasetable = { }
 local registermap = {
   attributezero = "assign_attr"    ,
   charzero      = "char_given"     ,
-  countzero     = "assign_int"     ,
+  CountZero     = "assign_int"     ,
   dimenzero     = "assign_dimen"   ,
   mathcharzero  = "math_given"     ,
   muskipzero    = "assign_mu_skip" ,
@@ -809,7 +809,10 @@ local registermap = {
   tokszero      = "assign_toks"    ,
 }
 local i, j
-local createtoken   = newtoken.create
+local createtoken
+if tex.luatexversion >79 then
+ createtoken   = newtoken.create
+end
 local hashtokens    = tex.hashtokens
 local luatexversion = tex.luatexversion
 for i,j in pairs (registermap) do
