@@ -1572,6 +1572,7 @@ luatexbase.disable_callback = disable_callback
 \expandafter\def\csname ver@luatexbase-modutils.sty\endcsname{}
 \expandafter\def\csname ver@luatexbase-mcb.sty\endcsname{}
 \expandafter\def\csname ver@luatexbase-attr.sty\endcsname{}
+\expandafter\def\csname ver@luatexbase-cctb.sty\endcsname{}
 \expandafter\def\csname ver@luatex.sty\endcsname{}
 %
 %    \end{macrocode}
@@ -1753,6 +1754,7 @@ end
 \let\newluatexcatcodetable\newcatcodetable
 \let\setluatexcatcodetable\setcatcodetable
 \let\luatexbase@directlua\directlua
+\let\luatebase@ensure@primitive\@gobble
 %    \end{macrocode}
 %
 % reset catcode of |@|.
