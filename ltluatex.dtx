@@ -130,20 +130,20 @@
 % have the \meta{catcode} specified.
 %
 % \noindent
-% \DescribeMacro{\pushcatcodes}
-% \DescribeMacro{\popcatcodes}
-% |\pushcatcodes|\\
-% |\popcatcodes|\\
+% \DescribeMacro{\@pushcatcodes}
+% \DescribeMacro{\@popcatcodes}
+% |\@pushcatcodetable|\\
+% |\@popcatcodetable|\\
 % This pair of commands enable the current category code r\'{e}gime to
 % be saved and restored meaning that arbitrary catcode changes can be made.
 % This functionality will normally be used in concert with applying
 % catcode tables. For example
 % \begin{verbatim}
 % \catcode`\Z=4 %
-% \pushcatcodes
-% \expandafter\catcodetable\csname catcodetable@latex\endcsname
+% \@pushcatcodetable
+% \catcodetable\catcodetable@latex
 % % Code here
-% \popcatcodes
+% \@popcatcodetable
 % \showthe\catcode`\Z
 % \end{verbatim}
 % will ensure that the `content' is set with normal category codes but
@@ -179,14 +179,14 @@
 % \noindent
 % \DescribeMacro{\BeginCatcodeRegime}
 % \DescribeMacro{\EndCatcodeRegime}
-% A simple wrapper around |\pushcatcodes| providing aslightly
+% A simple wrapper around |\@pushcatcodetable| providing aslightly
 % different interface.
 %
 % \noindent
 % \DescribeMacro{\PushCatcodeTableNumStack}
 % \DescribeMacro{\PopCatcodeTableNumStack}
-% These are defined to be aliases for |\pushcatcodes| and
-% |\popcatcodes| although the actual implemenatation is quite different
+% These are defined to be aliases for |\@pushcatcodetable| and
+% |\@popcatcodetable| although the actual implemenatation is quite different
 % to the older packages, the use of the commands should match.
 %
 % \subsection{Lua}
@@ -671,13 +671,13 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\pushcatcodes}
+% \begin{macro}{\@pushcatcodetable}
 % \begin{macro}{\@pushctbl}
 %   To push a table, first check there is a free one in the pool and if
 %   not create one. Then take the top table in the pool and use it to save
 %   the current table.
 %    \begin{macrocode}
-\def\pushcatcodes{%
+\def\@pushcatcodetable{%
   \ifx\@catcodetablelist\empty
     \global\advance\@catcodetablestackcnt by\@ne
     \edef\@tempa{\csname ct@\the\@catcodetablestackcnt\endcsname}%
@@ -695,11 +695,11 @@
 % \end{macro}
 % \end{macro}
 %
-% \begin{macro}{\popcatcodes}
+% \begin{macro}{\@popcatcodetable}
 % \begin{macro}{\@popctbl}
 %   Much the same in reverse.
 %    \begin{macrocode}
-\def\popcatcodes{%
+\def\@popcatcodetable{%
   \ifx\@catcodetablestack\@empty
     \errmessage{Attempt to pop empty catcodetable stack}%
   \fi
@@ -1645,21 +1645,21 @@ luatexbase.disable_callback = disable_callback
 % Top level access to catcodetable stack.
 %    \begin{macrocode}
 \def\BeginCatcodeRegime#1{%
-\pushcatcodes
+\@pushcatcodetable
 \catcodetable#1\relax}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \def\EndCatcodeRegime{%
-\popcatcodes
+\@popcatcodetable
 }
 %    \end{macrocode}
 %
 % The implementation of the stack is completely
 % different, but usage should match.
 %    \begin{macrocode}
-\let\PushCatcodeTableNumStack\pushcatcodes
-\let\PopCatcodeTableNumStack\popcatcodes
+\let\PushCatcodeTableNumStack\@pushcatcodetable
+\let\PopCatcodeTableNumStack\@popcatcodetable
 %    \end{macrocode}
 %
 % \subsubsection{Additional lua code}

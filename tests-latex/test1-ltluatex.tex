@@ -25,19 +25,24 @@
 \newcatcodetable\localCatTable
 \newattribute\localAttribute
 
+\makeatletter
+\let\PushCatcodeTableNumStack\@pushcatcodetable
+\let\PopCatcodeTableNumStack\@popcatcodetable
+\makeatother
+
 \directlua{registernumber = luatexbase.registernumber}
 
 \begin{document}
 
 \showcs{A1}
 
-\pushcatcodes
+\PushCatcodeTableNumStack
 
 \catcode`\Z=13
 
 \showcs{B1}
 
-\pushcatcodes
+\PushCatcodeTableNumStack
 
 \catcodetable\CatcodeTableExpl
 
@@ -48,11 +53,11 @@
 \showcs{C2}
 
 
-\popcatcodes
+\PopCatcodeTableNumStack
 
 \showcs{B3}
 
-\popcatcodes
+\PopCatcodeTableNumStack
 
 \showcs{A4}
 
