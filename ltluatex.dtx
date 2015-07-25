@@ -1679,7 +1679,7 @@ end
 % |registernumber| as that is unreliable on old luatex.
 %    \begin{macrocode}
 luatexbase.catcodetables=setmetatable(
- {['latex-package'] = luatexbase.registernumber("catcodetable@atletter"),
+ {['latex-package'] = \number\catcodetable@atletter,
   ini    = \number\CatcodeTableIniTeX,
   string = \number\CatcodeTableString,
   other  = \number\CatcodeTableOther,
@@ -1752,6 +1752,7 @@ end
 \let\newluatexattribute\newattribute
 \let\newluatexcatcodetable\newcatcodetable
 \let\setluatexcatcodetable\setcatcodetable
+\let\luatexbase@directlua\directlua
 %    \end{macrocode}
 %
 % reset catcode of |@|.

@@ -1,0 +1,51 @@
+%%
+%% This is essentially a copy of file `test-mcb-latex.tex',
+% Copyright 2009, 2010 by Élie Roux 
+% Copyright 2010, 2011 by Manuel Pégourié-Gonnard
+% Copyright 2013 by Philipp Gesang 
+
+% modified 2015 by David Carlisle where marked
+% to empty a callback list before resetting the callback
+% to work with ltluatex.and to rename extension of test file
+% (for automated test suite)
+% 
+\RequirePackage{luatexbase-mcb}
+\catcode 64 11
+\def\msg{\immediate\write16}
+\msg{===== BEGIN =====}
+\luatexbase@directlua{dofile('test-mcb.lua')}
+\def\test#1#2{%
+  \msg{^^J*********^^J* Testing #1 (type #2)^^J*********}
+  \msg{* Add two functions}
+  \luatexbase@directlua{add_#1()}
+  \csname test_#1\endcsname
+  \msg{* Remove one}
+  \luatexbase@directlua{rm_one_#1()}
+  \csname test_#1\endcsname
+  \msg{* Remove the second}
+  \luatexbase@directlua{rm_two_#1()}
+  \csname test_#1\endcsname
+  \msg{* Add two functions again}
+  \luatexbase@directlua{add_#1()}
+  \csname test_#1\endcsname
+  \msg{* Remove all functions}
+  \luatexbase@directlua{rm_one_#1()}%dpc
+  \luatexbase@directlua{rm_two_#1()}%dpc
+  \luatexbase@directlua{luatexbase.reset_callback("#1")}
+  \csname test_#1\endcsname
+}
+\catcode`\_ 11
+\everypar{}
+\def\test_hpack_filter{\setbox0=\hbox{bla}}
+\def\test_hyphenate{\showhyphens{hyphenation}}
+\def\test_find_write_file{\immediate\openout15 test-mcb-out.log}
+\def\test_process_input_buffer{\input test-mcb-aux.ltx}%dpc
+\test{hpack_filter}{list}
+\test{hyphenate}{simple}
+\test{find_write_file}{first}
+\test{process_input_buffer}{data}
+\msg{=====  END =====}
+\stop
+\endinput
+%%
+%% End of file `test-mcb-latex.tex'.
