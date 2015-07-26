@@ -7,15 +7,16 @@ bundle = ""
 module = "ltluatex"
 
 
-
+-- use plain luaatex here
 checkengines   = {"luatex"} -- no l3build tests yet..
-checkformat    = "lualatex"
+checkformat    = "luatex"
 stdengine      = "luatex"
-typesetexe     = "lualatex"
+typesetexe     = "luatex"
 
-installfiles =  {"ltluatex.tex","ltluatex.def","ltluatex.lua","*.sty"}
+installfiles =  {}
 
-typesetfiles = {"ltluatex.dtx"}
+
+typesetfiles = {"*.tex"}
 
 -- Release a TDS-style zip
 packtdszip  = true
@@ -23,21 +24,7 @@ packtdszip  = true
 -- tests for this bundle
 -- testfiledir = "testfiles"
 
-function ltluatexdoc ()
-doc()
-modules={"tests-latex","tests-plain"}
-allmodules ("doc")
-end
-
-function main (target,...)
-if target == "doc" then
-ltluatexdoc()
-else
-stdmain(target,...)
-end
-end
 
 -- Find and run the build system
 kpse.set_program_name ("kpsewhich")
 dofile (kpse.lookup ("l3build.lua"))
-
