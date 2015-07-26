@@ -247,6 +247,21 @@
 % |luatexbase.new_whatsit(|\meta{whatsit}|)|\\
 % Returns an allocation number for the custom \meta{whatsit}, indexed from~$1$.
 %
+% \noindent
+% \DescribeMacro{luatexbase.new_bytecode}
+% |luatexbase.new_bytecode(|\meta{bytecode}|)|\\
+% Returns an allocation number for a bytecode register, indexed from~$1$.
+% The optional \meta{name} argument is just used for logging.
+%
+% \noindent
+% \DescribeMacro{luatexbase.new_chunkname}
+% |luatexbase.new_chunkname(|\meta{chunkname}|)|\\
+% Returns an allocation number for a lua chunk name for use with 
+% |\directlua| and |\latelua|, indexed from~$1$.
+% The number is returned and also \meta{name} argument is added to the
+% |lua.name| array at that index.
+%
+%
 % \section{Lua access to \TeX{} register numbers}
 %
 % \DescribeMacro{luatexbase.registernumber}
@@ -986,6 +1001,51 @@ local function new_whatsit(name)
   return tex_count["e@alloc@whatsit@count"]
 end
 luatexbase.new_whatsit = new_whatsit
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{bytecode register allocation}
+%
+% \begin{macro}{luatexbase.new_bytecode}
+% Much the same as for attribute allocation in Lua.
+% Currently we maintain the allocation count purely in lua, not using
+% a \TeX\ counter.
+% The optional \meta{name} argument is used in the log if given.
+%    \begin{macrocode}
+local bytecode_count = 0
+local function new_bytecode(name)
+  bytecode_count = bytecode_count + 1
+  if bytecode_count > 65534 then
+    luatexbase_error("No room for a new bytecode")
+    return -1
+  end
+  texio_write_nl("Lua bytecode " .. (name or "") .. " = " .. 
+                 bytecode_count .. "\n")
+  return bytecode_count
+end
+luatexbase.new_bytecode = new_bytecode
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{lua chunk name allocation}
+%
+% \begin{macro}{luatexbase.new_chunkname}
+% As for bytecode registers but here we also store the name in the
+% |lua.name| table.
+%    \begin{macrocode}
+local chunkname_count = 0
+local function new_chunkname(name)
+  chunkname_count = chunkname_count + 1
+  if chunkname_count > 65534 then
+    luatexbase_error("No room for a new chunkname")
+    return -1
+  end
+  lua.name[chunkname_count]=name
+  texio_write_nl("Lua chunkname " .. name .. " = " .. 
+                 chunkname_count .. "\n")
+  return chunkname_count
+end
+luatexbase.new_chunkname = new_chunkname
 %    \end{macrocode}
 % \end{macro}
 %
