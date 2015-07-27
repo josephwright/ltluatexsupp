@@ -29,8 +29,6 @@
   \luatexbase@directlua{add_#1()}
   \csname test_#1\endcsname
   \msg{* Remove all functions}
-  \luatexbase@directlua{rm_one_#1()}%dpc
-  \luatexbase@directlua{rm_two_#1()}%dpc
   \luatexbase@directlua{luatexbase.reset_callback("#1")}
   \csname test_#1\endcsname
 }

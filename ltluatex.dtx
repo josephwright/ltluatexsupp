@@ -1505,8 +1505,8 @@ local function callback_descriptions (name)
     return d
   else
   local i
-  for k, i in pairs(callbacklist[name]) do
-    d[k]= i.description 
+  for k, i in pairs(callbacklist[name] or {}) do
+    d[k]= i.description
     end
   end
   return d
@@ -1759,11 +1759,17 @@ luatexbase.callback_descriptions =callback_descriptions
 \directlua{
 %    \end{macrocode}
 %
-% Probably this shouldn't be allowed on primitive callbacks
-% but this version allows|luaotfload| to run.
+% Remove all registered callbacks, then disable.
+% Set to false if optional second argument is |true|.
 %    \begin{macrocode}
-function luatexbase.reset_callback(a)
-  luatexbase.disable_callback(a)
+function luatexbase.reset_callback(name,make_false)
+  for _,v in pairs(luatexbase.callback_descriptions(name))
+  do
+    luatexbase.remove_from_callback(name,v)
+  end
+  if make_false == true then
+    luatexbase.disable_callback(name)
+  end
 end
 %    \end{macrocode}
 %
