@@ -92,6 +92,12 @@ return string.gsub(s,"C", "[Capital c was here]")
 end
 luatexbase.add_to_callback('process_input_buffer',zzzX,"testing X")
 luatexbase.add_to_callback('process_input_buffer',zzzC,"testing C")
+texio.write_nl("priority of zzX: " ..
+   luatexbase.priority_in_callback('process_input_buffer',"testing X"))
+texio.write_nl("priority of zzC: " ..
+   luatexbase.priority_in_callback('process_input_buffer',"testing C"))
+texio.write_nl("priority of zzZ: " ..
+   type(luatexbase.priority_in_callback('process_input_buffer',"testing Z")))
 }
 
 \typeout{123XYZ456ABC}

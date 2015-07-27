@@ -1810,11 +1810,19 @@ luatexbase.catcodetables=setmetatable(
 \directlua{
 %    \end{macrocode}
 %
-% |priority_in_callback| is  usually used as a boolean test
-% eg |polyglossia-frpt.lua| rather than needing the priority.
-% this covers that usage (only).
+% |priority_in_callback| returns position in the callback list.
+% Not provided by default in |ltluatex| as usually it is just used 
+% as a boolean test, for which |in_callback| is provided.
 %    \begin{macrocode}
-luatexbase.priority_in_callback = luatexbase.in_callback
+function luatexbase.priority_in_callback (name,description)
+  for i,v in ipairs(luatexbase.callback_descriptions(name))
+  do
+    if v == description then
+      return i
+    end
+  end
+  return false
+end
 %    \end{macrocode}
 % 
 % The (unreleased) version 0.7 of |luatexbase| provided this
