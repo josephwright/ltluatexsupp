@@ -203,7 +203,7 @@
 % just as a boolean test that the function is registered with the
 % callback. |ltluatex| does not expose the priority numbers so this
 % function is defined as an alias to the function
-% |luatexbase.added_to_callback| which returns a boolean.
+% |luatexbase.in_callback| which returns a boolean.
 %
 % \subsubsection{Module declaration}
 % The |luatexbase| version of |provides_module| returns a list of log
@@ -377,10 +377,12 @@
 % \DescribeMacro{luatexbase.remove_from_callback}
 % |luatexbase.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
+% A table with the removed function (|.func| and its description 
+% (|.description|) is returned as the result of this function.
 %
 % \noindent
-% \DescribeMacro{luatexbase.added_to_callback}
-% |luatexbase.added_to_callback(|\meta{callback}, \meta{description}|)|
+% \DescribeMacro{luatexbase.in_callback}
+% |luatexbase.in_callback(|\meta{callback}, \meta{description}|)|
 % Checks if the \meta{description} matches one of the functions added
 % to the list for the \meta{callback}, returning a boolean value.
 %
@@ -391,6 +393,11 @@
 % manual for the underlying \texttt{callback.register} built-in. Callbacks
 % will only be set to false (and thus be skipped entirely) if there are
 % no functions registered using the callback.
+%
+% \noindent
+% \DescribeMacro{luatexbase.callback_descriptions}
+% A list of the descriptions of functions registered to the specified
+% callback is returned. |{}| is returned if there are no functions registered.
 %
 % \noindent
 % \DescribeMacro{luatexbase.create_callback}
@@ -1418,6 +1425,7 @@ local function remove_from_callback(name, description)
 %    \begin{macrocode}
   local index = false
   local i,j
+  local cb = nil
   for i,j in ipairs(l) do
     if j.description == description then
       index = i
@@ -1430,6 +1438,7 @@ local function remove_from_callback(name, description)
     )
     return
   end
+  cb = l[index]
   table.remove(l, index)
   texio_write_nl(
     "Removing  `" .. description .. "' from `" .. name .. "'."
@@ -1438,16 +1447,17 @@ local function remove_from_callback(name, description)
     callbacklist[name] = nil
     callback_register(name, nil)
   end
+  return cb
 end
 luatexbase.remove_from_callback = remove_from_callback
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{luatexbase.added_to_callback}
+% \begin{macro}{luatexbase.in_callback}
 % \changes{v1.0a}{0000/00/00}{Function added}
 %   Look for a function description in a callback.
 %    \begin{macrocode}
-local function added_to_callback(name, description)
+local function in_callback(name, description)
   if not name
     or name == ""
     or not callbacktypes[name]
@@ -1462,7 +1472,7 @@ local function added_to_callback(name, description)
   end
   return false
 end
-luatexbase.added_to_callback = added_to_callback
+luatexbase.in_callback = in_callback
 %    \end{macrocode}
 % \end{macro}
 %
@@ -1482,6 +1492,28 @@ luatexbase.disable_callback = disable_callback
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{luatexbase.in_callback}
+% \changes{v1.0a}{0000/00/00}{Function added}
+%   List the descriptions of functions registed for the given callback.
+%    \begin{macrocode}
+local function callback_descriptions (name)
+  local d = {}
+  if not name
+    or name == ""
+    or not callbacktypes[name]
+    then
+    return d
+  else
+  local i
+  for k, i in pairs(callbacklist[name]) do
+    d[k]= i.description 
+    end
+  end
+  return d
+end
+luatexbase.callback_descriptions =callback_descriptions 
+%    \end{macrocode}
+% \end{macro}
 % \endgroup
 %
 %    \begin{macrocode}
@@ -1776,7 +1808,13 @@ luatexbase.catcodetables=setmetatable(
 % eg |polyglossia-frpt.lua| rather than needing the priority.
 % this covers that usage (only).
 %    \begin{macrocode}
-luatexbase.priority_in_callback = luatexbase.added_to_callback
+luatexbase.priority_in_callback = luatexbase.in_callback
+%    \end{macrocode}
+% 
+% The (unreleased) version 0.7 of |luatexbase| provided this
+% boolean test under a different name, so we provide an alias here.
+%    \begin{macrocode}
+luatexbase.is_active_callback = luatexbase.in_callback
 %    \end{macrocode}
 %
 % |ltluatex| implementation of |provides_module| does not return
