@@ -31,7 +31,7 @@ end}
 \dotest
 
 \directlua{
-cb1 = luatexbase.remove_from_callback("hpack_filter", "test callback one")
+cb_f,cb_d = luatexbase.remove_from_callback("hpack_filter", "test callback one")
 }
 
 \dotest
@@ -40,8 +40,8 @@ cb1 = luatexbase.remove_from_callback("hpack_filter", "test callback one")
 % callback list now re-ordered
 \directlua{
 luatexbase.add_to_callback("hpack_filter",
-cb1.func,
-cb1.description)}
+cb_f,
+cb_d)}
 
 \dotest
 

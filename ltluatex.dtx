@@ -377,8 +377,8 @@
 % \DescribeMacro{luatexbase.remove_from_callback}
 % |luatexbase.remove_from_callback(|\meta{callback}, \meta{description}|)|
 % Removes the function with \meta{description} from the \meta{callback}.
-% A table with the removed function (|.func| and its description 
-% (|.description|) is returned as the result of this function.
+% The removed function and its description 
+% are returned as the results of this function.
 %
 % \noindent
 % \DescribeMacro{luatexbase.in_callback}
@@ -1425,7 +1425,7 @@ local function remove_from_callback(name, description)
 %    \begin{macrocode}
   local index = false
   local i,j
-  local cb = nil
+  local cb = {}
   for i,j in ipairs(l) do
     if j.description == description then
       index = i
@@ -1447,7 +1447,7 @@ local function remove_from_callback(name, description)
     callbacklist[name] = nil
     callback_register(name, nil)
   end
-  return cb
+  return cb.func,cb.description
 end
 luatexbase.remove_from_callback = remove_from_callback
 %    \end{macrocode}
@@ -1765,7 +1765,7 @@ luatexbase.callback_descriptions =callback_descriptions
 function luatexbase.reset_callback(name,make_false)
   for _,v in pairs(luatexbase.callback_descriptions(name))
   do
-    luatexbase.remove_from_callback(name,v)
+    luatexbase.remove_<from_callback(name,v)
   end
   if make_false == true then
     luatexbase.disable_callback(name)
