@@ -1679,7 +1679,9 @@ luatexbase.callback_descriptions =callback_descriptions
 %
 %    \begin{macrocode}
   \ifx\documentclass\@undefined
-    \input{etex.src}
+    \ifx\globcount\@undefined
+      \input{etex.src}
+    \fi
     \catcode`\@=11
   \else
     \RequirePackage{etex}
