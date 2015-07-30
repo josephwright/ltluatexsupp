@@ -1765,7 +1765,7 @@ luatexbase.callback_descriptions =callback_descriptions
 function luatexbase.reset_callback(name,make_false)
   for _,v in pairs(luatexbase.callback_descriptions(name))
   do
-    luatexbase.remove_<from_callback(name,v)
+    luatexbase.remove_from_callback(name,v)
   end
   if make_false == true then
     luatexbase.disable_callback(name)
