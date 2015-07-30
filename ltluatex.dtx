@@ -14,27 +14,43 @@
 %
 %
 %<kernel>%%% From File: ltluatex.dtx
-%<!lua>\ifx
-%<package,emu>\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
-%<kernel,plain>\ProvidesFile\undefined\begingroup\def\ProvidesFile
-%<!lua>#1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
-%<!lua>\fi
-%<kernel>\ProvidesFile{ltluatex.def}
+%<emu>\ifx\BeginCatcodeRegime\undefined\else\expandafter\endinput\fi
+%<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
+%<tex,sty>\ifx
+%<sty>\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
+%<tex>\ProvidesFile\undefined\begingroup\def\ProvidesFile
+%<tex,sty>#1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
+%<tex,sty>\fi
+%<kernel&tex>\ProvidesFile{ltluatex.def}
 %<plain>\ProvidesFile{ltluatex.tex}
 %<package>\ProvidesPackage{ltluatex}
-%<emu>\ProvidesPackage{emu-luatexbase}
+%<emu>\ProvidesPackage{luatexbase}
+%<emu-cmp>\ProvidesPackage{luatexbase-compat}
+%<emu-mod>\ProvidesPackage{luatexbase-modutils}
+%<emu-loa>\ProvidesPackage{luatexbase-loader}
+%<emu-reg>\ProvidesPackage{luatexbase-regs}
+%<emu-att>\ProvidesPackage{luatexbase-attr}
+%<emu-cct>\ProvidesPackage{luatexbase-cctb}
+%<emu-mcb>\ProvidesPackage{luatexbase-mcb}
 %<*driver>
 \ProvidesFile{ltluatex.dtx}
 %</driver>
-%<*!lua>
-[0000/00/00 v1.0a
-%</!lua>
-%<package>Extended luatex support
-%<plain>luatex support for plain TeX
+%<*tex,sty>
+[2015/08/01 v1.0a
+%</tex,sty>
+%<kernel&tex>luatex support for LaTeX (core)
+%<package>luatex support for LaTeX (core + catcode stack)
+%<plain>luatex support for plain TeX (core + catcode stack)
 %<emu>luatexbase interface to luatex
-%<*!lua>
+%<emu-cmp>luatexbase interface to luatex (legacy subpackage)
+%<emu-mod>luatexbase interface to luatex (legacy subpackage)
+%<emu-loa>luatexbase interface to luatex (legacy subpackage)
+%<emu-reg>luatexbase interface to luatex (legacy subpackage)
+%<emu-cct>luatexbase interface to luatex (legacy subpackage)
+%<emu-mcb>luatexbase interface to luatex (legacy subpackage)
+%<*tex,sty>
 ]
-%</!lua>
+%</tex,sty>
 %<*driver>
 \documentclass{ltxdoc}
 \GetFileInfo{ltluatex.dtx}
@@ -1677,18 +1693,6 @@ luatexbase.callback_descriptions =callback_descriptions
 %    \end{macrocode}
 %
 %
-% Prevent |luatex|/|luatexbase| loading when referenced.
-%    \begin{macrocode}
-\expandafter\def\csname luatexbase@sty@endinput\endcsname{}
-\expandafter\def\csname ver@luatexbase.sty\endcsname{}
-\expandafter\def\csname ver@luatexbase-modutils.sty\endcsname{}
-\expandafter\def\csname ver@luatexbase-mcb.sty\endcsname{}
-\expandafter\def\csname ver@luatexbase-attr.sty\endcsname{}
-\expandafter\def\csname ver@luatexbase-cctb.sty\endcsname{}
-\expandafter\def\csname ver@luatex.sty\endcsname{}
-%
-%    \end{macrocode}
-%
 %    \begin{macrocode}
 \ifx\e@alloc\@undefined
 %    \end{macrocode}
@@ -1699,7 +1703,7 @@ luatexbase.callback_descriptions =callback_descriptions
 %
 %    \begin{macrocode}
   \ifx\documentclass\@undefined
-    \ifx\globcount\@undefined
+    \ifx\loccount\@undefined
       \input{etex.src}
     \fi
     \catcode`\@=11
@@ -1889,6 +1893,8 @@ end
 % Resolve name clashes and prefixed name issues.
 %    \begin{macrocode}
 \let\newluatexattribute\newattribute
+\let\setluatexattribute\setattribute
+\let\unsetluatexattribute\unsetattribute
 \let\newluatexcatcodetable\newcatcodetable
 \let\setluatexcatcodetable\setcatcodetable
 \let\luatexbase@directlua\directlua
@@ -1902,6 +1908,22 @@ end
 %
 %    \begin{macrocode}
 %</emu>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%<*emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\ifx\RequirePackage\undefined
+\input luatexbase.sty
+\else
+\RequirePackage{luatexbase}
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
 %    \end{macrocode}
 %
 % \Finale
