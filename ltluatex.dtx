@@ -11,10 +11,23 @@
 %
 %   http://www.latex-project.org/lppl.txt
 %
-%<*driver>
 % \fi
+%<package|emu>\ifx\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
+%<kernel|plain>\ifx\ProvidesFile\undefined\begingroup\def\ProvidesFile
+%<!lua>#1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}\fi
+%<kernel>\ProvidesFile{ltluatex.def}
+%<plain>\ProvidesFile{ltluatex.tex}
+%<package>\ProvidesPackage{ltluatex}
+%<emu>\ProvidesPackage{emu-luatexbase}
+%<*driver>
 \ProvidesFile{ltluatex.dtx}
-  [0000/00/00 v1.0a LaTeX Kernel (LuaTeX support)]
+%</driver>
+%<!lua>[0000/00/00 v1.0a
+%<package>Extended luatex support
+%<plain>luatex support for plain TeX
+%<emu>luatexbase interface to luatex
+%<!lua>]
+%<*driver>
 % \iffalse
 \documentclass{ltxdoc}
 \GetFileInfo{ltluatex.dtx}
@@ -1697,7 +1710,11 @@ luatexbase.callback_descriptions =callback_descriptions
 % load |ltluatex.sty| unless things already defined.
 %    \begin{macrocode}
   \ifx\catcodetable@initex\@undefined
-    \input{ltluatex.sty}
+    \ifx\RequirePackage\@undefined
+      \input{ltluatex.sty}
+    \else
+      \RequirePackage{ltluatex}
+    \fi
   \fi
 \fi
 %    \end{macrocode}
