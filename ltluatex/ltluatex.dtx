@@ -14,7 +14,6 @@
 %
 %
 %<kernel>%%% From File: ltluatex.dtx
-%<emu>\ifx\BeginCatcodeRegime\undefined\else\expandafter\endinput\fi
 %<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
 %<tex,sty>\ifx
 %<sty>\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
@@ -24,14 +23,6 @@
 %<kernel&tex>\ProvidesFile{ltluatex.def}
 %<plain>\ProvidesFile{ltluatex.tex}
 %<package>\ProvidesPackage{ltluatex}
-%<emu>\ProvidesPackage{luatexbase}
-%<emu-cmp>\ProvidesPackage{luatexbase-compat}
-%<emu-mod>\ProvidesPackage{luatexbase-modutils}
-%<emu-loa>\ProvidesPackage{luatexbase-loader}
-%<emu-reg>\ProvidesPackage{luatexbase-regs}
-%<emu-att>\ProvidesPackage{luatexbase-attr}
-%<emu-cct>\ProvidesPackage{luatexbase-cctb}
-%<emu-mcb>\ProvidesPackage{luatexbase-mcb}
 %<*driver>
 \ProvidesFile{ltluatex.dtx}
 %</driver>
@@ -41,13 +32,6 @@
 %<kernel&tex>luatex support for LaTeX (core)
 %<package>luatex support for LaTeX (core + catcode stack)
 %<plain>luatex support for plain TeX (core + catcode stack)
-%<emu>luatexbase interface to luatex
-%<emu-cmp>luatexbase interface to luatex (legacy subpackage)
-%<emu-mod>luatexbase interface to luatex (legacy subpackage)
-%<emu-loa>luatexbase interface to luatex (legacy subpackage)
-%<emu-reg>luatexbase interface to luatex (legacy subpackage)
-%<emu-cct>luatexbase interface to luatex (legacy subpackage)
-%<emu-mcb>luatexbase interface to luatex (legacy subpackage)
 %<*tex,sty>
 ]
 %</tex,sty>
@@ -255,7 +239,7 @@
 % defined.
 %
 % The `luatexbase` package interface may also be used in plain \TeX,
-% as before by simply inputting the package, currently |\input emu-luatexbase.sty|.
+% as before by simply inputting the package, currently |\input luatexbase.sty|.
 %
 % \section{Lua functionality}
 %
@@ -1676,254 +1660,6 @@ luatexbase.callback_descriptions =callback_descriptions
 %
 %    \begin{macrocode}
 %</plain>
-%    \end{macrocode}
-%
-% \subsection{luatexbase interface}
-%
-%    \begin{macrocode}
-%<*emu>
-\edef\emuatcatcode{\the\catcode`\@}
-\catcode`\@=11
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-% emu-luatexbase.sty v 0.01 2015/07/14
-% minimal luatexbase emulation, for testing with
-% current luaotfload package
-%    \end{macrocode}
-%
-%
-%    \begin{macrocode}
-\ifx\e@alloc\@undefined
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-% In pre 2014 latex, or plain TeX load |etex.{sty,src}|
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-  \ifx\documentclass\@undefined
-    \ifx\loccount\@undefined
-      \input{etex.src}
-    \fi
-    \catcode`\@=11
-  \else
-    \RequirePackage{etex}
-  \fi
-%    \end{macrocode}
-% Load the code for the plain interface (which also works in old
-% \LaTeX).
-%    \begin{macrocode}
-  \input{ltluatex.tex}
-\else
-%    \end{macrocode}
-% In \LaTeX\ releases from 2015/01/01 load |ltluatex|,
-% load |ltluatex.sty| unless things already defined.
-%    \begin{macrocode}
-  \ifx\catcodetable@initex\@undefined
-    \ifx\RequirePackage\@undefined
-      \input{ltluatex.sty}
-    \else
-      \RequirePackage{ltluatex}
-    \fi
-  \fi
-\fi
-%    \end{macrocode}
-%
-% Simple require wrapper so that |luaotfload| does get loaded.
-%    \begin{macrocode}
-\def\RequireLuaModule#1{\directlua{require("#1")}}
-%    \end{macrocode}
-%
-% Extended catcode table support.  Use the names from the previous
-% |luatexbase| and |luatex| packages.
-%    \begin{macrocode}
-\let\CatcodeTableIniTeX\catcodetable@initex
-\let\CatcodeTableString\catcodetable@string
-\let\CatcodeTableLaTeX\catcodetable@latex
-\let\CatcodeTableLaTeXAtLetter\catcodetable@atletter
-%    \end{macrocode}
-%
-% Additional tables declared in the previous interface.
-%    \begin{macrocode}
-\newcatcodetable\CatcodeTableOther
-\setcatcodetable\CatcodeTableOther{%
-  \catcodetable\CatcodeTableString
-  \catcode32 12 }
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\newcatcodetable\CatcodeTableExpl
-\setcatcodetable\CatcodeTableExpl{%
-\catcodetable\CatcodeTableLaTeX
-  \catcode126 10 % tilde is a space char
-  \catcode32  9  % space is ignored
-  \catcode9   9  % tab also ignored
-  \catcode95  11 % underscore letter
-  \catcode58  11 % colon letter
-  }
-%    \end{macrocode}
-%
-% Top level access to catcodetable stack.
-%    \begin{macrocode}
-\def\BeginCatcodeRegime#1{%
-\@pushcatcodetable
-\catcodetable#1\relax}
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\def\EndCatcodeRegime{%
-\@popcatcodetable
-}
-%    \end{macrocode}
-%
-% The implementation of the stack is completely
-% different, but usage should match.
-%    \begin{macrocode}
-\let\PushCatcodeTableNumStack\@pushcatcodetable
-\let\PopCatcodeTableNumStack\@popcatcodetable
-%    \end{macrocode}
-%
-% \subsubsection{Additional lua code}
-%    \begin{macrocode}
-\directlua{
-%    \end{macrocode}
-%
-% Remove all registered callbacks, then disable.
-% Set to false if optional second argument is |true|.
-%    \begin{macrocode}
-function luatexbase.reset_callback(name,make_false)
-  for _,v in pairs(luatexbase.callback_descriptions(name))
-  do
-    luatexbase.remove_from_callback(name,v)
-  end
-  if make_false == true then
-    luatexbase.disable_callback(name)
-  end
-end
-%    \end{macrocode}
-%
-% Emulate the catcodetables table.
-% Explicitly fill the table rather than rely on the metatable call to
-% |registernumber| as that is unreliable on old luatex.
-%    \begin{macrocode}
-luatexbase.catcodetables=setmetatable(
- {['latex-package'] = \number\catcodetable@atletter,
-  ini    = \number\CatcodeTableIniTeX,
-  string = \number\CatcodeTableString,
-  other  = \number\CatcodeTableOther,
-  latex  = \number\catcodetable@latex,
-  expl   = \number\CatcodeTableExpl,
-  expl3  = \number\CatcodeTableExpl},
- { __index = function(t,key)
-    return luatexbase.registernumber(key) or nil
-  end}
-)}
-%    \end{macrocode}
-%
-% On old luatex workaround hashtable issues.
-% Allocate in \TeX, and also directly add to |luatexbase.catcodetables|.
-%    \begin{macrocode}
-\ifnum\luatexversion<80 %
-\def\newcatcodetable#1{%
-  \e@alloc\catcodetable\chardef
-    \e@alloc@ccodetable@count\m@ne{"8000}#1%
-  \initcatcodetable\allocationnumber
-  {\escapechar=\m@ne
-  \directlua{luatexbase.catcodetables['\string#1']=%
-    \the\allocationnumber}}%
-}
-\fi
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\directlua{
-%    \end{macrocode}
-%
-% |priority_in_callback| returns position in the callback list.
-% Not provided by default in |ltluatex| as usually it is just used 
-% as a boolean test, for which |in_callback| is provided.
-%    \begin{macrocode}
-function luatexbase.priority_in_callback (name,description)
-  for i,v in ipairs(luatexbase.callback_descriptions(name))
-  do
-    if v == description then
-      return i
-    end
-  end
-  return false
-end
-%    \end{macrocode}
-% 
-% The (unreleased) version 0.7 of |luatexbase| provided this
-% boolean test under a different name, so we provide an alias here.
-%    \begin{macrocode}
-luatexbase.is_active_callback = luatexbase.in_callback
-%    \end{macrocode}
-%
-% |ltluatex| implementation of |provides_module| does not return
-% print functions so define modified version here.
-%    \begin{macrocode}
-luatexbase.base_provides_module=luatexbase.provides_module
-function luatexbase.provides_module(info)
-  luatexbase.base_provides_module(info)
-  return
-    function(s) return luatexbase.module_error(info.name, s) end,
-    function(s) return luatexbase.module_warning(info.name, s) end,
-    function(s) return luatexbase.module_info(info.name, s) end,
-    function(s) return luatexbase.module_info(info.name, s) end
-end
-}
-%    \end{macrocode}
-%
-% Same for attribute table as catcode tables. In old luatex, add to the
-% |luatexbase.attributes| table directly.
-%    \begin{macrocode}
-\ifnum\luatexversion<80 %
-\def\attribute#1{%
-  \e@alloc\attribute\attributedef
-    \e@alloc@attribute@count\m@ne\e@alloc@top#1%
-  {\escapechar=\m@ne
-  \directlua{luatexbase.attributes['\string#1']=%
-    \the\allocationnumber}}%
-}
-\fi
-%    \end{macrocode}
-%
-% Resolve name clashes and prefixed name issues.
-%    \begin{macrocode}
-\let\newluatexattribute\newattribute
-\let\setluatexattribute\setattribute
-\let\unsetluatexattribute\unsetattribute
-\let\newluatexcatcodetable\newcatcodetable
-\let\setluatexcatcodetable\setcatcodetable
-\let\luatexbase@directlua\directlua
-\let\luatebase@ensure@primitive\@gobble
-%    \end{macrocode}
-%
-% reset catcode of |@|.
-%    \begin{macrocode}
-\catcode`\@=\emuatcatcode\relax
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-%</emu>
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-%<*emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-\ifx\RequirePackage\undefined
-\input luatexbase.sty
-\else
-\RequirePackage{luatexbase}
-\fi
-%    \end{macrocode}
-%
-%    \begin{macrocode}
-%</emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
 %    \end{macrocode}
 %
 % \Finale

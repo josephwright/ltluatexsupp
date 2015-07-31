@@ -1,0 +1,821 @@
+% \iffalse meta-comment
+%
+% Copyright 2015
+% The LaTeX3 Project and any individual authors listed elsewhere
+% in this file.
+%
+% It may be distributed and/or modified under the conditions of
+% the LaTeX Project Public License (LPPL), either version 1.3c of
+% this license or (at your option) any later version.  The latest
+% version of this license is in the file:
+%
+%   http://www.latex-project.org/lppl.txt
+%
+%
+%
+%<emu>\ifx\BeginCatcodeRegime\undefined\else\expandafter\endinput\fi
+%<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
+%<tex,sty>\ifx
+%<sty>\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
+%<tex>\ProvidesFile\undefined\begingroup\def\ProvidesFile
+%<tex,sty>#1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
+%<tex,sty>\fi
+%<plain>\ProvidesFile{ltluatex.tex}
+%<emu>\ProvidesPackage{luatexbase}
+%<emu-cmp>\ProvidesPackage{luatexbase-compat}
+%<emu-mod>\ProvidesPackage{luatexbase-modutils}
+%<emu-loa>\ProvidesPackage{luatexbase-loader}
+%<emu-reg>\ProvidesPackage{luatexbase-regs}
+%<emu-att>\ProvidesPackage{luatexbase-attr}
+%<emu-cct>\ProvidesPackage{luatexbase-cctb}
+%<emu-mcb>\ProvidesPackage{luatexbase-mcb}
+%<*driver>
+\ProvidesFile{luatexbase.dtx}
+%</driver>
+%<*tex,sty>
+[2015/08/01 v1.0a
+%</tex,sty>
+%<plain>luatex support for plain TeX (core + catcode stack)
+%<emu>luatexbase interface to luatex
+%<emu-cmp>luatexbase interface to luatex (legacy subpackage)
+%<emu-mod>luatexbase interface to luatex (legacy subpackage)
+%<emu-loa>luatexbase interface to luatex (legacy subpackage)
+%<emu-reg>luatexbase interface to luatex (legacy subpackage)
+%<emu-cct>luatexbase interface to luatex (legacy subpackage)
+%<emu-mcb>luatexbase interface to luatex (legacy subpackage)
+%<*tex,sty>
+]
+%</tex,sty>
+%<*driver>
+\documentclass{ltxdoc}
+\GetFileInfo{luatexbase.dtx}
+\begin{document}
+\title{\filename\\(Lua\TeX{}-specific support, luatexbase interface)}
+\author{David Carlisle and Joseph Wright\footnote{Significant portions
+  of the code here are adapted/simplified from the packages \textsf{luatex} and
+  \textsf{luatexbase} written by Heiko Oberdiek, \'{E}lie Roux,
+  Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang.}}
+\date{\filedate}
+\maketitle
+\setcounter{tocdepth}{2}
+\tableofcontents
+\DocInput{\filename}
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \section{Overview}
+%
+% Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Several of
+% these require set up that is best done in the kernel or need related support
+% functions. This file provides \emph{basic} support for Lua\TeX{} at the
+% \LaTeXe{} kernel level plus as a loadable package which can be used with plain
+% \TeX{} and \LaTeX{}. For \LaTeX{}, the package adds a small number of commands
+% which do not fit into the scope of the kernel.
+%
+% This file contains code for both \TeX{} (to be stored as part of the format)
+% and Lua (to be loaded at the start of each job). In the Lua code, the kernel
+% uses the namespace |latex| which is \emph{reserved for use by the team}.
+%
+% The following |\count| registers are used here for register allocation:
+% \begin{itemize}
+%  \item[\texttt{\string\e@alloc@attribute@count}] Attributes (default 258)
+%  \item[\texttt{\string\e@alloc@ccodetable@count}] Category code tables (default 259)
+%  \item[\texttt{\string\e@alloc@luafunction@count}] Lua functions (default 260)
+%  \item[\texttt{\string\e@alloc@whatsit@count}] User whatsits (default 261)
+% \end{itemize}
+% (|\count256| is used for |\newmarks| allocation and |\count257|
+% is used for\break
+% |\newXeTeXintercharclass| with Xe\TeX{}, with code defined in
+% \texttt{ltfinal.dtx}).
+% With any \LaTeXe{} kernel from 2015 onward these registers are part of
+% the block in the extended area reserved by the kernel (prior to 2015 the
+% \LaTeXe{} kernel did not provide any functionality for the extended
+% allocation area).
+%
+% \section{Core \TeX{} functionality}
+%
+% The commands defined here are defined in |ltluatex.def| for
+% possible inclusion in a future \LaTeX\ format, however for ease of
+% testing they are also currently defined in the package file
+% |ltluatex.sty| along with the additional commands described in the
+% next section.
+%
+% \DescribeMacro{\newattribute}
+% |\newattribute{|\meta{attribute}|}|\\
+% Defines a named \cs{attribute}, indexed from~$1$
+% (\emph{i.e.}~|\attribute0| is never defined). Attributes initially
+% have the marker value |-"7FFFFFFF| (`unset') set by the engine.
+%
+% \noindent
+% \DescribeMacro{\newcatcodetable}
+% |\newcatcodetable{|\meta{catcodetable}|}|\\
+% Defines a named \cs{catcodetable}, indexed from~$1$
+% (|\catcodetable0| is never assigned). A new catcode table will be
+% populated with exactly those values assigned by Ini\TeX{} (as described
+% in the Lua\TeX{} manual).
+%
+% \noindent
+% \DescribeMacro{\newluafunction}
+% |\newluafunction{|\meta{function}|}|\\
+% Defines a named \cs{luafunction}, indexed from~$1$ (Lua indexes from
+% $1$ so |\luafunction0| is not available).
+%
+% \noindent
+% \DescribeMacro{\newwhatsit}
+% |\newwhatsit{|\meta{whatsit}|}|\\
+% Defines a custom \cs{whatsit}, indexed from~$1$.
+%
+% \noindent
+% \DescribeMacro{\catcodetable@initex}
+% \DescribeMacro{\catcodetable@string}
+% \DescribeMacro{\catcodetable@latex}
+% \DescribeMacro{\catcodetable@atletter}
+% Predefined category code tables with the obvious assignments. Note
+% that the |latex| and |atletter| tables set the full Unicode range
+% to the codes predefined by the kernel.
+%
+% \section{The \texttt{ltluatex} Package \TeX{} functionality}
+%
+% \noindent
+% \DescribeMacro{\setattribute}
+% \DescribeMacro{\unsetattribute}
+% |\setattribute{|\meta{attribute}|}{|\meta{value}|}|\\
+% |\unsetattribute{|\meta{attribute}|}|\\
+% Set and unset attributes in a manner analogous to |\setlength|. Note that
+% attributes take a marker value when unset so this operation is distinct
+% from setting the value to zero.
+%
+% \noindent
+% \DescribeMacro{\setcatcodetable}
+% |\setcatcodetable{|\meta{table}|}{|\meta{catcodes}|}|\\
+% Sets the \meta{table} (which must have been previously defined) to
+% apply the \meta{catcodes} specified.
+%
+% \noindent
+% \DescribeMacro{\setrangecatcode}
+% |\setrangecatcode{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|\\
+% Sets all characters in the range \meta{start}--\meta{end} inclusive to
+% have the \meta{catcode} specified.
+%
+% \noindent
+% \DescribeMacro{\@pushcatcodes}
+% \DescribeMacro{\@popcatcodes}
+% |\@pushcatcodetable|\\
+% |\@popcatcodetable|\\
+% This pair of commands enable the current category code r\'{e}gime to
+% be saved and restored meaning that arbitrary catcode changes can be made.
+% This functionality will normally be used in concert with applying
+% catcode tables. For example
+% \begin{verbatim}
+% \catcode`\Z=4 %
+% \@pushcatcodetable
+% \catcodetable\catcodetable@latex
+% % Code here
+% \@popcatcodetable
+% \showthe\catcode`\Z
+% \end{verbatim}
+% will ensure that the `content' is set with normal category codes but
+% allow restoration of the non-standard codes at the conclusion. Importantly,
+% it does not require that anything is known about the catcode situation in
+% advance (\emph{cf.}~a more traditional approach to saving the state of
+% targeting characters).
+%
+% \section{The \texttt{luatexbase} package interface}
+%
+% The interfaces defined here are closely modelled on the earlier
+% |luatexbase| package, which in turn copies parts of the |luatex|
+% package.
+% A closer emulation of the existing |luatexbase| is provided by the
+% package currently called |emu-luatexbase|. Having a different name
+% allows both packages to be easily used while testing, although
+% possibly |emu-luatexbase| can be the source of an updated
+% |luatexbase| package, depending on how things turn out.
+%
+% \subsection{\TeX}
+% \subsubsection{Alternative catcode table handling}
+%
+% \noindent
+% \DescribeMacro{\CatcodeTableIniTeX}
+% \DescribeMacro{\CatcodeTableString}
+% \DescribeMacro{\CatcodeTableLaTeX}
+% \DescribeMacro{\CatcodeTableLaTeXAtLetter}
+% \DescribeMacro{\CatcodeTableOther}
+% \DescribeMacro{\CatcodeTableExpl}
+% Alternative names for some predefined catcodetables, and some
+% additional ones are declared.
+%
+% \noindent
+% \DescribeMacro{\BeginCatcodeRegime}
+% \DescribeMacro{\EndCatcodeRegime}
+% A simple wrapper around |\@pushcatcodetable| providing aslightly
+% different interface.
+%
+% \noindent
+% \DescribeMacro{\PushCatcodeTableNumStack}
+% \DescribeMacro{\PopCatcodeTableNumStack}
+% These are defined to be aliases for |\@pushcatcodetable| and
+% |\@popcatcodetable| although the actual implemenatation is quite different
+% to the older packages, the use of the commands should match.
+%
+% \subsection{Lua}
+% \subsubsection{predefined catcode table names}
+% As in the previous packages the |catcodetables| array is extended
+% with aliases for the predefined tables so you can use |catcodetables.expl| in
+% addition to |catcodetables.CatcodeTableExpl|.
+%
+% \subsubsection{callback queries}
+% In the earlier interfaces the function
+% |luatexbase.priority_in_callback|
+% is provided to return a number indicating th eposition of a
+% specified function in a callback list. However it is usually used
+% just as a boolean test that the function is registered with the
+% callback. |ltluatex| does not expose the priority numbers so this
+% function is defined as an alias to the function
+% |luatexbase.in_callback| which returns a boolean.
+%
+% \subsubsection{Module declaration}
+% The |luatexbase| version of |provides_module| returns a list of log
+% and error functions so that it is usually called as:\\
+% |local err, warning, info, log = luatexbase.provides_module({name=..|
+%
+% \section{Plain \TeX\ interface}
+%
+% The |ltluatex| interface may be used with plain \TeX\ using 
+% |\input ltluatex| this inputs |ltluatex.tex| which inputs |etex.src|
+% if it is not already input, and then defines some internal commands to
+% allow the \emph{extended} interafce defined by |ltluatex.sty| to be
+% defined.
+%
+% The `luatexbase` package interface may also be used in plain \TeX,
+% as before by simply inputting the package, currently |\input emu-luatexbase.sty|.
+%
+% \section{Lua functionality}
+%
+% \begingroup
+%
+% \begingroup\lccode`~=`_
+% \lowercase{\endgroup\let~}_
+% \catcode`_=12
+%
+% \section{Allocators in Lua}
+%
+% \DescribeMacro{luatexbase.new_attribute}
+% |luatexbase.new_attribute(|\meta{attribute}|)|\\
+% Returns an allocation number for the \meta{attribute}, indexed from~$1$.
+% The attribute will be initialised with the marker value |-"7FFFFFFF|
+% (`unset'). The attribute allocation sequence is shared with the \TeX{}
+% code but this function does \emph{not} define a token using
+% |\attributedef|.
+% The attribute name is recorded in the |attributes| table. A
+% metatable is provided so that the table syntax can be used
+% consistently for attributes declared in \TeX\ or lua.
+%
+% \noindent
+% \DescribeMacro{luatexbase.new_whatsit}
+% |luatexbase.new_whatsit(|\meta{whatsit}|)|\\
+% Returns an allocation number for the custom \meta{whatsit}, indexed from~$1$.
+%
+% \noindent
+% \DescribeMacro{luatexbase.new_bytecode}
+% |luatexbase.new_bytecode(|\meta{bytecode}|)|\\
+% Returns an allocation number for a bytecode register, indexed from~$1$.
+% The optional \meta{name} argument is just used for logging.
+%
+% \noindent
+% \DescribeMacro{luatexbase.new_chunkname}
+% |luatexbase.new_chunkname(|\meta{chunkname}|)|\\
+% Returns an allocation number for a lua chunk name for use with 
+% |\directlua| and |\latelua|, indexed from~$1$.
+% The number is returned and also \meta{name} argument is added to the
+% |lua.name| array at that index.
+%
+%
+% \section{Lua access to \TeX{} register numbers}
+%
+% \DescribeMacro{luatexbase.registernumber}
+% |luatexbase.registernumer(|\meta{name}|)|\\
+% Sometimes (notably in the case of Lua attributes) it is necessary to
+% access a register \emph{by number} that has been allocated by \TeX{}.
+% This package provides a function to look up the relevant number
+% using Lua\TeX{}'s internal tables. So after for example
+% |\newattribute\myattrib|, |\myattrib| would be defined by (say)
+% |\myattrib=\attribute15|. The function call |luatexbase.registernumer("myattrib")|
+% will then return the register number, $15$ in this case. If the string passed
+% as argument does not correspond to a token defined by |\attributedef|,
+% |\countdef| or similar commands, the Lua value |false| is returned.
+%
+% As an example, consider the input:
+%\begin{verbatim}
+% \newcommand\test[1]{%
+% \typeout{#1: \expandafter\meaning\csname#1\endcsname^^J
+% \space\space\space\space
+% \directlua{tex.write(luatexbase.registernumber("#1") or "bad input")}%
+% }}
+%
+% \test{undefinedrubbish}
+%
+% \test{space}
+%
+% \test{hbox}
+%
+% \test{@MM}
+%
+% \test{@tempdima}
+% \test{@tempdimb}
+%
+% \test{strutbox}
+%
+% \test{sixt@@n}
+%
+% \attrbutedef\myattr=12
+% \myattr=200
+% \test{myattr}
+%
+%\end{verbatim}
+%
+% If the demonstration code is processed with Lua\LaTeX{} then the following
+% would be produced in the log and terminal output.
+%\begin{verbatim}
+% undefinedrubbish: \relax
+%      bad input
+% space: macro:->
+%      bad input
+% hbox: \hbox
+%      bad input
+% @MM: \mathchar"4E20
+%      20000
+% @tempdima: \dimen14
+%      14
+% @tempdimb: \dimen15
+%      15
+% strutbox: \char"B
+%      11
+% sixt@@n: \char"10
+%      16
+% myattr: \attribute12
+%      12
+%\end{verbatim}
+%
+% Notice how undefined commands, or commands unrelated to registers
+% do not produce an error, just return |false| and so print
+% |bad input| here. Note also that commands defined by |\newbox| work and
+% return the number of the box register even though the actual command
+% holding this number is a |\chardef| defined token (there is no
+% |\boxdef|).
+%
+% \subsection{Module utilities}
+%
+% \DescribeMacro{luatexbase.provides_module}
+% |luatexbase.provides_module(|\meta{info}|)|\\
+% This function is used by modules to identify themselves; the |info| should be
+% a table containing information about the module. The required field
+% |name| must contain the name of the module. It is recommended to provide a
+% field |date| in the usual \LaTeX{} format |yyyy/mm/dd|. Optional fields
+% |version| (a string) and |description| may be used if present. This
+% information will be recorded in the log. Other fields are ignored.
+%
+% \noindent
+% \DescribeMacro{luatexbase.module_info}
+% \DescribeMacro{luatexbase.module_warning}
+% \DescribeMacro{luatexbase.module_error}
+% |luatexbase.module_info(|\meta{module}, \meta{text}|)|\\
+% |luatexbase.module_warning(|\meta{module}, \meta{text}|)|\\
+% |luatexbase.module_error(|\meta{module}, \meta{text}|)|\\
+% These functions are similar to \LaTeX{}'s |\PackageError|, |\PackageWarning|
+% and |\PackageInfo| in the way they format the output.  No automatic line
+% breaking is done, you may still use |\n| as usual for that, and the name of
+% the package will be prepended to each output line.
+%
+% Note that |luatexbase.module_error| raises an actual Lua error with |error()|,
+% which currently means a call stack will be dumped. While this may not
+% look pretty, at least it provides useful information for tracking the
+% error down.
+%
+% \subsection{Callback management}
+%
+% \noindent
+% \DescribeMacro{luatexbase.add_to_callback}
+% |luatexbase.add_to_callback(|^^A
+% \meta{callback}, \meta{function}, \meta{description}|)|
+% Registers the \meta{function} into the \meta{callback} with a textual
+% \meta{description} of the function. Functions are inserted into the callback
+% in the order loaded.
+%
+% \noindent
+% \DescribeMacro{luatexbase.remove_from_callback}
+% |luatexbase.remove_from_callback(|\meta{callback}, \meta{description}|)|
+% Removes the function with \meta{description} from the \meta{callback}.
+% The removed function and its description 
+% are returned as the results of this function.
+%
+% \noindent
+% \DescribeMacro{luatexbase.in_callback}
+% |luatexbase.in_callback(|\meta{callback}, \meta{description}|)|
+% Checks if the \meta{description} matches one of the functions added
+% to the list for the \meta{callback}, returning a boolean value.
+%
+% \noindent
+% \DescribeMacro{luatexbase.disable_callback}
+% |luatexbase.disable_callback(|\meta{callback}|)|
+% Sets the \meta{callback} to \texttt{false} as described in the Lua\TeX{}
+% manual for the underlying \texttt{callback.register} built-in. Callbacks
+% will only be set to false (and thus be skipped entirely) if there are
+% no functions registered using the callback.
+%
+% \noindent
+% \DescribeMacro{luatexbase.callback_descriptions}
+% A list of the descriptions of functions registered to the specified
+% callback is returned. |{}| is returned if there are no functions registered.
+%
+% \noindent
+% \DescribeMacro{luatexbase.create_callback}
+% |luatexbase.create_callback(|\meta{name},meta{type},\meta{default}|)|
+% Defines a user defined callback. The last argument is a default
+% functtion of |false|.
+%
+% \noindent
+% \DescribeMacro{luatexbase.call_callback}
+% |luatexbase.create_callback(|\meta{name},\ldots|)|
+% Calls a user defined callback with the supplied arguments.
+%
+% \endgroup
+%
+% \StopEventually{}
+%
+% \section{Implementation}
+%
+%
+% \subsection{Plain \TeX\ support}
+%
+%    \begin{macrocode}
+%<*plain>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\edef\etatcatcode{\the\catcode`\@}
+\catcode`\@=11
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\ifx\e@alloc\@undefined\else
+\expandafter\endinput
+\fi
+%    \end{macrocode}
+%
+% \subsubsection{Fixes to \texttt{etex.src}/\texttt{etex.sty}}
+%
+% These could and probably should be made directly in an
+% update to etex.src which already has some luatex-specific
+% code, but does not define the correct range for luatex.
+%
+%    \begin{macrocode}
+% 2015-07-13 higher range in luatex
+\edef \et@xmaxregs {\ifx\directlua\@undefined 32768\else 65536\fi}
+% luatex/xetex also allow more math fam
+\edef \et@xmaxfam {\ifx\Umathchar\@undefined\sixt@@n\else\@cclvi\fi}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\count 270=\et@xmaxregs % locally allocates \count registers 32767, 32766, ...
+\count 271=\et@xmaxregs % ditto for \dimen registers
+\count 272=\et@xmaxregs % ditto for \skip registers
+\count 273=\et@xmaxregs % ditto for \muskip registers
+\count 274=\et@xmaxregs % ditto for \box registers
+\count 275=\et@xmaxregs % ditto for \toks registers
+\count 276=\et@xmaxregs % ditto for \marks classes
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% and 256 or 16 fam
+\outer\def\newfam{\alloc@8\fam\chardef\et@xmaxfam}
+%    \end{macrocode}
+%
+% End of proposed changes to \texttt{etex.src}
+%
+% \subsubsection{luatex specific settings}
+% Switch to global cf |luatex.sty| to leave room for inserts
+% not really needed for luatex but possibly most compatible
+% with existing use.
+%    \begin{macrocode}
+\let\newcount\globcount
+\let\newdimen\globdimen
+\let\newskip\globskip
+\let\newbox\globbox
+%    \end{macrocode}
+%
+% Define|\e@alloc| as in latex (the existing macros in |etex.src|
+% hard to extend to further register types as they assume specific
+% 26x and 27x count range. For compatibility the existing register
+% allocation is not changed.
+%
+%    \begin{macrocode}
+\chardef\e@alloc@top=65535
+\let\e@alloc@chardef\chardef
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\e@alloc#1#2#3#4#5#6{%
+  \global\advance#3\@ne
+  \e@ch@ck{#3}{#4}{#5}#1%
+  \allocationnumber#3\relax
+  \global#2#6\allocationnumber
+  \wlog{\string#6=\string#1\the\allocationnumber}}%
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\gdef\e@ch@ck#1#2#3#4{%
+  \ifnum#1<#2\else
+    \ifnum#1=#2\relax
+      #1\@cclvi
+      \ifx\count#4\advance#1 10 \fi
+    \fi
+    \ifnum#1<#3\relax
+    \else
+      \errmessage{No room for a new \string#4}%
+    \fi
+  \fi}%
+%    \end{macrocode}
+%
+% Two simple \LaTeX\ macros used in |ltlatex.sty|.
+%    \begin{macrocode}
+\long\def \@gobble #1{}
+\long\def\@firstofone#1{#1}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% Fix up allocations not to clash with |etex.src|.
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\newcount\e@alloc@attribute@count
+\newcount\e@alloc@ccodetable@count
+\newcount\e@alloc@luafunction@count
+\newcount\e@alloc@whatsit@count
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% Input the main code.
+\input ltluatex.sty\relax
+%    \end{macrocode}
+%
+% Reset the catcode of |@|.
+%    \begin{macrocode}
+\catcode`\@=\etatcatcode\relax
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</plain>
+%    \end{macrocode}
+%
+% \subsection{luatexbase interface}
+%
+%    \begin{macrocode}
+%<*emu>
+\edef\emuatcatcode{\the\catcode`\@}
+\catcode`\@=11
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% emu-luatexbase.sty v 0.01 2015/07/14
+% minimal luatexbase emulation, for testing with
+% current luaotfload package
+%    \end{macrocode}
+%
+%
+%    \begin{macrocode}
+\ifx\e@alloc\@undefined
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+% In pre 2014 latex, or plain TeX load |etex.{sty,src}|
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+  \ifx\documentclass\@undefined
+    \ifx\loccount\@undefined
+      \input{etex.src}
+    \fi
+    \catcode`\@=11
+  \else
+    \RequirePackage{etex}
+  \fi
+%    \end{macrocode}
+% Load the code for the plain interface (which also works in old
+% \LaTeX).
+%    \begin{macrocode}
+  \input{ltluatex.tex}
+\else
+%    \end{macrocode}
+% In \LaTeX\ releases from 2015/01/01 load |ltluatex|,
+% load |ltluatex.sty| unless things already defined.
+%    \begin{macrocode}
+  \ifx\catcodetable@initex\@undefined
+    \ifx\RequirePackage\@undefined
+      \input{ltluatex.sty}
+    \else
+      \RequirePackage{ltluatex}
+    \fi
+  \fi
+\fi
+%    \end{macrocode}
+%
+% Simple require wrapper so that |luaotfload| does get loaded.
+%    \begin{macrocode}
+\def\RequireLuaModule#1{\directlua{require("#1")}}
+%    \end{macrocode}
+%
+% Extended catcode table support.  Use the names from the previous
+% |luatexbase| and |luatex| packages.
+%    \begin{macrocode}
+\let\CatcodeTableIniTeX\catcodetable@initex
+\let\CatcodeTableString\catcodetable@string
+\let\CatcodeTableLaTeX\catcodetable@latex
+\let\CatcodeTableLaTeXAtLetter\catcodetable@atletter
+%    \end{macrocode}
+%
+% Additional tables declared in the previous interface.
+%    \begin{macrocode}
+\newcatcodetable\CatcodeTableOther
+\setcatcodetable\CatcodeTableOther{%
+  \catcodetable\CatcodeTableString
+  \catcode32 12 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\newcatcodetable\CatcodeTableExpl
+\setcatcodetable\CatcodeTableExpl{%
+\catcodetable\CatcodeTableLaTeX
+  \catcode126 10 % tilde is a space char
+  \catcode32  9  % space is ignored
+  \catcode9   9  % tab also ignored
+  \catcode95  11 % underscore letter
+  \catcode58  11 % colon letter
+  }
+%    \end{macrocode}
+%
+% Top level access to catcodetable stack.
+%    \begin{macrocode}
+\def\BeginCatcodeRegime#1{%
+\@pushcatcodetable
+\catcodetable#1\relax}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\EndCatcodeRegime{%
+\@popcatcodetable
+}
+%    \end{macrocode}
+%
+% The implementation of the stack is completely
+% different, but usage should match.
+%    \begin{macrocode}
+\let\PushCatcodeTableNumStack\@pushcatcodetable
+\let\PopCatcodeTableNumStack\@popcatcodetable
+%    \end{macrocode}
+%
+% \subsubsection{Additional lua code}
+%    \begin{macrocode}
+\directlua{
+%    \end{macrocode}
+%
+% Remove all registered callbacks, then disable.
+% Set to false if optional second argument is |true|.
+%    \begin{macrocode}
+function luatexbase.reset_callback(name,make_false)
+  for _,v in pairs(luatexbase.callback_descriptions(name))
+  do
+    luatexbase.remove_from_callback(name,v)
+  end
+  if make_false == true then
+    luatexbase.disable_callback(name)
+  end
+end
+%    \end{macrocode}
+%
+% Emulate the catcodetables table.
+% Explicitly fill the table rather than rely on the metatable call to
+% |registernumber| as that is unreliable on old luatex.
+%    \begin{macrocode}
+luatexbase.catcodetables=setmetatable(
+ {['latex-package'] = \number\catcodetable@atletter,
+  ini    = \number\CatcodeTableIniTeX,
+  string = \number\CatcodeTableString,
+  other  = \number\CatcodeTableOther,
+  latex  = \number\catcodetable@latex,
+  expl   = \number\CatcodeTableExpl,
+  expl3  = \number\CatcodeTableExpl},
+ { __index = function(t,key)
+    return luatexbase.registernumber(key) or nil
+  end}
+)}
+%    \end{macrocode}
+%
+% On old luatex workaround hashtable issues.
+% Allocate in \TeX, and also directly add to |luatexbase.catcodetables|.
+%    \begin{macrocode}
+\ifnum\luatexversion<80 %
+\def\newcatcodetable#1{%
+  \e@alloc\catcodetable\chardef
+    \e@alloc@ccodetable@count\m@ne{"8000}#1%
+  \initcatcodetable\allocationnumber
+  {\escapechar=\m@ne
+  \directlua{luatexbase.catcodetables['\string#1']=%
+    \the\allocationnumber}}%
+}
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\directlua{
+%    \end{macrocode}
+%
+% |priority_in_callback| returns position in the callback list.
+% Not provided by default in |ltluatex| as usually it is just used 
+% as a boolean test, for which |in_callback| is provided.
+%    \begin{macrocode}
+function luatexbase.priority_in_callback (name,description)
+  for i,v in ipairs(luatexbase.callback_descriptions(name))
+  do
+    if v == description then
+      return i
+    end
+  end
+  return false
+end
+%    \end{macrocode}
+% 
+% The (unreleased) version 0.7 of |luatexbase| provided this
+% boolean test under a different name, so we provide an alias here.
+%    \begin{macrocode}
+luatexbase.is_active_callback = luatexbase.in_callback
+%    \end{macrocode}
+%
+% |ltluatex| implementation of |provides_module| does not return
+% print functions so define modified version here.
+%    \begin{macrocode}
+luatexbase.base_provides_module=luatexbase.provides_module
+function luatexbase.provides_module(info)
+  luatexbase.base_provides_module(info)
+  return
+    function(s) return luatexbase.module_error(info.name, s) end,
+    function(s) return luatexbase.module_warning(info.name, s) end,
+    function(s) return luatexbase.module_info(info.name, s) end,
+    function(s) return luatexbase.module_info(info.name, s) end
+end
+}
+%    \end{macrocode}
+%
+% Same for attribute table as catcode tables. In old luatex, add to the
+% |luatexbase.attributes| table directly.
+%    \begin{macrocode}
+\ifnum\luatexversion<80 %
+\def\attribute#1{%
+  \e@alloc\attribute\attributedef
+    \e@alloc@attribute@count\m@ne\e@alloc@top#1%
+  {\escapechar=\m@ne
+  \directlua{luatexbase.attributes['\string#1']=%
+    \the\allocationnumber}}%
+}
+\fi
+%    \end{macrocode}
+%
+% Resolve name clashes and prefixed name issues.
+%    \begin{macrocode}
+\let\newluatexattribute\newattribute
+\let\setluatexattribute\setattribute
+\let\unsetluatexattribute\unsetattribute
+\let\newluatexcatcodetable\newcatcodetable
+\let\setluatexcatcodetable\setcatcodetable
+\let\luatexbase@directlua\directlua
+\let\luatebase@ensure@primitive\@gobble
+%    \end{macrocode}
+%
+% reset catcode of |@|.
+%    \begin{macrocode}
+\catcode`\@=\emuatcatcode\relax
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</emu>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%<*emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\ifx\RequirePackage\undefined
+\input luatexbase.sty
+\else
+\RequirePackage{luatexbase}
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
+%    \end{macrocode}
+%
+% \Finale
