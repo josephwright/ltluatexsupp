@@ -186,13 +186,13 @@
 % \section{The \texttt{luatexbase} package interface}
 %
 % The interfaces defined here are closely modelled on the earlier
-% |luatexbase| package, which in turn copies parts of the |luatex|
-% package.
-% A closer emulation of the existing |luatexbase| is provided by the
+% \textsf{luatexbase} package, which in turn copies parts of the
+% \textsf{luatex} package.
+% A closer emulation of the existing \textsf{luatexbase} is provided by the
 % package currently called |emu-luatexbase|. Having a different name
 % allows both packages to be easily used while testing, although
 % possibly |emu-luatexbase| can be the source of an updated
-% |luatexbase| package, depending on how things turn out.
+% \textsf{luatexbase} package, depending on how things turn out.
 %
 % \subsection{\TeX}
 % \subsubsection{Alternative catcode table handling}
@@ -468,8 +468,8 @@
 % \subsubsection{Fixes to \texttt{etex.src}/\texttt{etex.sty}}
 %
 % These could and probably should be made directly in an
-% update to etex.src which already has some luatex-specific
-% code, but does not define the correct range for luatex.
+% update to etex.src which already has some Lua\TeX{}-specific
+% code, but does not define the correct range for Lua\TeX{}.
 %
 %    \begin{macrocode}
 % 2015-07-13 higher range in luatex
@@ -497,7 +497,7 @@
 %
 % \subsubsection{luatex specific settings}
 % Switch to global cf |luatex.sty| to leave room for inserts
-% not really needed for luatex but possibly most compatible
+% not really needed for Lua\TeX{} but possibly most compatible
 % with existing use.
 %    \begin{macrocode}
 \let\newcount\globcount
@@ -628,7 +628,7 @@
 %    \end{macrocode}
 %
 % Extended catcode table support.  Use the names from the previous
-% |luatexbase| and |luatex| packages.
+% \textsf{luatexbase} and \textsf{luatex} packages.
 %    \begin{macrocode}
 \let\CatcodeTableIniTeX\catcodetable@initex
 \let\CatcodeTableString\catcodetable@string
@@ -696,7 +696,7 @@ end
 %
 % Emulate the catcodetables table.
 % Explicitly fill the table rather than rely on the metatable call to
-% |registernumber| as that is unreliable on old luatex.
+% |registernumber| as that is unreliable on old Lua\TeX{}.
 %    \begin{macrocode}
 luatexbase.catcodetables=setmetatable(
  {['latex-package'] = \number\catcodetable@atletter,
@@ -712,8 +712,8 @@ luatexbase.catcodetables=setmetatable(
 )}
 %    \end{macrocode}
 %
-% On old luatex workaround hashtable issues.
-% Allocate in \TeX, and also directly add to |luatexbase.catcodetables|.
+% On old Lua\TeX{} workaround hashtable issues.
+% Allocate in \TeX{}, and also directly add to |luatexbase.catcodetables|.
 %    \begin{macrocode}
 \ifnum\luatexversion<80 %
 \def\newcatcodetable#1{%
@@ -746,7 +746,7 @@ function luatexbase.priority_in_callback (name,description)
 end
 %    \end{macrocode}
 % 
-% The (unreleased) version 0.7 of |luatexbase| provided this
+% The (unreleased) version 0.7 of \textsf{luatexbase} provided this
 % boolean test under a different name, so we provide an alias here.
 %    \begin{macrocode}
 luatexbase.is_active_callback = luatexbase.in_callback
@@ -767,7 +767,7 @@ end
 }
 %    \end{macrocode}
 %
-% Same for attribute table as catcode tables. In old luatex, add to the
+% Same for attribute table as catcode tables. In old Lua\TeX{}, add to the
 % |luatexbase.attributes| table directly.
 %    \begin{macrocode}
 \ifnum\luatexversion<80 %
