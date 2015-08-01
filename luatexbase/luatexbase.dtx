@@ -461,7 +461,7 @@
 %
 %    \begin{macrocode}
 \ifx\e@alloc\@undefined\else
-\expandafter\endinput
+  \expandafter\endinput
 \fi
 %    \end{macrocode}
 %
@@ -596,9 +596,9 @@
 %    \begin{macrocode}
   \ifx\documentclass\@undefined
     \ifx\loccount\@undefined
-      \input{etex.src}
+      \input{etex.src}%
     \fi
-    \catcode`\@=11
+    \catcode`\@=11 %
   \else
     \RequirePackage{etex}
   \fi
@@ -606,7 +606,7 @@
 % Load the code for the plain interface (which also works in old
 % \LaTeX).
 %    \begin{macrocode}
-  \input{ltluatex.tex}
+  \input{ltluatex.tex}%
 \else
 %    \end{macrocode}
 % In \LaTeX\ releases from 2015/01/01 load |ltluatex|,
@@ -614,7 +614,7 @@
 %    \begin{macrocode}
   \ifx\catcodetable@initex\@undefined
     \ifx\RequirePackage\@undefined
-      \input{ltluatex.sty}
+      \input{ltluatex.sty}%
     \else
       \RequirePackage{ltluatex}
     \fi
@@ -647,26 +647,25 @@
 %    \begin{macrocode}
 \newcatcodetable\CatcodeTableExpl
 \setcatcodetable\CatcodeTableExpl{%
-\catcodetable\CatcodeTableLaTeX
+  \catcodetable\CatcodeTableLaTeX
   \catcode126 10 % tilde is a space char
   \catcode32  9  % space is ignored
   \catcode9   9  % tab also ignored
   \catcode95  11 % underscore letter
   \catcode58  11 % colon letter
-  }
+}
 %    \end{macrocode}
 %
 % Top level access to catcodetable stack.
 %    \begin{macrocode}
 \def\BeginCatcodeRegime#1{%
-\@pushcatcodetable
-\catcodetable#1\relax}
+  \@pushcatcodetable
+  \catcodetable#1\relax}
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \def\EndCatcodeRegime{%
-\@popcatcodetable
-}
+  \@popcatcodetable}
 %    \end{macrocode}
 %
 % The implementation of the stack is completely
@@ -808,9 +807,9 @@ end
 %
 %    \begin{macrocode}
 \ifx\RequirePackage\undefined
-\input luatexbase.sty
+  \input{luatexbase.sty}%
 \else
-\RequirePackage{luatexbase}
+  \RequirePackage{luatexbase}
 \fi
 %    \end{macrocode}
 %
