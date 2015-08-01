@@ -174,64 +174,6 @@
 % advance (\emph{cf.}~a more traditional approach to saving the state of
 % targeting characters).
 %
-% \section{The \texttt{luatexbase} package interface}
-%
-% The interfaces defined here are closely modelled on the earlier
-% \textsf{luatexbase} package, which in turn copies parts of the
-% \textsf{luatex} package.
-% A closer emulation of the existing \textsf{luatexbase} is provided by the
-% package currently called \textsf{emu-luatexbase}. Having a different name
-% allows both packages to be easily used while testing, although
-% possibly \textsf{emu-luatexbase} can be the source of an updated
-% \textsf{luatexbase} package, depending on how things turn out.
-%
-% \subsection{\TeX}
-% \subsubsection{Alternative catcode table handling}
-%
-% \noindent
-% \DescribeMacro{\CatcodeTableIniTeX}
-% \DescribeMacro{\CatcodeTableString}
-% \DescribeMacro{\CatcodeTableLaTeX}
-% \DescribeMacro{\CatcodeTableLaTeXAtLetter}
-% \DescribeMacro{\CatcodeTableOther}
-% \DescribeMacro{\CatcodeTableExpl}
-% Alternative names for some predefined catcodetables, and some
-% additional ones are declared.
-%
-% \noindent
-% \DescribeMacro{\BeginCatcodeRegime}
-% \DescribeMacro{\EndCatcodeRegime}
-% A simple wrapper around |\@pushcatcodetable| providing aslightly
-% different interface.
-%
-% \noindent
-% \DescribeMacro{\PushCatcodeTableNumStack}
-% \DescribeMacro{\PopCatcodeTableNumStack}
-% These are defined to be aliases for |\@pushcatcodetable| and
-% |\@popcatcodetable| although the actual implemenatation is quite different
-% to the older packages, the use of the commands should match.
-%
-% \subsection{Lua}
-% \subsubsection{predefined catcode table names}
-% As in the previous packages the |catcodetables| array is extended
-% with aliases for the predefined tables so you can use |catcodetables.expl| in
-% addition to |catcodetables.CatcodeTableExpl|.
-%
-% \subsubsection{callback queries}
-% In the earlier interfaces the function
-% |luatexbase.priority_in_callback|
-% is provided to return a number indicating th eposition of a
-% specified function in a callback list. However it is usually used
-% just as a boolean test that the function is registered with the
-% callback. |ltluatex| does not expose the priority numbers so this
-% function is defined as an alias to the function
-% |luatexbase.in_callback| which returns a boolean.
-%
-% \subsubsection{Module declaration}
-% The |luatexbase| version of |provides_module| returns a list of log
-% and error functions so that it is usually called as:\\
-% |local err, warning, info, log = luatexbase.provides_module({name=..|
-%
 % \section{Plain \TeX\ interface}
 %
 % The |ltluatex| interface may be used with plain \TeX\ using 
