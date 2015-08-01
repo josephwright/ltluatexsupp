@@ -16,9 +16,9 @@
 %<kernel>%%% From File: ltluatex.dtx
 %<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
 %<tex,sty>\ifx
-%<sty>\ProvidesPackage\undefined\begingroup\def\ProvidesPackage
-%<tex>\ProvidesFile\undefined\begingroup\def\ProvidesFile
-%<tex,sty>#1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
+%<sty>  \ProvidesPackage\undefined\begingroup\def\ProvidesPackage
+%<tex>  \ProvidesFile\undefined\begingroup\def\ProvidesFile
+%<tex,sty>  #1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
 %<tex,sty>\fi
 %<kernel&tex>\ProvidesFile{ltluatex.def}
 %<plain>\ProvidesFile{ltluatex.tex}
@@ -29,9 +29,9 @@
 %<*tex,sty>
 [2015/08/01 v1.0a
 %</tex,sty>
-%<kernel&tex>luatex support for LaTeX (core)
-%<package>luatex support for LaTeX (core + catcode stack)
-%<plain>luatex support for plain TeX (core + catcode stack)
+%<kernel&tex>  luatex support for LaTeX (core)
+%<package>  luatex support for LaTeX (core + catcode stack)
+%<plain>  luatex support for plain TeX (core + catcode stack)
 %<*tex,sty>
 ]
 %</tex,sty>
@@ -60,20 +60,22 @@
 % Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Several of
 % these require set up that is best done in the kernel or need related support
 % functions. This file provides \emph{basic} support for Lua\TeX{} at the
-% \LaTeXe{} kernel level plus as a loadable package which can be used with plain
-% \TeX{} and \LaTeX{}. For \LaTeX{}, the package adds a small number of commands
-% which do not fit into the scope of the kernel.
+% \LaTeXe{} kernel level plus as a loadable package which can be used with
+% plain \TeX{} and \LaTeX{}. For \LaTeX{}, the package adds a small number of
+% commands which do not fit into the scope of the kernel.
 %
 % This file contains code for both \TeX{} (to be stored as part of the format)
 % and Lua (to be loaded at the start of each job). In the Lua code, the kernel
-% uses the namespace |latex| which is \emph{reserved for use by the team}.
+% uses the namespace |luatexbase|.
 %
 % The following |\count| registers are used here for register allocation:
 % \begin{itemize}
-%  \item[\texttt{\string\e@alloc@attribute@count}] Attributes (default 258)
-%  \item[\texttt{\string\e@alloc@ccodetable@count}] Category code tables (default 259)
-%  \item[\texttt{\string\e@alloc@luafunction@count}] Lua functions (default 260)
-%  \item[\texttt{\string\e@alloc@whatsit@count}] User whatsits (default 261)
+%  \item[\texttt{\string\e@alloc@attribute@count}] Attributes (default~258)
+%  \item[\texttt{\string\e@alloc@ccodetable@count}] Category code tables
+%    (default~259)
+%  \item[\texttt{\string\e@alloc@luafunction@count}] Lua functions
+%    (default~260)
+%  \item[\texttt{\string\e@alloc@whatsit@count}] User whatsits (default~261)
 % \end{itemize}
 % (|\count256| is used for |\newmarks| allocation and |\count257|
 % is used for\break
@@ -87,7 +89,7 @@
 % \section{Core \TeX{} functionality}
 %
 % The commands defined here are defined in |ltluatex.def| for
-% possible inclusion in a future \LaTeX\ format, however for ease of
+% possible inclusion in a future \LaTeX{} format, however for ease of
 % testing they are also currently defined in the package file
 % |ltluatex.sty| along with the additional commands described in the
 % next section.
@@ -591,7 +593,7 @@
 % \changes{v1.0a}{0000/00/00}{Macro added}
 %   Much the same story for allocating Lua\TeX{} functions except here they are
 %   just numbers so are allocated in the same way as boxes. Lua index from~$1$
-%   so once again slot ~$0$ is skipped.
+%   so once again slot~$0$ is skipped.
 %    \begin{macrocode}
 \ifx\e@alloc@luafunction@count\@undefined
   \countdef\e@alloc@luafunction@count=260
