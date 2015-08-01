@@ -410,11 +410,11 @@ end
 % |registernumber| as that is unreliable on old Lua\TeX{}.
 %    \begin{macrocode}
 luatexbase.catcodetables=setmetatable(
- {['latex-package'] = \number\catcodetable@atletter,
+ {['latex-package'] = \number\CatcodeTableLaTeXAtLetter,
   ini    = \number\CatcodeTableIniTeX,
   string = \number\CatcodeTableString,
   other  = \number\CatcodeTableOther,
-  latex  = \number\catcodetable@latex,
+  latex  = \number\CatcodeTableLaTeX,
   expl   = \number\CatcodeTableExpl,
   expl3  = \number\CatcodeTableExpl},
  { __index = function(t,key)
