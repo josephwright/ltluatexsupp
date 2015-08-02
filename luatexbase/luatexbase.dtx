@@ -50,6 +50,7 @@
 %<*driver>
 \documentclass{ltxdoc}
 \GetFileInfo{luatexbase.dtx}
+\let\pkg\textsf
 \begin{document}
 \title{\filename\\(Lua\TeX{}-specific support, luatexbase interface)}
 \author{David Carlisle and Joseph Wright\footnote{Significant portions
@@ -122,12 +123,12 @@
 % is provided to return a number indicating the position of a
 % specified function in a callback list. However it is usually used
 % just as a boolean test that the function is registered with the
-% callback. \textsf{ltluatex} does not expose the priority numbers so this
-% function is defined as an alias to the function
-% |luatexbase.in_callback| which returns a boolean.
+% callback. \textsf{ltluatex} does not directly expose the priority numbers,
+% however the function here is defined to return the number of the specified
+% function in the list returned by |luatexbase.callback_descriptions|.
 %
 % \subsubsection{Module declaration}
-% The |\textsf{luatexbase} version of |provides_module| returns a list of log
+% The \textsf{luatexbase} version of |provides_module| returns a list of log
 % and error functions so that it is usually called as:\\
 % |local err, warning, info, log = luatexbase.provides_module({name=..|
 %
