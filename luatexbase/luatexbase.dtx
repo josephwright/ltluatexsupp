@@ -99,6 +99,11 @@
 % additional ones are declared.
 %
 % \noindent
+% \DescribeMacro{\SetCatcodeRange}
+% A direct copy of \setrangecatcode| (the order of arguments is the
+% same despite the variation in the naming).
+% 
+% \noindent
 % \DescribeMacro{\BeginCatcodeRegime}
 % \DescribeMacro{\EndCatcodeRegime}
 % A simple wrapper around |\@pushcatcodetable| providing a slightly
@@ -361,6 +366,11 @@
 %    \begin{macrocode}
 \let\PushCatcodeTableNumStack\@pushcatcodetable
 \let\PopCatcodeTableNumStack\@popcatcodetable
+%    \end{macrocode}
+%
+% A simple copy.
+%    \begin{macrocode}
+\let\SetCatcodeRange\setrangecatcode
 %    \end{macrocode}
 %
 % \subsubsection{Additional lua code}
