@@ -69,45 +69,22 @@
 %
 % \section{Overview}
 %
-% Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Several of
-% these require set up that is best done in the kernel or need related support
-% functions. This file provides \emph{basic} support for Lua\TeX{} at the
-% \LaTeXe{} kernel level plus as a loadable package which can be used with plain
-% \TeX{} and \LaTeX{}. For \LaTeX{}, the package adds a small number of commands
-% which do not fit into the scope of the kernel.
-%
-% This file contains code for both \TeX{} (to be stored as part of the format)
-% and Lua (to be loaded at the start of each job). In the Lua code, the kernel
-% uses the namespace |latex| which is \emph{reserved for use by the team}.
-%
-% The following |\count| registers are used here for register allocation:
-% \begin{itemize}
-%  \item[\texttt{\string\e@alloc@attribute@count}] Attributes (default 258)
-%  \item[\texttt{\string\e@alloc@ccodetable@count}] Category code tables (default 259)
-%  \item[\texttt{\string\e@alloc@luafunction@count}] Lua functions (default 260)
-%  \item[\texttt{\string\e@alloc@whatsit@count}] User whatsits (default 261)
-% \end{itemize}
-% (|\count256| is used for |\newmarks| allocation and |\count257|
-% is used for\break
-% |\newXeTeXintercharclass| with Xe\TeX{}, with code defined in
-% \texttt{ltfinal.dtx}).
-% With any \LaTeXe{} kernel from 2015 onward these registers are part of
-% the block in the extended area reserved by the kernel (prior to 2015 the
-% \LaTeXe{} kernel did not provide any functionality for the extended
-% allocation area).
+% Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Support
+% for those is now available for this area in the \LaTeX{} kernel and as
+% an equivalent stand-alone file |ltluatex.tex| for plain users. The
+% functionality there is derived from the earlier \textsf{luatex}
+% and \textsf{luatexbase} packages by Heiko Oberdiek, \'{E}lie Roux,
+% Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang. However, the
+% interfaces are not all identical.
+%  
+% The interfaces defined in this package are closely modelled on the original
+% \textsf{luatexbase} package, and provide a compatibility layer between
+% the new \pkg{ltluatex} bundle and existing code using \pkg{luatexbase}.
 %
 % \section{The \texttt{luatexbase} package interface}
 %
-% The interfaces defined here are closely modelled on the earlier
-% \textsf{luatexbase} package, which in turn copies parts of the
-% \textsf{luatex} package.
-% A closer emulation of the existing \textsf{luatexbase} is provided by the
-% package currently called |emu-luatexbase|. Having a different name
-% allows both packages to be easily used while testing, although
-% possibly |emu-luatexbase| can be the source of an updated
-% \textsf{luatexbase} package, depending on how things turn out.
-%
 % \subsection{\TeX}
+%
 % \subsubsection{Alternative catcode table handling}
 %
 % \noindent
@@ -123,14 +100,14 @@
 % \noindent
 % \DescribeMacro{\BeginCatcodeRegime}
 % \DescribeMacro{\EndCatcodeRegime}
-% A simple wrapper around |\@pushcatcodetable| providing aslightly
+% A simple wrapper around |\@pushcatcodetable| providing a slightly
 % different interface.
 %
 % \noindent
 % \DescribeMacro{\PushCatcodeTableNumStack}
 % \DescribeMacro{\PopCatcodeTableNumStack}
 % These are defined to be aliases for |\@pushcatcodetable| and
-% |\@popcatcodetable| although the actual implemenatation is quite different
+% |\@popcatcodetable| although the actual implementation is quite different
 % to the older packages, the use of the commands should match.
 %
 % \subsection{Lua}
@@ -142,22 +119,21 @@
 % \subsubsection{callback queries}
 % In the earlier interfaces the function
 % |luatexbase.priority_in_callback|
-% is provided to return a number indicating th eposition of a
+% is provided to return a number indicating the position of a
 % specified function in a callback list. However it is usually used
 % just as a boolean test that the function is registered with the
-% callback. |ltluatex| does not expose the priority numbers so this
+% callback. \textsf{ltluatex} does not expose the priority numbers so this
 % function is defined as an alias to the function
 % |luatexbase.in_callback| which returns a boolean.
 %
 % \subsubsection{Module declaration}
-% The |luatexbase| version of |provides_module| returns a list of log
+% The |\textsf{luatexbase} version of |provides_module| returns a list of log
 % and error functions so that it is usually called as:\\
 % |local err, warning, info, log = luatexbase.provides_module({name=..|
 %
 % \StopEventually{}
 %
 % \section{Implementation}
-%
 %
 % \subsection{Plain \TeX\ support}
 %
