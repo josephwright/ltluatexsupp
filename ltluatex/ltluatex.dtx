@@ -15,10 +15,11 @@
 %
 %<kernel>%%% From File: ltluatex.dtx
 %<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
+%<plain>
 %<tex,sty>\ifx
 %<sty>  \ProvidesPackage\undefined\begingroup\def\ProvidesPackage
 %<tex>  \ProvidesFile\undefined\begingroup\def\ProvidesFile
-%<tex,sty>  #1#2[#3]{\endgroup\immediate\write16{Package: #1 #3}}
+%<tex,sty>  #1#2[#3]{\endgroup\immediate\write-1{Package: #1 #3}}
 %<tex,sty>\fi
 %<kernel&tex>\ProvidesFile{ltluatex.def}
 %<plain>\ProvidesFile{ltluatex.tex}
