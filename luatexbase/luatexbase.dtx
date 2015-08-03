@@ -81,7 +81,7 @@
 % \textsf{luatexbase} package, and provide a compatibility layer between
 % the new \textsf{ltluatex} bundle and existing code using \textsf{luatexbase}.
 %
-% \section{The \texttt{luatexbase} package interface}
+% \section{The \textsf{luatexbase} package interface}
 %
 % \subsection{\TeX}
 %
@@ -160,7 +160,7 @@
 % \subsubsection{Fixes to \texttt{etex.src}/\texttt{etex.sty}}
 %
 % These could and probably should be made directly in an
-% update to etex.src which already has some Lua\TeX{}-specific
+% update to |etex.src| which already has some Lua\TeX{}-specific
 % code, but does not define the correct range for Lua\TeX{}.
 %
 %    \begin{macrocode}
@@ -262,7 +262,7 @@
 %</plain>
 %    \end{macrocode}
 %
-% \subsection{luatexbase interface}
+% \subsection{\textsf{luatexbase} interface}
 %
 %    \begin{macrocode}
 %<*emu>
@@ -282,7 +282,7 @@
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-% In pre 2014 latex, or plain TeX load |etex.{sty,src}|
+% In pre-2014 \LaTeX{}, or plain \TeX{}, load |etex.{sty,src}|
 %    \end{macrocode}
 %
 %    \begin{macrocode}
@@ -314,7 +314,7 @@
 \fi
 %    \end{macrocode}
 %
-% Simple require wrapper so that |luaotfload| does get loaded.
+% Simple require wrapper so that\textsf{luaotfload} does get loaded.
 %    \begin{macrocode}
 \def\RequireLuaModule#1{\directlua{require("#1")}}
 %    \end{macrocode}
@@ -429,7 +429,7 @@ luatexbase.catcodetables=setmetatable(
 %    \end{macrocode}
 %
 % |priority_in_callback| returns position in the callback list.
-% Not provided by default in |ltluatex| as usually it is just used 
+% Not provided by default in \textsf{ltluatex} as usually it is just used 
 % as a boolean test, for which |in_callback| is provided.
 %    \begin{macrocode}
 function luatexbase.priority_in_callback (name,description)
@@ -449,7 +449,7 @@ end
 luatexbase.is_active_callback = luatexbase.in_callback
 %    \end{macrocode}
 %
-% |ltluatex| implementation of |provides_module| does not return
+% \textsf{ltluatex} implementation of |provides_module| does not return
 % print functions so define modified version here.
 %    \begin{macrocode}
 luatexbase.base_provides_module=luatexbase.provides_module
@@ -489,7 +489,7 @@ end
 \let\luatebase@ensure@primitive\@gobble
 %    \end{macrocode}
 %
-% reset catcode of |@|.
+% Reset catcode of |@|.
 %    \begin{macrocode}
 \catcode`\@=\emuatcatcode\relax
 %    \end{macrocode}
