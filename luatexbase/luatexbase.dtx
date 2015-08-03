@@ -50,12 +50,11 @@
 %<*driver>
 \documentclass{ltxdoc}
 \GetFileInfo{luatexbase.dtx}
-\let\pkg\textsf
 \begin{document}
 \title{\filename\\(Lua\TeX{}-specific support, luatexbase interface)}
 \author{David Carlisle and Joseph Wright\footnote{Significant portions
-  of the code here are adapted/simplified from the packages \pkg{luatex} and
-  \pkg{luatexbase} written by Heiko Oberdiek, \'{E}lie Roux,
+  of the code here are adapted/simplified from the packages \textsf{luatex} and
+  \textsf{luatexbase} written by Heiko Oberdiek, \'{E}lie Roux,
   Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang.}}
 \date{\filedate}
 \maketitle
@@ -73,14 +72,14 @@
 % Lua\TeX{} adds a number of engine-specific functions to \TeX{}. Support
 % for those is now available for this area in the \LaTeX{} kernel and as
 % an equivalent stand-alone file |ltluatex.tex| for plain users. The
-% functionality there is derived from the earlier \pkg{luatex}
-% and \pkg{luatexbase} packages by Heiko Oberdiek, \'{E}lie Roux,
+% functionality there is derived from the earlier \textsf{luatex}
+% and \textsf{luatexbase} packages by Heiko Oberdiek, \'{E}lie Roux,
 % Manuel P\'{e}gouri\'{e}-Gonnar and Philipp Gesang. However, the
 % interfaces are not all identical.
 %  
 % The interfaces defined in this package are closely modelled on the original
-% \pkg{luatexbase} package, and provide a compatibility layer between
-% the new \pkg{ltluatex} bundle and existing code using \pkg{luatexbase}.
+% \textsf{luatexbase} package, and provide a compatibility layer between
+% the new \textsf{ltluatex} bundle and existing code using \textsf{luatexbase}.
 %
 % \section{The \texttt{luatexbase} package interface}
 %
@@ -128,12 +127,12 @@
 % is provided to return a number indicating the position of a
 % specified function in a callback list. However it is usually used
 % just as a boolean test that the function is registered with the
-% callback. \pkg{ltluatex} does not directly expose the priority numbers,
+% callback. \textsf{ltluatex} does not directly expose the priority numbers,
 % however the function here is defined to return the number of the specified
 % function in the list returned by |luatexbase.callback_descriptions|.
 %
 % \subsubsection{Module declaration}
-% The \pkg{luatexbase} version of |provides_module| returns a list of log
+% The \textsf{luatexbase} version of |provides_module| returns a list of log
 % and error functions so that it is usually called as:\\
 % |local err, warning, info, log = luatexbase.provides_module({name=..|
 %
@@ -321,7 +320,7 @@
 %    \end{macrocode}
 %
 % Extended catcode table support.  Use the names from the previous
-% \pkg{luatexbase} and \pkg{luatex} packages.
+% \textsf{luatexbase} and \textsf{luatex} packages.
 %    \begin{macrocode}
 \let\CatcodeTableIniTeX\catcodetable@initex
 \let\CatcodeTableString\catcodetable@string
@@ -444,7 +443,7 @@ function luatexbase.priority_in_callback (name,description)
 end
 %    \end{macrocode}
 % 
-% The (unreleased) version 0.7 of \pkg{luatexbase} provided this
+% The (unreleased) version 0.7 of \textsf{luatexbase} provided this
 % boolean test under a different name, so we provide an alias here.
 %    \begin{macrocode}
 luatexbase.is_active_callback = luatexbase.in_callback
