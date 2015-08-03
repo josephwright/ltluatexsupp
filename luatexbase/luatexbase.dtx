@@ -270,19 +270,12 @@
 \catcode`\@=11
 %    \end{macrocode}
 %
-%    \begin{macrocode}
-% luatexbase.sty v1.0a 2015/08/01
-% minimal luatexbase emulation
-%    \end{macrocode}
-%
 %
 %    \begin{macrocode}
 \ifx\e@alloc\@undefined
 %    \end{macrocode}
 %
-%    \begin{macrocode}
 % In pre-2014 \LaTeX{}, or plain \TeX{}, load |etex.{sty,src}|
-%    \end{macrocode}
 %
 %    \begin{macrocode}
   \ifx\documentclass\@undefined
@@ -313,7 +306,8 @@
 \fi
 %    \end{macrocode}
 %
-% Simple require wrapper so that\textsf{luaotfload} does get loaded.
+% Simple require wrapper as we now assume |require| implictly uses the
+% |kpathsea| search library.
 %    \begin{macrocode}
 \def\RequireLuaModule#1{\directlua{require("#1")}}
 %    \end{macrocode}
@@ -497,6 +491,12 @@ end
 %</emu>
 %    \end{macrocode}
 %
+% \subsection{Legacy \textsf{luatexbase} sub-packages}
+% The original \textsf{luatexbase} was comprised of seven sub packages
+% that could in principle be loaded separately. Here we define them all
+% with the same code that just loads the main package, they are
+% distinguished just by the |\ProvidesPackage| specified above at the start
+% of the file.
 %    \begin{macrocode}
 %<*emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
 %    \end{macrocode}
