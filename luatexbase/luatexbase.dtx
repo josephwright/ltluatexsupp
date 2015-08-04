@@ -14,14 +14,12 @@
 %
 %
 %<emu>\ifx\BeginCatcodeRegime\undefined\else\expandafter\endinput\fi
-%<plain>\ifx\newluafunction\undefined\else\expandafter\endinput\fi
 %<tex,sty>
 %<tex,sty>\ifx
 %<sty>  \ProvidesPackage\undefined\begingroup\def\ProvidesPackage
 %<tex>  \ProvidesFile\undefined\begingroup\def\ProvidesFile
 %<tex,sty>  #1#2[#3]{\endgroup\immediate\write-1{Package: #1 #3}}
 %<tex,sty>\fi
-%<plain>\ProvidesFile{ltluatex.tex}
 %<emu>\ProvidesPackage{luatexbase}
 %<emu-cmp>\ProvidesPackage{luatexbase-compat}
 %<emu-mod>\ProvidesPackage{luatexbase-modutils}
@@ -36,7 +34,6 @@
 %<*tex,sty>
 [2015/08/01 v1.0a
 %</tex,sty>
-%<plain>  LuaTeX support for plain TeX (core + catcode stack)
 %<emu>  luatexbase interface to LuaTeX
 %<emu-cmp>  luatexbase interface to LuaTeX (legacy subpackage)
 %<emu-mod>  luatexbase interface to LuaTeX (legacy subpackage)
