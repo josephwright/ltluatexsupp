@@ -457,6 +457,16 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\setattribute}
+% \begin{macro}{\unsetattribute}
+%   Handy utilities.
+%    \begin{macrocode}
+\def\setattribute#1#2{#1=\numexpr#2\relax}
+\def\unsetattribute#1{#1=-"7FFFFFFF\relax}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
 % \subsection{Category code tables}
 %
 % \begin{macro}{\newcatcodetable}
@@ -599,20 +609,6 @@
 %    \begin{macrocode}
 %<*package>
 %    \end{macrocode}
-%
-% \subsubsection{Attributes}
-%
-% \begin{macro}{\setattribute}
-% \begin{macro}{\unsetattribute}
-%   Handy utilities.
-%    \begin{macrocode}
-\def\setattribute#1#2{#1=\numexpr#2\relax}
-\def\unsetattribute#1{#1=-"7FFFFFFF\relax}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-% \subsubsection{Category code table support}
 %
 % \begin{macro}{\setcatcodetable}
 % \begin{macro}{\setrangecatcode}
