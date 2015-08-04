@@ -294,14 +294,15 @@
   \input{ltluatex.tex}%
 \else
 %    \end{macrocode}
-% In \LaTeX\ releases from 2015/01/01 load |ltluatex|,
-% load |ltluatex.sty| unless things already defined.
+% In \LaTeX\ releases from 2015/01/01 load |ctablestack|,
+% load |ctablestack.sty| unless things already defined. That will
+% then load |ltluatex| if required.
 %    \begin{macrocode}
-  \ifx\catcodetable@initex\@undefined
+  \ifx\setrangecatcode\@undefined
     \ifx\RequirePackage\@undefined
-      \input{ltluatex.sty}%
+      \input{ctablestack.sty}%
     \else
-      \RequirePackage{ltluatex}
+      \RequirePackage{ctablestack}
     \fi
   \fi
 \fi
