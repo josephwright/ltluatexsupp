@@ -187,7 +187,23 @@
 % Simple require wrapper as we now assume |require| implicitly uses the
 % |kpathsea| search library.
 %    \begin{macrocode}
-\def\RequireLuaModule#1{\directlua{require("#1")}}
+\def\RequireLuaModule#1{\directlua{require("#1")}\@gobbleoptarg}
+%    \end{macrocode}
+%
+% In \LaTeX\ (or plain macro package that has defined |\@ifnextchar|)
+% use  |\@ifnextchar| otherwise use a simple alternative, in practice this
+% will never be followed by a brace group, so full version of |\@ifnextchar|
+% not needed.
+%    \begin{macrocode}
+\ifdefined\@ifnextchar
+\def\@gobbleoptarg{\@ifnextchar[\@gobble@optarg{}}%
+\else
+\long\def\@gobbleoptarg#1{\ifx[#1\expandafter\@gobble@optarg\fi#1}%
+\fi
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\def\@gobble@optarg[#1]{}
 %    \end{macrocode}
 %
 % Extended catcode table support.  Use the names from the previous
