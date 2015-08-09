@@ -86,6 +86,7 @@
 %<*package>
 %    \end{macrocode}
 %
+%
 % Check for functionality using \cs{newluafunction} as a marker.
 %    \begin{macrocode}
 \ifx\newluafunction\@undefined
@@ -97,7 +98,19 @@
 \fi
 %    \end{macrocode}
 %
-% \begin{macro}{\setrangecatcode}
+% \begin{macro}{\@setcatcodetable}
+%   A handy utility.
+%    \begin{macrocode}1
+\def\@setcatcodetable#1#2{%
+  \begingroup
+    #2%
+    \savecatcodetable#1%
+  \endgroup
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@setrangecatcode}
 %   A handy utility
 %    \begin{macrocode}
 \def\setrangecatcode#1#2#3{%
