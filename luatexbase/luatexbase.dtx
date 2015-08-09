@@ -97,7 +97,7 @@
 %
 % \noindent
 % \DescribeMacro{\SetCatcodeRange}
-% A direct copy of |\setrangecatcode| (the order of arguments is the
+% A direct copy of |\@setrangecatcode| (the order of arguments is the
 % same despite the variation in the naming).
 % 
 % \noindent
@@ -174,7 +174,7 @@
 % load |ctablestack.sty| unless things already defined. That will
 % then load |ltluatex| if required.
 %    \begin{macrocode}
-  \ifx\setrangecatcode\@undefined
+  \ifx\@setrangecatcode\@undefined
     \ifx\RequirePackage\@undefined
       \input{ctablestack.sty}%
     \else
@@ -218,14 +218,14 @@
 % Additional tables declared in the previous interface.
 %    \begin{macrocode}
 \newcatcodetable\CatcodeTableOther
-\setcatcodetable\CatcodeTableOther{%
+\@setcatcodetable\CatcodeTableOther{%
   \catcodetable\CatcodeTableString
   \catcode32 12 }
 %    \end{macrocode}
 %
 %    \begin{macrocode}
 \newcatcodetable\CatcodeTableExpl
-\setcatcodetable\CatcodeTableExpl{%
+\@setcatcodetable\CatcodeTableExpl{%
   \catcodetable\CatcodeTableLaTeX
   \catcode126 10 % tilde is a space char
   \catcode32  9  % space is ignored
@@ -256,7 +256,12 @@
 %
 % A simple copy.
 %    \begin{macrocode}
-\let\SetCatcodeRange\setrangecatcode
+\let\SetCatcodeRange\@setrangecatcode
+%    \end{macrocode}
+%
+% Another copy.
+%    \begin{macrocode}
+\let\setcatcodetable\@setcatcodetable
 %    \end{macrocode}
 %
 % \subsubsection{Additional lua code}
