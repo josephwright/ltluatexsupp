@@ -23,7 +23,6 @@
 %<tex,sty>\fi
 %<kernel&tex>\ProvidesFile{ltluatex.def}
 %<plain>\ProvidesFile{ltluatex.tex}
-%<package>\ProvidesPackage{ltluatex}
 %<*driver>
 \ProvidesFile{ltluatex.dtx}
 %</driver>
@@ -31,12 +30,10 @@
 [2015/08/01 v1.0a
 %</tex,sty>
 %<kernel&tex>  LuaTeX support for LaTeX (core)
-%<package>  LuaTeX support for LaTeX (core + catcode stack)
-%<plain>  LuaTeX support for plain TeX (core + catcode stack)
+%<plain>  LuaTeX support for plain TeX (core)
 %<*tex,sty>
 ]
 %</tex,sty>
-%<kernel>\ifx\directlua\@undefined\else
 %<*driver>
 \documentclass{ltxdoc}
 \GetFileInfo{ltluatex.dtx}
@@ -354,7 +351,8 @@
 % \subsection{Fix-ups}
 %
 %    \begin{macrocode}
-%<*kernel|package>
+%<*kernel|package|latexrelease>
+%<kernel|latexrelease>\ifx\directlua\@undefined\else
 %    \end{macrocode}
 %
 % The code below depends on some changes that may be made elsewhere in
@@ -366,29 +364,24 @@
 % with unadorned names. That will be implemented in |ltdirchk.dtx| if
 % finally agreed.
 %    \begin{macrocode}
+%<latexrelease>\IncludeInRelease{2015/11/01}
+%<latexrelease>                 {\luatexluafunction}{LuaTeX (prefixed names)}%
 \directlua{
   tex.enableprimitives(
     "",
     tex.extraprimitives("omega", "aleph", "luatex")
   )
 }
-%    \end{macrocode}
-%
-% This code adds |\string| to the error to avoid assuming the
-% token is defined and non expandable. (needed for whatsit allocator
-% as currently defined).
-%    \begin{macrocode}
-\gdef\e@ch@ck#1#2#3#4{%
-  \ifnum#1<#2\else
-    \ifnum#1=#2\relax
-      #1\@cclvi
-      \ifx\count#4\advance#1 10 \fi
-    \fi
-    \ifnum#1<#3\relax
-    \else
-      \errmessage{No room for a new \string#4}%
-    \fi
-  \fi}%
+%<latexrelease>\EndIncludeInRelease
+%<latexrelease>\IncludeInRelease{0000/00/00}
+%<latexrelease>                 {\luatexluafunction}{LuaTeX (prefixed names)}%
+%<latexrelease>\directlua{
+%<latexrelease>  tex.enableprimitives(
+%<latexrelease>    "luatex",
+%<latexrelease>    tex.extraprimitives("omega", "aleph", "luatex")
+%<latexrelease>  )
+%<latexrelease>}
+%<latexrelease>\EndIncludeInRelease
 %    \end{macrocode}
 %
 % \subsection{Minimum Lua\TeX{} version}
@@ -400,6 +393,8 @@
 % from version~0.60, Lua\TeX{} will correctly find Lua files in the |texmf|
 % tree without `help'.
 %    \begin{macrocode}
+%<latexrelease>\IncludeInRelease{2015/11/01}
+%<latexrelease>                 {\newluafunction}{LuaTeX}%
 \ifnum\luatexversion<60 %
   \wlog{***************************************************}
   \wlog{* LuaTeX version too old for kernel-level support *}
@@ -568,94 +563,33 @@
     \directlua{require("ltluatex")}
   \endgroup
 %<kernel>}
+%<latexrelease>\EndIncludeInRelease
 %    \end{macrocode}
 %
 %    \begin{macrocode}
-%<kernel>\fi
-%</kernel|package>
+%<latexrelease>\IncludeInRelease{0000/00/00}
+%<latexrelease>                 {\newluafunction}{LuaTeX}%
+%<latexrelease>\let\e@alloc@attribute@count\@undefined
+%<latexrelease>\let\newattribute\@undefined
+%<latexrelease>\let\setattribute\@undefined
+%<latexrelease>\let\unsetattribute\@undefined
+%<latexrelease>\let\e@alloc@ccodetable@count\@undefined
+%<latexrelease>\let\newcatcodetable\@undefined
+%<latexrelease>\let\catcodetable@initex\@undefined
+%<latexrelease>\let\catcodetable@string\@undefined
+%<latexrelease>\let\catcodetable@latex\@undefined
+%<latexrelease>\let\catcodetable@atletter\@undefined
+%<latexrelease>\let\e@alloc@luafunction@count\@undefined
+%<latexrelease>\let\newluafunction\@undefined
+%<latexrelease>\let\e@alloc@luafunction@count\@undefined
+%<latexrelease>\let\newwhatsit\@undefined
+%<latexrelease>\let\e@alloc@whatsit@count\@undefined
+%<latexrelease>\EndIncludeInRelease
 %    \end{macrocode}
 %
-% \subsection{Package-only functionality}
-%
 %    \begin{macrocode}
-%<*package>
-%    \end{macrocode}
-%
-% \begin{macro}{\setcatcodetable}
-%   A handy utility.
-%    \begin{macrocode}
-\def\setcatcodetable#1#2{%
-  \begingroup
-    #2%
-    \savecatcodetable#1%
-  \endgroup
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\@catcodetablelist}
-% \begin{macro}{\@catcodetablestack}
-%   Data structures for a stack: a list of free tables in the stack and
-%   the stack record itself.
-%    \begin{macrocode}
-\def\@catcodetablelist{}
-\def\@catcodetablestack{}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-% \begin{macro}{\@catcodetablestackcnt}
-%   A count for adding to the list of scratch tables.
-%    \begin{macrocode}
-\newcount\@catcodetablestackcnt
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\@pushcatcodetable}
-% \begin{macro}{\@pushctbl}
-%   To push a table, first check there is a free one in the pool and if
-%   not create one. Then take the top table in the pool and use it to save
-%   the current table.
-%    \begin{macrocode}
-\def\@pushcatcodetable{%
-  \ifx\@catcodetablelist\empty
-    \global\advance\@catcodetablestackcnt by\@ne
-    \edef\@tempa{\csname ct@\the\@catcodetablestackcnt\endcsname}%
-    \expandafter\newcatcodetable\@tempa
-    \xdef\@catcodetablelist{\@tempa}%
-  \fi
-  \expandafter\@pushctbl\@catcodetablelist\@nil
-}
-\def\@pushctbl#1#2\@nil{%
-  \gdef\@catcodetablelist{#2}%
-  \xdef\@catcodetablestack{#1\@catcodetablestack}%
-  \savecatcodetable#1%
-}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-% \begin{macro}{\@popcatcodetable}
-% \begin{macro}{\@popctbl}
-%   Much the same in reverse.
-%    \begin{macrocode}
-\def\@popcatcodetable{%
-  \ifx\@catcodetablestack\@empty
-    \errmessage{Attempt to pop empty catcodetable stack}%
-  \fi
-  \expandafter\@popctbl\@catcodetablestack\@nil
-}
-\def\@popctbl#1#2\@nil{%
-  \gdef\@catcodetablestack{#2}%
-  \xdef\@catcodetablelist{\@catcodetablelist#1}%
-  \catcodetable#1%
-}
-%    \end{macrocode}
-% \end{macro}
-% \end{macro}
-%
-%    \begin{macrocode}
-%</package>
+%<kernel|latexrelease>\fi
+%</kernel|package|latexrelease>
 %    \end{macrocode}
 %
 % \subsection{Lua module preliminaries}
