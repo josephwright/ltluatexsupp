@@ -1,9 +1,9 @@
 % !TeX program = LuaLaTeX
 
-% These bits are for the kernel
-\RequirePackage{ltluatex}
 
 \documentclass{article}
+
+\usepackage{ctablestack}
 
 \newcommand*\showcs[1]{%
   \typeout{#1:
@@ -11,6 +11,12 @@
     space=\the\catcode32,
     Z=\the\catcode`\Z}%
 }
+
+\makeatletter
+\let\PushCatcodeTableNumStack\@pushcatcodetable
+\let\PopCatcodeTableNumStack\@popcatcodetable
+\let\setcatcodetable\@setcatcodetable
+\makeatother
 
 \newcatcodetable\CatcodeTableExpl
 \setcatcodetable\CatcodeTableExpl{%
@@ -25,10 +31,6 @@
 \newcatcodetable\localCatTable
 \newattribute\localAttribute
 
-\makeatletter
-\let\PushCatcodeTableNumStack\@pushcatcodetable
-\let\PopCatcodeTableNumStack\@popcatcodetable
-\makeatother
 
 \directlua{registernumber = luatexbase.registernumber}
 
