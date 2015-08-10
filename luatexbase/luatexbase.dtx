@@ -168,18 +168,15 @@
 % \LaTeX).
 %    \begin{macrocode}
   \input{ltluatex.tex}%
-\else
+\fi
 %    \end{macrocode}
-% In \LaTeX\ releases from 2015/01/01 load |ctablestack|,
-% load |ctablestack.sty| unless things already defined. That will
-% then load |ltluatex| if required.
+% Load |ctablestack|,
 %    \begin{macrocode}
-  \ifx\@setrangecatcode\@undefined
-    \ifx\RequirePackage\@undefined
-      \input{ctablestack.sty}%
-    \else
-      \RequirePackage{ctablestack}
-    \fi
+\ifx\@setrangecatcode\@undefined
+  \ifx\RequirePackage\@undefined
+    \input{ctablestack.sty}%
+  \else
+    \RequirePackage{ctablestack}
   \fi
 \fi
 %    \end{macrocode}
