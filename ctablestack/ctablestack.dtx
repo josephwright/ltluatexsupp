@@ -49,9 +49,13 @@
 % either an up-to-date \LaTeX{} kernel (2016 onward) or the \textsf{ltluatex}
 % package.
 %
+% The commands here are aimed mainly for use by package authors to develop
+% environments needing specific catcode regimes. As such the package does
+% not define any user level commands.
+%
 % \noindent
-% \DescribeMacro{\setrangecatcode}
-% |\setrangecatcode{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|\\
+% \DescribeMacro{\@setrangecatcode}
+% |\@setrangecatcode{|\meta{start}|}{|\meta{end}|}{|\meta{catcode}|}|\\
 % Sets all characters in the range \meta{start}--\meta{end} inclusive to
 % have the \meta{catcode} specified.
 %
@@ -87,7 +91,7 @@
 %    \end{macrocode}
 %
 %
-% Check for functionality using \cs{newluafunction} as a marker.
+% Check for \textsf{ltluatex} functionality using \cs{newluafunction} as a marker.
 %    \begin{macrocode}
 \ifx\newluafunction\@undefined
   \ifx\documentclass\@undefined
@@ -99,7 +103,9 @@
 %    \end{macrocode}
 %
 % \begin{macro}{\@setcatcodetable}
-%   A handy utility.
+%  Save a catcode table specified in |#1| using the catcode settings specified in |#2|.
+% These settings are executed in a local group to avoid affecting surrounding code.
+% (Saving a catcode table is always a global operation.)
 %    \begin{macrocode}1
 \def\@setcatcodetable#1#2{%
   \begingroup
@@ -161,6 +167,9 @@
   \fi
   \expandafter\@pushctbl\@catcodetablelist\@nil
 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \def\@pushctbl#1#2\@nil{%
   \gdef\@catcodetablelist{#2}%
   \xdef\@catcodetablestack{#1\@catcodetablestack}%
@@ -180,6 +189,9 @@
   \fi
   \expandafter\@popctbl\@catcodetablestack\@nil
 }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
 \def\@popctbl#1#2\@nil{%
   \gdef\@catcodetablestack{#2}%
   \xdef\@catcodetablelist{\@catcodetablelist#1}%
