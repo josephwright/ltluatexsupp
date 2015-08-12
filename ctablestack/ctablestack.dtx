@@ -90,6 +90,10 @@
 %<*package>
 %    \end{macrocode}
 %
+%    \begin{macrocode}
+\edef\ctstackatcatcode{\the\catcode`\@}
+\catcode`\@=11
+%    \end{macrocode}
 %
 % Check for \textsf{ltluatex} functionality using \cs{newluafunction} as a marker.
 %    \begin{macrocode}
@@ -184,10 +188,11 @@
 %   Much the same in reverse.
 %    \begin{macrocode}
 \def\@popcatcodetable{%
-  \ifx\@catcodetablestack\@empty
+  \if!\@catcodetablestack!%
     \errmessage{Attempt to pop empty catcodetable stack}%
+  \else
+    \expandafter\@popctbl\@catcodetablestack\@nil
   \fi
-  \expandafter\@popctbl\@catcodetablestack\@nil
 }
 %    \end{macrocode}
 %
@@ -201,6 +206,9 @@
 % \end{macro}
 % \end{macro}
 %
+%    \begin{macrocode}
+\catcode`\@\ctstackatcatcode\relax
+%    \end{macrocode}
 %    \begin{macrocode}
 %</package>
 %    \end{macrocode}
