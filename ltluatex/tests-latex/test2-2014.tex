@@ -1,0 +1,63 @@
+\RequirePackage[2014/01/01]{latexrelease}
+\RequirePackage{ltluatex}
+\documentclass{article}
+
+
+\def\dotest{%
+\typeout{^^Jtest}\setbox0\hbox{abc}\typeout{end test^^J}}
+\begin{document}
+
+
+\dotest
+\directlua{
+luatexbase.add_to_callback("hpack_filter",
+function ()
+print("**callback: 1**")
+end,
+"test callback one")}
+
+\directlua{
+luatexbase.add_to_callback("hpack_filter",
+function ()
+print("**callback: 2**")
+end,
+"test callback two")}
+
+\typeout{List is currently:}
+\directlua{
+for k,v in pairs(luatexbase.callback_descriptions("hpack_filter"))
+do
+texio.write_nl("desc: " .. k .. "[" .. v .. "]")
+end}
+
+\dotest
+
+\directlua{
+cb_f,cb_d = luatexbase.remove_from_callback("hpack_filter", "test callback one")
+}
+
+\dotest
+
+
+% callback list now re-ordered
+\directlua{
+luatexbase.add_to_callback("hpack_filter",
+cb_f,
+cb_d)}
+
+\dotest
+
+
+% remove all the callbacks and reset
+\directlua{
+for _,v in pairs(luatexbase.callback_descriptions("hpack_filter"))
+do
+luatexbase.remove_from_callback("hpack_filter",v)
+end
+luatexbase.disable_callback("hpack_filter")
+}
+
+
+\dotest
+
+\end{document}
