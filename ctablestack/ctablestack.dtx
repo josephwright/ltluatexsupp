@@ -98,11 +98,7 @@
 % Check for \textsf{ltluatex} functionality using \cs{newluafunction} as a marker.
 %    \begin{macrocode}
 \ifx\newluafunction\@undefined
-  \ifx\documentclass\@undefined
-    \input{ltluatex.tex}%
-  \else
-    \RequirePackage{ltluatex}
-  \fi
+  \input{ltluatex}%
 \fi
 %    \end{macrocode}
 %
