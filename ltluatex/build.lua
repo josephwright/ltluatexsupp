@@ -13,7 +13,7 @@ checkformat    = "lualatex"
 stdengine      = "luatex"
 typesetexe     = "lualatex"
 
-installfiles =  {"ltluatex.tex","ltluatex.def","ltluatex.lua","*.sty"}
+installfiles =  {"ltluatex.tex","ltluatex.lua"}
 
 typesetfiles = {"ltluatex.dtx"}
 
