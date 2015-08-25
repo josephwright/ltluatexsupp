@@ -71,10 +71,9 @@
 %  
 % The interfaces defined in this package are closely modelled on the original
 % \textsf{luatexbase} package, and provide a compatibility layer between
-% the new \textsf{ltluatex} bundle and existing code using \textsf{luatexbase}.
+% the new kernel-level support and existing code using \textsf{luatexbase}.
 %
 % \section{The \textsf{luatexbase} package interface}
-%
 %
 % \subsection
 % [Catcode tables]
@@ -98,7 +97,7 @@
 % catcodetables that are defined in the \textsf{ltluatex} core.
 %
 % |\CatcodeTableOther| is like |\CatcodeTableString| except that
-% the catcode of space is 12 (other).
+% the catcode of space is $12$ (other).
 %
 % |\CatcodeTableExpl| is similar to the environment set by the
 % \textsf{expl3} command |\ExplSyntaxOn| note that this only affects
@@ -144,7 +143,7 @@
 %
 % \subsubsection{Lua}
 %
-% The standard way to access catccode table numbers from lua in
+% The standard way to access catcode table numbers from Lua in
 % \textsf{ltluatex} is the |registernumber| function.  This
 % package provides a |catcodetables| table with a metatable
 % that accesses this function and is extended with aliases for the
@@ -160,7 +159,7 @@
 % interface was previously defined in the \textsf{luatexbase-mcb}
 % sub-package.}}
 %
-% The |luatexbase| table is extended with some additional lua
+% The |luatexbase| table is extended with some additional Lua
 % functions to provide the interfaces provided by the previous
 % implementation.
 %
@@ -174,14 +173,14 @@
 % is provided to return a number indicating the position of a
 % specified function in a callback list. However it is usually used
 % just as a boolean test that the function is registered with the
-% callback. \textsf{ltluatex} does not directly expose the priority numbers,
+% callback. Kernel-level support does not directly expose the priority numbers,
 % however the function here is defined to return the number of the specified
 % function in the list returned by |luatexbase.callback_descriptions|.
 %
 %
 % \noindent
 % \DescribeMacro{is\_active\_callback}\meta{name}\meta{description}\\%
-% This boolean function was defined in the github development sources
+% This boolean function was defined in the development sources
 % of the previous  implementation. Here it is defined as an alias for
 % the function |luatexbase.in_callback| provided by \textsf{ltluatex}.
 % Given a callback and a description string, it returns true if a
@@ -198,7 +197,7 @@
 %
 % \noindent
 % \DescribeMacro{remove\_from\_callback}\meta{name}\meta{description}\\%
-% This function is unchaged from its \textsf{ltluatex} implementation.
+% This function is unchanged from the kernel-level implementation.
 % It is backward compatible with the previous \textsf{luatexbase}
 % package but enhanced as it returns the removed callback and its
 % description.
@@ -208,21 +207,21 @@
 %
 % \noindent
 % \DescribeMacro{is\_active\_callback}\meta{name}\meta{function}\meta{description}\meta{priority}\\%
-% This function is unchanged from its  \textsf{ltluatex}
+% This function is unchanged from the kernel-level
 % implementation, which does not have the fourth \meta{priority}
 % argument. It is however compatible with existing calls that use the
 % fourth argument due to general lua syntax rules. As noted above
-% \textsf{ltluatex} offers more explicit control over th eorder of
+% the kernel code offers more explicit control over the order of
 % functions in a callback list when required.
 %
 % \noindent
 % \DescribeMacro{create\_callback}\meta{name}\meta{type}\meta{default}\\%
-% This function is unchanged from its  \textsf{ltluatex}
+% This function is unchanged from kernel-level
 % implementation, the only change is a change of terminology for the
 % types of callback, the type |first| is now classified as |exclusive|
-% and \textsf{ltluatex} raises an error if multiple callback functions
+% and the kernel code raises an error if multiple callback functions
 % are registered. The previous \textsf{luatexbase} implementation
-% allowed multilpe functions to be registered, but only activated the
+% allowed multiple functions to be registered, but only activated the
 % first in the list.
 %
 % \subsection
@@ -236,11 +235,11 @@
 % \noindent
 % \DescribeMacro{\RequireLuaModule}\meta{file}\oarg{info}\\\
 % This command is provided as a simple wrapper around
-% |\directlua{require(|\meta{file}|}|, and executes the lua code in
+% |\directlua{require(|\meta{file}|}|, and executes the Lua code in
 % the specified file.
 % The optional argument is accepted but ignored.
 % 
-% Current versions of lua\TeX\ all use the |kpse| \TeX\ path searching
+% Current versions of Lua\TeX\ all use the |kpse| \TeX\ path searching
 % library with the |require| function, so the more complicated
 % definition used in earlier implementations is no
 % longer needed.
@@ -253,8 +252,8 @@
 % and error functions so that it is usually called as:\\
 % |local err, warning, info, log = luatexbase.provides_module({name=..|
 %
-% The returned functions are all instances of the \textsf{ltluatex}
-% provided functions: |module_error|,
+% The returned functions are all instances of the functions provided by
+% the kernel: |module_error|,
 % |module_warning| and |module_info|.
 %
 % \subsection
@@ -278,7 +277,6 @@
 %
 % \section{Implementation}
 %
-%
 % \subsection{\textsf{luatexbase} interface}
 %
 %    \begin{macrocode}
@@ -287,7 +285,7 @@
 \catcode`\@=11
 %    \end{macrocode}
 %
-% Load |ctablestack|,
+% Load |ctablestack|.
 %    \begin{macrocode}
 \ifx\@setrangecatcode\@undefined
   \ifx\RequirePackage\@undefined
@@ -435,7 +433,7 @@ luatexbase.catcodetables=setmetatable(
 %    \end{macrocode}
 %
 % |priority_in_callback| returns position in the callback list.
-% Not provided by default in \textsf{ltluatex} as usually it is just used 
+% Not provided by default by the kernel as usually it is just used 
 % as a boolean test, for which |in_callback| is provided.
 %    \begin{macrocode}
 function luatexbase.priority_in_callback (name,description)
@@ -449,7 +447,7 @@ function luatexbase.priority_in_callback (name,description)
 end
 %    \end{macrocode}
 % 
-% The (unreleased) version 0.7 of \textsf{luatexbase} provided this
+% The (unreleased) version~0.7 of \textsf{luatexbase} provided this
 % boolean test under a different name, so we provide an alias here.
 %    \begin{macrocode}
 luatexbase.is_active_callback = luatexbase.in_callback
@@ -505,6 +503,7 @@ end
 %    \end{macrocode}
 %
 % \subsection{Legacy \textsf{luatexbase} sub-packages}
+%
 % The original \textsf{luatexbase} was comprised of seven sub packages
 % that could in principle be loaded separately. Here we define them all
 % with the same code that just loads the main package, they are

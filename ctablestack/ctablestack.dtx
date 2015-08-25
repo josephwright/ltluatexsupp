@@ -38,10 +38,11 @@
 % \section{Overview}
 %
 % This small package adds support for a stack of category code tables to
-% the core support for Lua\TeX{} provided by \textsf{ltluatex}. As such, the
+% the core support for Lua\TeX{} provided by the \LaTeX{} kernel and
+% available for plain users as |ltluatex.tex|. As such, the
 % code here may be used with both plain \TeX{} and \LaTeX{}, and requires
-% either an up-to-date \LaTeX{} kernel (2016 onward) or the \textsf{ltluatex}
-% package.
+% either an up-to-date \LaTeX{} kernel (2016 onward), use of \pkg{latexrelease}
+% with older kernels or loading |ltluatex.tex| for plain users.
 %
 % The commands here are aimed mainly for use by package authors to develop
 % environments needing specific catcode regimes. As such the package does
@@ -97,7 +98,7 @@
 %    \end{macrocode}
 %
 % \begin{macro}{\@setcatcodetable}
-%  Save a catcode table specified in |#1| using the catcode settings specified in |#2|.
+% Save a catcode table specified in |#1| using the catcode settings specified in |#2|.
 % These settings are executed in a local group to avoid affecting surrounding code.
 % (Saving a catcode table is always a global operation.)
 %    \begin{macrocode}1
