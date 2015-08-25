@@ -1,12 +1,12 @@
 #!/usr/bin/env texlua
 
--- Build script for "ltluatex" files
+-- Build script for "luatexbase" files
 
 -- Identify the bundle and module
-bundle = ""
+bundle = "ltluatexsupp"
 module = "luatexbase"
 
-
+maindir = ".."
 
 checkengines   = {"luatex"} -- no l3build tests yet..
 checkformat    = "lualatex"
@@ -19,6 +19,8 @@ typesetfiles = {"luatexbase.dtx"}
 
 -- Release a TDS-style zip
 packtdszip  = true
+
+tdsroot = "luatex"
 
 -- tests for this bundle
 -- testfiledir = "testfiles"

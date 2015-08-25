@@ -3,8 +3,10 @@
 -- Build script for "ctablestack" files
 
 -- Identify the bundle and module
-bundle = ""
+bundle = "ltluatexsupp"
 module = "ctablestack"
+
+maindir = ".."
 
 checkengines   = {"luatex"} -- no l3build tests yet..
 checkformat    = "lualatex"
@@ -16,6 +18,8 @@ packtdszip  = true
 
 -- tests for this bundle
 -- testfiledir = "testfiles"
+
+tdsroot = "luatex"
 
 -- Find and run the build system
 kpse.set_program_name ("kpsewhich")
