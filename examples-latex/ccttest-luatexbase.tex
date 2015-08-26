@@ -1,0 +1,43 @@
+\RequirePackage{luatexbase}
+
+\newluatexcatcodetable\mycc
+\setluatexcatcodetable\mycc{
+\catcode`\A=7
+\catcode`!=13
+}
+
+{\luatexcatcodetable\mycc
+\def!{zzz}
+\typeout{mycc exclaim = \meaning!}
+}
+
+{\luatexcatcodetable\CatcodeTableExpl
+\typeout{Expl\space underscore~ =~ \the\catcode`\_}
+}
+
+\typeout{string A = \ifcat .\directlua{
+tex.print(luatexbase.catcodetables.string, "A")}yes\else no\fi}
+
+\typeout{mycc A = \ifcat ^\directlua{
+tex.print(luatexbase.catcodetables.mycc, "A")}yes\else no\fi}
+
+\typeout{1: @gobble =  \meaning\@gobble}
+
+\BeginCatcodeRegime\CatcodeTableLaTeXAtLetter
+
+\typeout{2: @gobble =  \meaning\@gobble}
+
+\BeginCatcodeRegime\CatcodeTableExpl
+
+\typeout{3: @gobble =  \meaning\@gobble}% note the spaces go here
+
+\EndCatcodeRegime
+
+\typeout{4: @gobble =  \meaning\@gobble}
+
+\EndCatcodeRegime
+
+\typeout{5: @gobble =  \meaning\@gobble}
+
+
+\stop

@@ -1,0 +1,18 @@
+
+\RequirePackage{luatexbase}
+\scrollmode
+\directlua{
+local err, warning, info, log = luatexbase.provides_module({
+    name          = "foobar",
+    version       = 0.0,
+    date          = "2015/07/17",
+    description   = "testing luatexbase/ltluatex compat",
+    author        = "Someone"})
+%
+log("testing\string\nlog\string\nmessage")
+info("testing\string\ninfo\string\nmessage")
+warning("testing\string\nwarning\string\nmessage")
+err("testing\string\nerror\string\nmessage")
+}
+
+\stop
