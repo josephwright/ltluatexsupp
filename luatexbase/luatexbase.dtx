@@ -136,8 +136,10 @@
 % \noindent
 % \DescribeMacro{\newluatexcatcodetable}
 % \DescribeMacro{\setluatexcatcodetable}
-% Aliases for |\newcatcodetable| and
-% |\setcatcodetable|. The \textsf{ltluatex} provided functions
+% \DescribeMacro{\luatexcatcodetable}
+% Aliases for the \textsf{ltluatex} functions
+% |\newcatcodetable| and |\setcatcodetable| and the primitive
+% |\catcodetable|
 % dropping |luatex|  from the name to match the convention of not
 % using  |luatex|-prefixed names for the Lua\TeX\ primitives.
 %
@@ -182,7 +184,7 @@
 % \DescribeMacro{is\_active\_callback}\meta{name}\meta{description}\\%
 % This boolean function was defined in the development sources
 % of the previous  implementation. Here it is defined as an alias for
-% the function |luatexbase.in_callback| provided by \textsf{ltluatex}.
+% the function |in_callback| provided by \textsf{ltluatex}.
 % Given a callback and a description string, it returns true if a
 % callback function with that description is currently registered.
 %
@@ -489,6 +491,7 @@ end
 \let\unsetluatexattribute\unsetattribute
 \let\newluatexcatcodetable\newcatcodetable
 \let\setluatexcatcodetable\setcatcodetable
+\let\luatexcatcodetable\catcodetable
 \let\luatexbase@directlua\directlua
 \let\luatexbase@ensure@primitive\@gobble
 %    \end{macrocode}
