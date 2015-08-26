@@ -3,7 +3,7 @@
 -- Build script for "ctablestack" files
 
 -- Identify the bundle and module
-bundle = "ltluatexsupp"
+bundle = ""
 module = "ctablestack"
 
 maindir = ".."

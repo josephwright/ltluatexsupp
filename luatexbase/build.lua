@@ -3,7 +3,7 @@
 -- Build script for "luatexbase" files
 
 -- Identify the bundle and module
-bundle = "ltluatexsupp"
+bundle = ""
 module = "luatexbase"
 
 maindir = ".."
