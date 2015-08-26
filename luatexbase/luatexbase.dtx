@@ -410,6 +410,23 @@ function luatexbase.reset_callback(name,make_false)
 end
 %    \end{macrocode}
 %
+% Allow exclusive callbacks to be over-written if priority argument is
+% 1 to match the ``first'' semantics of the original package.
+%    \begin{macrocode}
+luatexbase.base_add_to_callback=luatexbase.add_to_callback
+function luatexbase.add_to_callback(name,fun,description,priority)
+if(luatexbase.callbacktypes[name] == 3 and
+   priority == 1 and
+   \string#luatexbase.callback_descriptions(name)==1) then
+  luatexbase.module_warning("luatexbase", 
+                            "resetting exclusive callback: " .. name)  
+  luatexbase.reset_callback(name)
+end
+return 
+  luatexbase.base_add_to_callback(name,fun,description)
+end
+%    \end{macrocode}
+%
 % Emulate the catcodetables table.
 % Explicitly fill the table rather than rely on the metatable call to
 % |registernumber| as that is unreliable on old Lua\TeX{}.
