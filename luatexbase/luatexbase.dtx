@@ -124,7 +124,7 @@
 % different interface. The usage is:\\%
 % \verb|\BeginCatcodeRegime|\meta{catcode table}\\
 % \verb|   |\meta{code}\\
-% \verb|\EndCatcodeRegime|\\
+% \verb|\EndCatcodeRegime|
 %
 % \noindent
 % \DescribeMacro{\PushCatcodeTableNumStack}
@@ -136,12 +136,16 @@
 % \noindent
 % \DescribeMacro{\newluatexcatcodetable}
 % \DescribeMacro{\setluatexcatcodetable}
-% \DescribeMacro{\luatexcatcodetable}
 % Aliases for the \textsf{ltluatex} functions
-% |\newcatcodetable| and |\setcatcodetable| and the primitive
-% |\catcodetable|
 % dropping |luatex|  from the name to match the convention of not
 % using  |luatex|-prefixed names for the Lua\TeX\ primitives.
+%
+% \noindent
+% \DescribeMacro{\luatexattributedef}
+% \DescribeMacro{\luatexcatcodetable}
+% \DescribeMacro{\luatexluaescapestring}
+% Aliases for commonly ued lua\TeX\ primitives that existing packages
+% using \textsf{luatexbase} use with prefixed names.
 %
 % \subsubsection{Lua}
 %
@@ -165,9 +169,6 @@
 % functions to provide the interfaces provided by the previous
 % implementation.
 %
-%
-% \noindent
-% \DescribeMacro{priority\_in\_callback}\meta{name}\meta{description}\\%
 %
 % \noindent
 % \DescribeMacro{priority\_in\_callback}\meta{name}\meta{description}\\%
@@ -235,8 +236,8 @@
 % \subsubsection{\TeX}
 %
 % \noindent
-% \DescribeMacro{\RequireLuaModule}\meta{file}\oarg{info}\\\
-% This command is provided as a simple wrapper around
+% \DescribeMacro{\RequireLuaModule}\meta{file}\oarg{info}\\
+% This command is provided as a wrapper around
 % |\directlua{require(|\meta{file}|}|, and executes the Lua code in
 % the specified file.
 % The optional argument is accepted but ignored.
@@ -258,9 +259,14 @@
 % the kernel: |module_error|,
 % |module_warning| and |module_info|.
 %
+% \DescribeMacro{errwarinf}\meta{name}\\
+% Returns four error and warning functions associated with \meta{name}
+% mostly a helper function for \verb|provides\_module|, but can be called
+% separately.  
+%
 % \subsection
 % [Lua Attributes]
-% {Lua Attributes\footnote{This
+% {Lua Attributes and Whatsits\footnote{This
 % interface was previously defined in the \textsf{luatexbase-attr}
 % sub-package.}}
 %
@@ -274,6 +280,13 @@
 % As for catcode tables, aliases for the attribute allocation functions are
 % provided with |luatex| in the names.
 %
+%
+% \subsection{Lua}
+% The lua code in this section is concerned with an experimental
+% whatsit handling suite of functions in the original package.
+% This is not fully documented here and is guraded by the
+% \textsf{docstrip} guard \verb|whatsit| so it may optionally be
+% included or excluded from the sources when the package is built.
 %
 % \StopEventually{}
 %
@@ -459,13 +472,16 @@ luatexbase.is_active_callback = luatexbase.in_callback
 % print functions so define modified version here.
 %    \begin{macrocode}
 luatexbase.base_provides_module=luatexbase.provides_module
+function luatexbase.errwarinf(name)
+    return
+    function(s) return luatexbase.module_error(name, s) end,
+    function(s) return luatexbase.module_warning(name, s) end,
+    function(s) return luatexbase.module_info(name, s) end,
+    function(s) return luatexbase.module_info(name, s) end
+end
 function luatexbase.provides_module(info)
   luatexbase.base_provides_module(info)
-  return
-    function(s) return luatexbase.module_error(info.name, s) end,
-    function(s) return luatexbase.module_warning(info.name, s) end,
-    function(s) return luatexbase.module_info(info.name, s) end,
-    function(s) return luatexbase.module_info(info.name, s) end
+  return luatexbase.errwarinf(info.name)
 end
 }
 %    \end{macrocode}
@@ -484,16 +500,208 @@ end
 \fi
 %    \end{macrocode}
 %
+%    \begin{macrocode}
+%<*whatsit>
+\directlua{%
+%    \end{macrocode}
+
+%
+%    \begin{macrocode}
+local user_whatsits       = {  __unassociated = { } }
+local whatsit_ids         = { }
+local anonymous_whatsits  = 0
+local anonymous_prefix    = "anon"
+%    \end{macrocode}
+%
+%    User whatsit allocation is split into two functions:
+%    \verb|new_user_whatsit_id| registers a new id (an integer)
+%    and returns it. This is a wrapper around \verb|new_whatsit|
+%    but with the extra \texttt{package} argument, and recording
+%    the mapping in lua tables
+%
+%    If no name given, generate a name from a counter.
+%
+%    \begin{macrocode}
+local new_user_whatsit_id = function (name, package)
+    if name then
+        if not package then
+            package = unassociated
+        end
+    else % anonymous
+        anonymous_whatsits = anonymous_whatsits + 1
+        warning("defining anonymous user whatsit no. \@percentchar 
+                  d", anonymous_whatsits)
+        package = unassociated
+        name    = anonymous_prefix .. tostring(anonymous_whatsits)
+    end
+
+    local whatsitdata = user_whatsits[package]
+    if not whatsitdata then
+        whatsitdata             = { }
+        user_whatsits[package]  = whatsitdata
+    end
+
+    local id = whatsitdata[name]
+    if id then %- warning
+        warning("replacing whatsit \@percentchar s:\@percentchar 
+                  s (\@percentchar d)", package, name, id)
+    else %- new id
+        id=luatexbase.new_whatsit(name)
+        whatsitdata[name]   = id
+        whatsit_ids[id]     = { name, package }
+    end
+    return id
+end
+luatexbase.new_user_whatsit_id = new_user_whatsit_id
+%    \end{macrocode}
+%
+%    \verb|new_user_whatsit| first registers a new id and then also
+%    creates the corresponding whatsit node of subtype “user-defined”.
+%    Return a nullary function that delivers copies of the whatsit.
+%
+%    Alternatively, the first argument can be a whatsit node that
+%    will then be used as prototype.
+%
+%    \begin{macrocode}
+local new_user_whatsit = function (req, package)
+    local id, whatsit
+    if type(req) == "string" then
+        id              = new_user_whatsit_id(req, package)
+        whatsit         = newnode(whatsit_t, user_defined_t)
+        whatsit.user_id = id
+    elseif req.id == whatsit_t and req.subtype == user_defined_t then
+        id      = req.user_id
+        whatsit = copynode(req)
+        if not whatsit_ids[id] then
+            warning("whatsit id \@percentchar d unregistered; "
+                    .. "inconsistencies may arise", id)
+        end
+    end
+    return function () return copynode(whatsit) end, id
+end
+luatexbase.new_user_whatsit         = new_user_whatsit
+%    \end{macrocode}
+%
+%    If one knows the name of a user whatsit, its corresponding id
+%    can be retrieved by means of \verb|get_user_whatsit_id|.
+%
+%    \begin{macrocode}
+local get_user_whatsit_id = function (name, package)
+    if not package then
+        package = unassociated
+    end
+    return user_whatsits[package][name]
+end
+luatexbase.get_user_whatsit_id = get_user_whatsit_id
+%    \end{macrocode}
+%
+%    The inverse lookup is also possible via \verb|get_user_whatsit_name|.
+%    \begin{macrocode}
+local get_user_whatsit_name = function (asked)
+    local id
+    if type(asked) == "number" then
+        id = asked
+    elseif type(asked) == "function" then
+        %- node generator
+        local n = asked()
+        id = n.user_id
+    else %- node
+        id = asked.user_id
+    end
+    local metadata = whatsit_ids[id]
+    if not metadata then % unknown
+        warning("whatsit id \@percentchar d unregistered;
+                   inconsistencies may arise", id)
+        return "", ""
+    end
+    return tableunpack(metadata)
+end
+luatexbase.get_user_whatsit_name = get_user_whatsit_name
+%    \end{macrocode}
+%  A function that outputs the
+%    current allocation status to the terminal.
+%
+%    \begin{macrocode}
+local dump_registered_whatsits = function (asked_package)
+    local whatsit_list = { }
+    if asked_package then
+        local whatsitdata = user_whatsits[asked_package]
+        if not whatsitdata then
+            error("(no user whatsits registered for package
+                      \@percentchar s)", asked_package)
+            return
+        end
+        texiowrite_nl("(user whatsit allocation stats for " ..
+                          asked_package)
+        for name, id in next, whatsitdata do
+            whatsit_list[\string#whatsit_list+1] =
+                stringformat("(\@percentchar s:\@percentchar 
+                     s \@percentchar d)", asked_package, name, id)
+        end
+    else
+        texiowrite_nl("(user whatsit allocation stats")
+        texiowrite_nl(stringformat(" ((total \@percentchar d)\string\n
+                         (anonymous \@percentchar d))",
+            current_whatsit, anonymous_whatsits))
+        for package, whatsitdata in next, user_whatsits do
+            for name, id in next, whatsitdata do
+                whatsit_list[\string#whatsit_list+1] =
+                    stringformat("(\@percentchar s:\@percentchar
+                        s \@percentchar d)", package, name, id)
+            end
+        end
+    end
+    texiowrite_nl" ("
+    local first = true
+    for i=1, \string#whatsit_list do
+        if first then
+            first = false
+        else % indent
+            texiowrite_nl"  "
+        end
+        texiowrite(whatsit_list[i])
+    end
+    texiowrite"))\string\n"
+end
+luatexbase.dump_registered_whatsits = dump_registered_whatsits
+%    \end{macrocode}
+%    Lastly, we define a couple synonyms for convenience.
+%    \begin{macrocode}
+luatexbase.newattribute            = new_attribute
+luatexbase.newuserwhatsit          = new_user_whatsit
+luatexbase.newuserwhatsitid        = new_user_whatsit_id
+luatexbase.getuserwhatsitid        = get_user_whatsit_id
+luatexbase.getuserwhatsitname      = get_user_whatsit_name
+luatexbase.dumpregisteredwhatsits  = dump_registered_whatsits
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+}
+%</whatsit>
+%    \end{macrocode}
+%
 % Resolve name clashes and prefixed name issues.
+%
+% Top level \textsf{luatexbase} macros
 %    \begin{macrocode}
 \let\newluatexattribute\newattribute
 \let\setluatexattribute\setattribute
 \let\unsetluatexattribute\unsetattribute
 \let\newluatexcatcodetable\newcatcodetable
 \let\setluatexcatcodetable\setcatcodetable
-\let\luatexcatcodetable\catcodetable
+%    \end{macrocode}
+%
+% Internal \textsf{luatexbase} macros
+%    \begin{macrocode}
 \let\luatexbase@directlua\directlua
 \let\luatexbase@ensure@primitive\@gobble
+%    \end{macrocode}
+%
+% Lua\TeX\ primitives
+%    \begin{macrocode}
+\let\luatexattributedef\attributedef
+\let\luatexcatcodetable\catcodetable
+\let\luatexluaescapestring\luaescapestring
 %    \end{macrocode}
 %
 % Reset catcode of |@|.
