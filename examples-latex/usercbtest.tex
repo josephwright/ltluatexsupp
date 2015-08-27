@@ -1,0 +1,19 @@
+\directlua{
+function testf(a,b)
+texio.write_nl("testf: " .. (a or "?") .. " " .. (b or "?"))
+return a 
+end
+luatexbase.create_callback("mycb","data",
+function(x,y)
+texio.write_nl("default f: " .. (x or "?") .. " " .. (y or "?"))
+return x
+end
+)
+texio.write_nl("\string\n==== 1 ====")
+luatexbase.call_callback("mycb", 11,22)
+luatexbase.add_to_callback("mycb",testf,"testf callback")
+texio.write_nl("\string\n==== 2 ====")
+luatexbase.call_callback("mycb", 33,44)
+}
+
+\stop
