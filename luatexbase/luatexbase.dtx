@@ -140,13 +140,6 @@
 % dropping |luatex|  from the name to match the convention of not
 % using  |luatex|-prefixed names for the Lua\TeX\ primitives.
 %
-% \noindent
-% \DescribeMacro{\luatexattributedef}
-% \DescribeMacro{\luatexcatcodetable}
-% \DescribeMacro{\luatexluaescapestring}
-% Aliases for commonly ued lua\TeX\ primitives that existing packages
-% using \textsf{luatexbase} use with prefixed names.
-%
 % \subsubsection{Lua}
 %
 % The standard way to access catcode table numbers from Lua in
@@ -209,11 +202,19 @@
 % functions can be removed then re-added to the list in any desired order.
 %
 % \noindent
-% \DescribeMacro{is\_active\_callback}\meta{name}\meta{function}\meta{description}\meta{priority}\\%
-% This function is unchanged from the kernel-level
+% \DescribeMacro{add\_to\_callback}\meta{name}\meta{function}\meta{description}\meta{priority}\\%
+% This function is mostly unchanged from the kernel-level
 % implementation, which does not have the fourth \meta{priority}
-% argument. It is however compatible with existing calls that use the
-% fourth argument due to general lua syntax rules. As noted above
+% argument. The priority argument is ignored except for one case:
+% If multiple callbacks are registered to a callback of type
+% \textsf{exclusive} then \textsf{ltluatex} raises an error, but
+% here it is allowed if \texttt{priority} is $1$, in which case the
+% \verb|reset_callback| is first called to remove the existing
+% callback. This makes the use more comatible with the ``first''
+% callbacktype implemented in the original \textsf{luatexbase}, which
+% executed (only) the first fuction in a callback list.
+%
+% As noted above
 % the kernel code offers more explicit control over the order of
 % functions in a callback list when required.
 %
@@ -281,12 +282,29 @@
 % provided with |luatex| in the names.
 %
 %
-% \subsection{Lua}
+% \subsubsection{Lua}
 % The lua code in this section is concerned with an experimental
 % whatsit handling suite of functions in the original package.
 % This is not fully documented here and is guraded by the
 % \textsf{docstrip} guard \verb|whatsit| so it may optionally be
 % included or excluded from the sources when the package is built.
+%
+% \subsection{Prefixed names for lua\TeX\ primitives}
+% \noindent
+% \DescribeMacro{\luatexattributedef}
+% \DescribeMacro{\luatexcatcodetable}
+% \DescribeMacro{\luatexluaescapestring}
+% \DescribeMacro{\luatexlatelua}
+% \DescribeMacro{\luatexoutputbox}
+% \DescribeMacro{\luatexscantextokens}
+% Aliases for commonly ued lua\TeX\ primitives that existing packages
+% using \textsf{luatexbase} use with prefixed names.
+%
+% If additional primtives are required it is recommended that the
+% code is updated to use unprefixed names. To ensure that the code
+% works with the original \textsf{luatexbase} package on older formats
+% you may use the lua function \texttt{tex.enableprimitives} to enable
+% some or all primitives to be available with unprefixed names.
 %
 % \StopEventually{}
 %
@@ -716,9 +734,13 @@ luatexbase.dumpregisteredwhatsits  = dump_registered_whatsits
 %
 % Lua\TeX\ primitives
 %    \begin{macrocode}
+\let\luatexattribute\attribute
 \let\luatexattributedef\attributedef
 \let\luatexcatcodetable\catcodetable
 \let\luatexluaescapestring\luaescapestring
+\let\luatexlatelua\latelua
+\let\luatexoutputbox\outputbox
+\let\luatexscantextokens\scantextokens
 %    \end{macrocode}
 %
 % Reset catcode of |@|.
