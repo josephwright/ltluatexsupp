@@ -31,10 +31,10 @@ b2=luatexbase.new_bytecode("ss")
 
 \directlua{
 function myf (n,c)
-print("myf called with argument:" .. n)
-c = c + 2
-print("myf c is now:" .. c)
-print(debug.traceback())
+ texio.write_nl("myf called with argument:" .. n)
+ c = c + 2
+ texio.write_nl("myf c is now:" .. c)
+ texio.write_nl(debug.traceback())
 end
 }
 
@@ -49,5 +49,25 @@ lua.bytecode[b1]=myf
 % call byte compiled version
 \directlua\mychnk{lua.bytecode[b1]('y',5)}
 
+
+% testing allocating chunk names from TeX and Lua
+
+
+\newluachunk\mych
+\newluachunk\mychb
+\directlua{
+luatexbase.new_chunkname("luachunk")
+}
+\directlua \mych {
+function test_stack ()
+print(debug.traceback())
+end
+}
+\directlua \mychb{
+test_stack()
+}
+\directlua name{luachunk}{
+test_stack()
+}
 
 \stop
