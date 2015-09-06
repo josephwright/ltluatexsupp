@@ -53,8 +53,8 @@ lua.bytecode[b1]=myf
 % testing allocating chunk names from TeX and Lua
 
 
-\newluachunk\mych
-\newluachunk\mychb
+\newluachunkname\mych
+\newluachunkname\mychb
 \directlua{
 luatexbase.new_chunkname("luachunk")
 }
