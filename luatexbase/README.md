@@ -1,4 +1,4 @@
-The LaTeX kernel (LaTeX2e 2015/09/01 onward) builds in support for 
+The LaTeX kernel (LaTeX2e 2015/10/01 onward) builds in support for 
 LuaTeX functionality, also available as `ltluatex.tex` for users for 
 users of plain TeX and those with older LaTeX kernel implementations.
 This support is based on ideas taken from the original `luatexbase`
