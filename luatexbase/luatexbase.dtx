@@ -535,6 +535,13 @@ end
 \fi
 %    \end{macrocode}
 %
+% Define a safe percent command for plain \TeX.
+%    \begin{macrocode}
+\ifx\@percentchar\@undefined
+  {\catcode`\%=12 \gdef\@percentchar{%}}
+\fi
+%    \end{macrocode}
+%
 %    \begin{macrocode}
 %<*whatsit>
 \directlua{%
