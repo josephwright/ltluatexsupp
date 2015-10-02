@@ -30,7 +30,7 @@
 \ProvidesFile{luatexbase.dtx}
 %</driver>
 %<*tex,sty>
-[2015/10/01 v1.0
+[2015/10/02 v1.1
 %</tex,sty>
 %<emu>  luatexbase interface to LuaTeX
 %<emu-cmp>  luatexbase interface to LuaTeX (legacy subpackage)
@@ -205,20 +205,19 @@
 %
 % \noindent
 % \DescribeMacro{add\_to\_callback}\meta{name}\meta{function}\meta{description}\meta{priority}\\%
-% This function is mostly unchanged from the kernel-level
+% This function is defined as a wraper around the kernel-level
 % implementation, which does not have the fourth \meta{priority}
-% argument. The priority argument is ignored except for one case:
+% argument. 
+%
 % If multiple callbacks are registered to a callback of type
 % \textsf{exclusive} then \textsf{ltluatex} raises an error, but
 % here it is allowed if \texttt{priority} is $1$, in which case the
 % \verb|reset_callback| is first called to remove the existing
-% callback. This makes the use more comatible with the ``first''
-% callbacktype implemented in the original \textsf{luatexbase}, which
-% executed (only) the first fuction in a callback list.
+% callback.
 %
-% As noted above
-% the kernel code offers more explicit control over the order of
-% functions in a callback list when required.
+% In general the \texttt{priority} argument is implemented by 
+% temporarily removing some callbacks from the list and replacing
+% them after having added the new callback.
 %
 % \noindent
 % \DescribeMacro{create\_callback}\meta{name}\meta{type}\meta{default}\\%
@@ -432,18 +431,59 @@ end
 %
 % Allow exclusive callbacks to be over-written if priority argument is
 % 1 to match the ``first'' semantics of the original package.
+% \changes{v1.1}{2015/10/02}{Fully handle priority argument}
+%
+% First save the kernel function.
 %    \begin{macrocode}
 luatexbase.base_add_to_callback=luatexbase.add_to_callback
+%    \end{macrocode}
+%
+% Implement the priority argument by taking off existing callbacks
+% that have higher priority than the new one, adding the new one, 
+% Then putting the saved callbacks back.
+%    \begin{macrocode}
 function luatexbase.add_to_callback(name,fun,description,priority)
-if(luatexbase.callbacktypes[name] == 3 and
-   priority == 1 and
-   \string#luatexbase.callback_descriptions(name)==1) then
-  luatexbase.module_warning("luatexbase", 
-                            "resetting exclusive callback: " .. name)  
-  luatexbase.reset_callback(name)
-end
-return 
+%    \end{macrocode}
+%^^A  texio.write_nl('\string\n HERE: adding ' .. 
+%^^A                  description .. 
+%^^A                  ' to ' ..
+%^^A                  name .. 
+%^^A                  ' with priority ' ..
+%^^A                  (priority or '@@@'))
+%^^A    texio.write_nl('Original list')
+%^^A    for k,v in pairs(luatexbase.callback_descriptions(name)) do
+%^^A      texio.write_nl('    ' .. k .. ': ' .. v)
+%^^A    end
+%    \begin{macrocode}
+  local priority= priority
+  if priority==nil then
+   priority=\string#luatexbase.callback_descriptions(name)+1
+  end
+  if(luatexbase.callbacktypes[name] == 3 and
+     priority == 1 and
+     \string#luatexbase.callback_descriptions(name)==1) then
+    luatexbase.module_warning("luatexbase",
+                              "resetting exclusive callback: " .. name)
+    luatexbase.reset_callback(name)
+  end
+  local saved_callback={},ff,dd
+  for k,v in pairs(luatexbase.callback_descriptions(name)) do
+    if k >= priority then
+      ff,dd= luatexbase.remove_from_callback(name, v)
+      saved_callback[k]={ff,dd}
+    end
+  end
   luatexbase.base_add_to_callback(name,fun,description)
+  for k,v in pairs(saved_callback) do
+    luatexbase.base_add_to_callback(name,v[1],v[2])
+  end
+%    \end{macrocode}
+%^^A  texio.write_nl('New list')
+%^^A  for k,v in pairs(luatexbase.callback_descriptions(name)) do
+%^^A    texio.write_nl('    ' .. k .. ': ' .. v)
+%^^A  end
+%    \begin{macrocode}
+  return
 end
 %    \end{macrocode}
 %
