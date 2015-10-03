@@ -30,7 +30,7 @@
 \ProvidesFile{luatexbase.dtx}
 %</driver>
 %<*tex,sty>
-[2015/10/03 v1.2
+[2015/10/03 v1.4
 %</tex,sty>
 %<emu>  luatexbase interface to LuaTeX
 %<emu-cmp>  luatexbase interface to LuaTeX (legacy subpackage)
@@ -590,6 +590,17 @@ end
 %    \end{macrocode}
 %
 %    \begin{macrocode}
+local copynode          = node.copy
+local newnode           = node.new
+local nodesubtype       = node.subtype
+local nodetype          = node.id
+local stringformat      = string.format
+local tableunpack       = unpack or table.unpack
+local texiowrite_nl     = texio.write_nl
+local texiowrite        = texio.write
+local whatsit_t         = nodetype"whatsit"
+local user_defined_t    = nodesubtype"user_defined"
+local unassociated      = "__unassociated"
 local user_whatsits       = {  __unassociated = { } }
 local whatsit_ids         = { }
 local anonymous_whatsits  = 0
