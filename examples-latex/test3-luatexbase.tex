@@ -1,0 +1,19 @@
+\documentclass{article}
+
+\newwhatsit\uw
+
+\usepackage{luatexbase}
+
+\begin{document}
+
+\directlua{
+local uw = luatexbase.new_user_whatsit('uw', 'test')
+local uw2 = luatexbase.new_user_whatsit('uw2')
+local uw3 = luatexbase.new_user_whatsit_id('uw3')
+
+texio.write_nl('uw: ' .. luatexbase.get_user_whatsit_id('uw','test'))
+
+}
+
+
+\end{document}
