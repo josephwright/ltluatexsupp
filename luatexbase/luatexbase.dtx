@@ -30,7 +30,7 @@
 \ProvidesFile{luatexbase.dtx}
 %</driver>
 %<*tex,sty>
-[2015/10/03 v1.2a
+[2015/10/03 v1.3
 %</tex,sty>
 %<emu>  luatexbase interface to LuaTeX
 %<emu-cmp>  luatexbase interface to LuaTeX (legacy subpackage)
@@ -259,7 +259,8 @@
 %
 % The returned functions are all instances of the functions provided by
 % the kernel: |module_error|,
-% |module_warning| and |module_info|.
+% |module_warning| and |module_info|, They all use their first argument
+% as a format string fo rany later arguments.
 %
 % \DescribeMacro{errwarinf}\meta{name}\\
 % Returns four error and warning functions associated with \meta{name}
@@ -547,14 +548,15 @@ luatexbase.is_active_callback = luatexbase.in_callback
 %
 % \textsf{ltluatex} implementation of |provides_module| does not return
 % print functions so define modified version here.
+% \changes{v1.3}{2015/10/03}{Use the first argument as a format string for later arguments}
 %    \begin{macrocode}
 luatexbase.base_provides_module=luatexbase.provides_module
 function luatexbase.errwarinf(name)
     return
-    function(s) return luatexbase.module_error(name, s) end,
-    function(s) return luatexbase.module_warning(name, s) end,
-    function(s) return luatexbase.module_info(name, s) end,
-    function(s) return luatexbase.module_info(name, s) end
+    function(s,...) return luatexbase.module_error(name, s:format(...)) end,
+    function(s,...) return luatexbase.module_warning(name, s:format(...)) end,
+    function(s,...) return luatexbase.module_info(name, s:format(...)) end,
+    function(s,...) return luatexbase.module_info(name, s:format(...)) end
 end
 function luatexbase.provides_module(info)
   luatexbase.base_provides_module(info)
