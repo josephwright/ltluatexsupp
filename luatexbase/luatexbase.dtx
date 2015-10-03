@@ -824,4 +824,23 @@ luatexbase.dumpregisteredwhatsits  = dump_registered_whatsits
 %</emu-cmp,emu-mod,emu-loa,emu-reg,emu-att,emu-cct,emu-mcb>
 %    \end{macrocode}
 %
+% \subsection{Legacy Lua code}
+%
+% \changes{v1.2}{2015/10/03}{Provide \texttt{luatexbase.loader.lua}}
+%
+% The original \textsf{luatexbase} included a file |luatexbase.loader.lua|
+% that could be loaded independently of the rest of the package. This really
+% doesn't need to do anything!
+%    \begin{macrocode}
+%<*emu-lua>
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+luatexbase = luatexbase or { }
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+%</emu-lua>
+%    \end{macrocode}
+%
 % \Finale
