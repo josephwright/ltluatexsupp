@@ -2,7 +2,7 @@
 %
 % Copyright (C) 2009-2013 by Élie Roux <elie.roux@telecom-bretagne.eu>
 % Copyright (C) 2010, 2011 by Manuel Pégourié-Gonnard <mpg@elzevir.fr>
-% Copyright (C) 2015 David Carlisle and Joseph Wright
+% Copyright (C) 2015-2016 David Carlisle and Joseph Wright
 %
 % It may be distributed and/or modified under the conditions of
 % the LaTeX Project Public License (LPPL), either version 1.3c of
@@ -30,7 +30,7 @@
 \ProvidesFile{luatexbase.dtx}
 %</driver>
 %<*tex,sty>
-[2015/10/03 v1.3
+[2016/02/03 v1.4
 %</tex,sty>
 %<emu>  luatexbase interface to LuaTeX
 %<emu-cmp>  luatexbase interface to LuaTeX (legacy subpackage)
@@ -442,6 +442,7 @@ luatexbase.base_add_to_callback=luatexbase.add_to_callback
 % Implement the priority argument by taking off existing callbacks
 % that have higher priority than the new one, adding the new one, 
 % Then putting the saved callbacks back.
+% \changes{v1.4}{2016/02/03}{Modify list handling to ensure order of other items is unchanged}
 %    \begin{macrocode}
 function luatexbase.add_to_callback(name,fun,description,priority)
 %    \end{macrocode}
@@ -457,25 +458,26 @@ function luatexbase.add_to_callback(name,fun,description,priority)
 %^^A    end
 %    \begin{macrocode}
   local priority= priority
-  if priority==nil then
-   priority=\string#luatexbase.callback_descriptions(name)+1
+  local len=\string#luatexbase.callback_descriptions(name)
+  if (priority==nil) then
+   priority=len+1
   end
   if(luatexbase.callbacktypes[name] == 3 and
      priority == 1 and
-     \string#luatexbase.callback_descriptions(name)==1) then
+     len==1) then
     luatexbase.module_warning("luatexbase",
                               "resetting exclusive callback: " .. name)
     luatexbase.reset_callback(name)
   end
   local saved_callback={},ff,dd
-  for k,v in pairs(luatexbase.callback_descriptions(name)) do
+  for k,v in ipairs(luatexbase.callback_descriptions(name)) do
     if k >= priority then
       ff,dd= luatexbase.remove_from_callback(name, v)
-      saved_callback[k]={ff,dd}
+      saved_callback[1+k-priority]={ff,dd}
     end
   end
   luatexbase.base_add_to_callback(name,fun,description)
-  for k,v in pairs(saved_callback) do
+  for k,v in ipairs(saved_callback) do
     luatexbase.base_add_to_callback(name,v[1],v[2])
   end
 %    \end{macrocode}
