@@ -1,6 +1,5 @@
-#!/usr/bin/env texlua
 
--- Build script for "ctablestack" files
+-- l3build script for "ctablestack" files
 
 -- Identify the bundle and module
 bundle = ""
@@ -21,7 +20,5 @@ packtdszip  = true
 
 tdsroot = "luatex"
 
--- Find and run the build system
-kpse.set_program_name ("kpsewhich")
-dofile (kpse.lookup ("l3build.lua"))
+
 

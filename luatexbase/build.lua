@@ -1,6 +1,5 @@
-#!/usr/bin/env texlua
 
--- Build script for "luatexbase" files
+-- l3uild script for "luatexbase" files
 
 -- Identify the bundle and module
 bundle = ""
@@ -39,7 +38,4 @@ stdmain(target,...)
 end
 end
 
--- Find and run the build system
-kpse.set_program_name ("kpsewhich")
-dofile (kpse.lookup ("l3build.lua"))
 
